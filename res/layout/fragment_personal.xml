@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/scrollview_personal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/darker_gray"
+    android:scrollbars="none" >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:focusable="true"
+        android:focusableInTouchMode="true" >
+    <LinearLayout android:orientation="vertical"
+                android:layout_height="wrap_content"
+                android:layout_width="fill_parent"
+                android:layout_marginTop="20dip"
+                android:layout_marginStart="20dip"
+                >
+	    <CheckBox android:id="@+id/cbVideoReceive"
+	              android:layout_width="wrap_content"
+	              android:layout_height="wrap_content"
+	              android:text="@string/enableVideoReceive">
+	    </CheckBox>
+	    <CheckBox android:id="@+id/cbVideoSend"
+	              android:layout_width="wrap_content"
+	              android:layout_height="wrap_content"
+	              android:text="@string/enableVideoSend">
+	    </CheckBox>
+	    <CheckBox android:id="@+id/cbAudio"
+	              android:layout_width="wrap_content"
+	              android:layout_height="wrap_content"
+	              android:text="@string/enableAudio">
+	    </CheckBox>
+	    
+	    <Spinner android:id="@+id/spCodecSize"
+	        	 android:layout_marginTop="10dip"
+	        	 android:layout_marginStart="2dip"
+	        	 android:layout_width="150dip"
+	        	 android:layout_height="50dip"
+	             >
+	  	</Spinner>
+  </LinearLayout>
+
+ </RelativeLayout>
+
+</ScrollView>
+

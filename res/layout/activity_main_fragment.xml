@@ -1,0 +1,38 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tl="http://schemas.android.com/apk/res/com.great.happyness"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+     >
+
+    <include
+        android:id="@+id/main_title_bar"
+        layout="@layout/include_title_bar" />
+
+    <com.great.happyness.fragment.CommonTabLayout
+        android:id="@+id/tab_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@color/white"
+        android:elevation="1dp"
+        android:padding="2dp"
+		tl:tl_iconHeight="28dp"
+        tl:tl_iconWidth="28dp"
+        tl:tl_indicator_color="@color/gray"
+        tl:tl_indicator_height="0dp"
+        tl:tl_textSelectColor="@color/blue_powder"
+        tl:tl_textUnselectColor="@color/gray_light"
+        tl:tl_textsize="11sp"
+        tl:tl_underline_height="0dp"/>
+
+    <FrameLayout
+        android:id="@+id/fl_body"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/tab_layout"
+        android:layout_below="@+id/main_title_bar"
+        android:background="@color/white" />
+
+</RelativeLayout>

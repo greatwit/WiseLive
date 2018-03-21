@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tc="http://schemas.android.com/apk/res/com.great.happyness"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:id="@+id/main_view"
+    >
+
+        <LinearLayout 
+	    android:layout_width="fill_parent"
+	    android:layout_height="300dp"
+	    android:gravity="center"
+	    >
+        <com.great.happyness.utils.CompletedView
+            android:id="@+id/tasks_view"
+            android:layout_width="223dp"
+            android:layout_height="223dp"
+            tc:circleColor="@color/white"
+            tc:radius="80dip"
+            tc:ringBgColor="@color/white2"
+            tc:ringColor="@color/colorRed"
+            tc:strokeWidth="5dip"
+            android:gravity="center"
+        />
+	</LinearLayout>
+	
+    <LinearLayout 
+    android:layout_width="match_parent"
+    android:layout_height="50dip"
+    android:layout_gravity="center"
+    android:orientation="horizontal"
+    >
+        <ImageView
+        android:id="@+id/bar_goback"
+        android:layout_width="33dp"
+        android:layout_height="33dp"
+        android:layout_gravity="center_vertical"
+        android:contentDescription="@string/app_name"
+        android:layout_marginStart="10dp"
+        android:src="@drawable/goback"
+         />
+    <TextView
+        android:id="@+id/tvhot_state"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="12dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        />
+	</LinearLayout>
+        
+</RelativeLayout>
+
