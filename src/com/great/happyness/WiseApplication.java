@@ -3,10 +3,18 @@ package com.great.happyness;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.great.happyness.aidl.IActivityReq;
+import com.great.happyness.wifi.WiFiAPService;
+
 import android.app.Activity;
 import android.app.Application;
+import android.app.Service;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 
+import android.os.IBinder;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.WindowManager;
@@ -23,6 +31,8 @@ public class WiseApplication extends Application {
 	public static float DIMEN_RATE = -1.0F;
 	public static int DIMEN_DPI = -1;
 
+	IActivityReq mActivityReq;
+	
 	public synchronized static WiseApplication getInstance() {
 		return instance;
 	}
@@ -31,13 +41,34 @@ public class WiseApplication extends Application {
 		WiseApplication.instance = instance;
 	}
 
+	
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		bindService();
 		setInstance(this);
 		getScreenSize();
 	}
 
+    static boolean linkSuccess;
+    ServiceConnection mServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+        	mActivityReq = IActivityReq.Stub.asInterface(service);
+            linkSuccess = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+        	bindService();
+        }
+    };
+	
+    private void bindService() {
+        Intent intent = new Intent(this, WiFiAPService.class);
+        bindService(intent, mServiceConnection, Service.BIND_AUTO_CREATE);
+    }
+    
 	/**
 	 * 初始化屏幕宽高
 	 */
