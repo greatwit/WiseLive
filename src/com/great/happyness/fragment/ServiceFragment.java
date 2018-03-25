@@ -86,8 +86,12 @@ public class ServiceFragment extends Fragment
 				wifi_state_ll.setVisibility(View.VISIBLE);
 				
 				WifiInfo info = mWifiUtils.getConnectionInfo();
-				bar_status.setText(info.getSSID().substring(6, info.getSSID().length()-1));
-				String apen = info.getSSID().substring(1, 5);
+				String apen = "";
+				if(info!=null&&info.getSSID().length()>6)
+				{
+					bar_status.setText(info.getSSID().substring(6, info.getSSID().length()-1));
+					apen = info.getSSID().substring(1, 5);
+				}
 				if(apen.equals("WISE"))
 					bar_send.setVisibility(View.VISIBLE);
 				else
