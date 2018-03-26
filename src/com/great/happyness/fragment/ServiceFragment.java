@@ -7,7 +7,8 @@ import com.great.happyness.R;
 import com.great.happyness.ConnectWifiActivity;
 import com.great.happyness.WebrtcActivity;
 
-import com.great.happyness.utils.WifiUtils;
+import com.great.happyness.utils.SysConfig;
+import com.great.happyness.wifi.WifiUtils;
 
 import android.app.Activity;
 import android.content.Context;
@@ -30,7 +31,6 @@ import android.widget.TextView;
  * @author yanfa06
  * 
  */
-@SuppressWarnings("deprecation")
 public class ServiceFragment extends Fragment
 		implements OnClickListener 
 {
@@ -222,6 +222,23 @@ public class ServiceFragment extends Fragment
 	@Override
 	public void onPause() {
 		super.onPause();
+	}
+	
+	@Override
+	public void onDestroy() {
+		Log.w(TAG,"onDestroy");
+		if (mWifiUtils.isWifiApEnabled())
+		{
+			String predex = mWifiUtils.getWifiHotspotSSID().substring(0,4);
+			Log.w(TAG,"isWifiApEnabled:"+predex);
+			if(predex.equals(SysConfig.WIFI_AP_PREFIX))
+				mWifiUtils.closeWifiHotspot();
+		}
+		
+		if(!mWifiUtils.isWifiEnable())
+			mWifiUtils.setWifiEnabled(true);
+		
+		super.onDestroy();
 	}
 }
 

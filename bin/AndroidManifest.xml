@@ -6,7 +6,7 @@
 
     <uses-sdk
         android:minSdkVersion="17"
-        android:targetSdkVersion="17"/>
+        android:targetSdkVersion="23"/>
     
     <application
         android:name=".WiseApplication"
@@ -53,10 +53,7 @@
             android:launchMode="singleTask"
             android:screenOrientation="portrait">
         </activity>
-        
-        <service android:name="com.great.happyness.wifi.WiFiAPService"></service>
-        
-        
+       
         <receiver
             android:name="com.great.happyness.service.WakeReceiver"
             android:enabled="true"
@@ -65,7 +62,13 @@
                 <action android:name="com.wake.gray" />
             </intent-filter>
         </receiver>
-
+        
+        <service android:name="com.great.happyness.service.WiFiAPService"
+				            android:enabled="true"
+				            android:exported="true"
+				            android:permission="oem.permission.SENDMAIL"
+				            ></service>
+        
         <service
             android:name="com.great.happyness.service.WhiteService"
             android:enabled="true"
@@ -97,6 +100,7 @@
             android:exported="false" />
     </application>
     
+    <uses-permission android:protectionLevel="normal" android:name="oem.permission.SENDMAIL"/>
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>

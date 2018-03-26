@@ -16,7 +16,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:background="@color/white"
-        android:elevation="1dp"
         android:padding="2dp"
 		tl:tl_iconHeight="28dp"
         tl:tl_iconWidth="28dp"

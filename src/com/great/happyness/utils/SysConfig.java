@@ -11,7 +11,7 @@ public class SysConfig
 	/**
 	 * 网络监听端口
 	 */
-	public static final Integer UDP_PORT 	= 18300;
+	public static final Integer UDP_TALK_PORT 	= 18200;
 	
 	public static final int VideoSendPort	= 5008;
 	public static final int VideoRecvPort	= 5012;
@@ -27,8 +27,9 @@ public class SysConfig
     /**
      * 热点名称
      */
-    public static final String WIFI_AP_SSID = "WISE_"+android.os.Build.MODEL;
-    public static final String WIFI_AP_KEY  = "12345678";
+    public static final String WIFI_AP_PREFIX	= "WISE";
+    public static final String WIFI_AP_SSID 	= WIFI_AP_PREFIX + "_" + android.os.Build.MODEL;
+    public static final String WIFI_AP_KEY  	= "12345678";
     
     
 	private static String RESOLUTION_NAME	= "wise_value";

@@ -3,7 +3,7 @@ package com.great.happyness;
 import com.great.happyness.popwin.QRCodePopWin;
 import com.great.happyness.utils.CompletedView;
 import com.great.happyness.utils.SysConfig;
-import com.great.happyness.utils.WifiUtils;
+import com.great.happyness.wifi.WifiUtils;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -39,7 +39,7 @@ public class CreateWifiActivity extends Activity implements OnClickListener{
     //
     private TextView  tvhot_state;
     private ImageView bar_goback;
-    QRCodePopWin takePhotoPopWin 	= null;
+    private QRCodePopWin mQrcodePopWin 	= null;
     
 	private String TAG = "CreateWifiActivity";
 	
@@ -105,10 +105,10 @@ public class CreateWifiActivity extends Activity implements OnClickListener{
 					{
 		            	int pw = (int) (WiseApplication.SCREEN_WIDTH*0.8);
 		            	int ph = (int) (WiseApplication.SCREEN_WIDTH*0.8);
-		            	if(takePhotoPopWin==null)
-		            		takePhotoPopWin = new QRCodePopWin(CreateWifiActivity.this, onClickListener, pw, ph);
-		            	takePhotoPopWin.showAtLocation(findViewById(R.id.main_view), Gravity.CENTER, 0, 0);
-		            	takePhotoPopWin.createQR(CreateWifiActivity.this, SysConfig.WIFI_AP_SSID, pw-50, ph-50);
+		            	if(mQrcodePopWin==null)
+		            		mQrcodePopWin = new QRCodePopWin(CreateWifiActivity.this, onClickListener, pw, ph);
+		            	mQrcodePopWin.showAtLocation(findViewById(R.id.main_view), Gravity.CENTER, 0, 0);
+		            	mQrcodePopWin.createQR(CreateWifiActivity.this, SysConfig.WIFI_AP_SSID, pw-50, ph-50);
 		            	mTasksView.setProgress(100);
 					}
 					else
@@ -124,12 +124,15 @@ public class CreateWifiActivity extends Activity implements OnClickListener{
 			            	tvhot_state.setText("创建成功，等待连接");
 			            	int pw = (int) (WiseApplication.SCREEN_WIDTH*0.8);
 			            	int ph = (int) (WiseApplication.SCREEN_WIDTH*0.8);
-			            	if(takePhotoPopWin==null)
+			            	if(mQrcodePopWin==null)
 			            	{
-			            		takePhotoPopWin = new QRCodePopWin(CreateWifiActivity.this, onClickListener, pw, ph);
-			            		takePhotoPopWin.showAtLocation(findViewById(R.id.main_view), Gravity.CENTER, 0, 0);
-			            		takePhotoPopWin.createQR(CreateWifiActivity.this, 
+			            		mQrcodePopWin = new QRCodePopWin(CreateWifiActivity.this, onClickListener, pw, ph);
+			            		if(!isFinishing())
+			            		{
+			            			mQrcodePopWin.showAtLocation(findViewById(R.id.main_view), Gravity.CENTER, 0, 0);
+			            			mQrcodePopWin.createQR(CreateWifiActivity.this, 
 			            				SysConfig.WIFI_AP_SSID, pw-50, ph-50);
+			            		}
 			            	}
 			        		mTasksView.setProgress(100);
 						}
@@ -234,8 +237,8 @@ public class CreateWifiActivity extends Activity implements OnClickListener{
         super.onDestroy();
         unregisterReceiver(receiver);
         
-        if(takePhotoPopWin!=null)
-        	takePhotoPopWin.dismiss();
+        if(mQrcodePopWin!=null)
+        	mQrcodePopWin.dismiss();
     }
 
 	@Override

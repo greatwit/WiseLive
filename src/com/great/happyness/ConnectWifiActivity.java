@@ -12,7 +12,7 @@ import com.great.happyness.qrcode.InactivityTimer;
 import com.great.happyness.qrcode.ViewfinderView;
 import com.great.happyness.radar.RandomTextView;
 import com.great.happyness.utils.SysConfig;
-import com.great.happyness.utils.WifiUtils;
+import com.great.happyness.wifi.WifiUtils;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;

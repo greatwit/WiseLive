@@ -69,7 +69,7 @@ public class RandomTextView extends FrameLayout
     public RandomTextView(Context context, AttributeSet attrs, int defStyleAttr,
             int defStyleRes)
     {
-        super(context, attrs, defStyleAttr, defStyleRes);
+        super(context, attrs, defStyleAttr);
         init(attrs, context);
     }
 

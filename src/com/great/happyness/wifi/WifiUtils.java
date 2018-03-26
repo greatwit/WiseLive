@@ -1,4 +1,4 @@
-package com.great.happyness.utils;
+package com.great.happyness.wifi;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -232,7 +232,7 @@ public class WifiUtils
     ////////////////////////////////////////////////wifi ap//////////////////////////////////////////
     //判断热点是否打开
     public boolean isWifiApEnabled() 
-    {  
+    {   
         try 
         {  
             Method method = mWifiManager.getClass().getMethod("isWifiApEnabled");  
@@ -246,7 +246,26 @@ public class WifiUtils
             e.printStackTrace();  
         }  
         return false;  
-    }  
+    }
+    
+    public String getWifiHotspotSSID()
+    {
+    	String ssid = "";
+	    try {
+	        //拿到getWifiApConfiguration()方法
+	        Method method = mWifiManager.getClass().getDeclaredMethod("getWifiApConfiguration");
+	        //调用getWifiApConfiguration()方法，获取到 热点的WifiConfiguration
+	        WifiConfiguration configuration = (WifiConfiguration) method.invoke(mWifiManager);
+	        ssid = configuration.SSID;
+	      } catch (NoSuchMethodException e) {
+	        e.printStackTrace();
+	      } catch (InvocationTargetException e) {
+	        e.printStackTrace();
+	      } catch (IllegalAccessException e) {
+	        e.printStackTrace();
+	      }
+	    return ssid;
+    }
     
     /**
      * 创建Wifi热点

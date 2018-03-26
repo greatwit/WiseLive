@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.great.happyness.aidl.IActivityReq;
-import com.great.happyness.wifi.WiFiAPService;
+import com.great.happyness.service.WiFiAPService;
 
 import android.app.Activity;
 import android.app.Application;
@@ -14,24 +14,26 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 
+import android.os.Bundle;
 import android.os.IBinder;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
 
 
-public class WiseApplication extends Application {
-	public static final String TAG = "MyApplication";
+public class WiseApplication extends Application implements Application.ActivityLifecycleCallbacks{
+	public static final String TAG = WiseApplication.class.getSimpleName();
 
+	private static WiseApplication instance 	= null;
+	private static IActivityReq mActivityReq 	= null;
 
-	private static WiseApplication instance;
-
-	public static int SCREEN_WIDTH = -1;
+	public static int SCREEN_WIDTH 	= -1;
 	public static int SCREEN_HEIGHT = -1;
-	public static float DIMEN_RATE = -1.0F;
-	public static int DIMEN_DPI = -1;
+	public static float DIMEN_RATE 	= -1.0F;
+	public static int DIMEN_DPI 	= -1;
 
-	IActivityReq mActivityReq;
+	
 	
 	public synchronized static WiseApplication getInstance() {
 		return instance;
@@ -41,34 +43,21 @@ public class WiseApplication extends Application {
 		WiseApplication.instance = instance;
 	}
 
+    public IActivityReq getReqService() {
+
+        return mActivityReq;
+    }
 	
 	@Override
 	public void onCreate() {
-		super.onCreate();
-		bindService();
 		setInstance(this);
+		bindService();
 		getScreenSize();
+		super.onCreate();
+		this.registerActivityLifecycleCallbacks(this);
 	}
 
-    static boolean linkSuccess;
-    ServiceConnection mServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-        	mActivityReq = IActivityReq.Stub.asInterface(service);
-            linkSuccess = true;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-        	bindService();
-        }
-    };
 	
-    private void bindService() {
-        Intent intent = new Intent(this, WiFiAPService.class);
-        bindService(intent, mServiceConnection, Service.BIND_AUTO_CREATE);
-    }
-    
 	/**
 	 * 初始化屏幕宽高
 	 */
@@ -90,6 +79,28 @@ public class WiseApplication extends Application {
 		}
 	}
 
+    static boolean linkSuccess;
+    ServiceConnection mServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+        	mActivityReq = IActivityReq.Stub.asInterface(service);
+            Log.w(TAG, "onServiceConnected");
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+        	Log.w(TAG, "onServiceDisconnected");
+        }
+    };
+    
+    private void bindService() {
+        Intent intent = new Intent(this, WiFiAPService.class);
+        bindService(intent, mServiceConnection, Service.BIND_AUTO_CREATE);
+        Log.w(TAG, "bindService");
+    }
+    
+    
+	
 	private List<Activity> mList = new LinkedList<Activity>();
 
 	/**
@@ -134,6 +145,48 @@ public class WiseApplication extends Application {
 	@Override
 	public void onTerminate() {
 		super.onTerminate();
+	}
+
+	@Override
+	public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onActivityStarted(Activity activity) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onActivityResumed(Activity activity) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onActivityPaused(Activity activity) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onActivityStopped(Activity activity) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onActivityDestroyed(Activity activity) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	/************************************************************************/

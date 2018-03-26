@@ -1,8 +1,11 @@
-package com.great.happyness.wifi;
+package com.great.happyness.service;
 
 
 import com.great.happyness.aidl.IServiceListen;
 import com.great.happyness.aidl.IActivityReq;
+import com.great.happyness.wifi.WiFiAPListener;
+import com.great.happyness.wifi.WiFiAPObserver;
+
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -25,20 +28,21 @@ import android.util.Log;
  */
 public class WiFiAPService extends Service {
 	
-	private static String TAG = "WiFiAPService";
+	private static String TAG = WiFiAPService.class.getSimpleName();
 	
-	public static String ACTION_START_SERVICE = "action_start_service";
-	public static String ACTION_STOP_SERVICE = "action_stop_service";
-	private static WiFiAPObserver wiFiAPObserver = new WiFiAPObserver();
+	public static String ACTION_START_SERVICE 		= "action_start_service";
+	public static String ACTION_STOP_SERVICE 		= "action_stop_service";
+	private static WiFiAPObserver wiFiAPObserver 	= new WiFiAPObserver();
 	
     public static final int WIFI_ACTION_CONNECT 	= 255;
     public static final int WIFI_ACTION_DISCONNECT 	= 256;
 	
-    private RemoteCallbackList<IServiceListen> mListenerList = new RemoteCallbackList<IServiceListen>();
+    private static RemoteCallbackList<IServiceListen> mListenerList = new RemoteCallbackList<IServiceListen>();
 	
     Binder mBinder = new IActivityReq.Stub() {
         @Override
         public void action(int action, String datum) throws RemoteException {
+        	Log.i(TAG, "action:"+action + " datum:"+datum);
             switch (action) {
 	            case WIFI_ACTION_CONNECT:
 	            	break;
@@ -52,7 +56,6 @@ public class WiFiAPService extends Service {
             if (listener != null) {
                 mListenerList.register(listener);
             }
-
         }
 
         @Override
@@ -61,8 +64,29 @@ public class WiFiAPService extends Service {
                 mListenerList.unregister(listener);
             }
         }
-
     };
+    
+    private void sendMessage(int action, Message msg) {
+    	final int N = mListenerList.beginBroadcast();
+    	if(N<=0)return;
+    	
+        try {
+            for (int i = 0; i < N; i++) {
+                IServiceListen broadcastItem = mListenerList.getBroadcastItem(i);
+                if (broadcastItem != null) {
+                    broadcastItem.onAction(action, msg);
+                }
+            }
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                mListenerList.finishBroadcast();
+            } catch (IllegalArgumentException illegalArgumentException) {
+                Log.e("Error while diffusing message to listener  finishBroadcast ", illegalArgumentException.toString());
+            }
+        }
+    }
     
 	/**
 	 * static method to start service
@@ -124,34 +148,12 @@ public class WiFiAPService extends Service {
 	}
 	
 	@Override
-	public void onDestroy() 
+	public void onDestroy()
 	{
 		unregisterReceiver(wifiReceiver);
 		wiFiAPObserver.clearWiFiAPListener();
 		super.onDestroy();
 	}
-	
-	
-    private void sendMessage(int action, Message msg) {
-        try {
-            final int N = mListenerList.beginBroadcast();
-            for (int i = 0; i < N; i++) {
-                IServiceListen broadcastItem = mListenerList.getBroadcastItem(i);
-                if (broadcastItem != null) {
-                    broadcastItem.onAction(action, msg);
-                }
-            }
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                mListenerList.finishBroadcast();
-            } catch (IllegalArgumentException illegalArgumentException) {
-                Log.e("Error while diffusing message to listener  finishBroadcast ", illegalArgumentException.toString());
-            }
-        }
-
-    }
 	
 	public static void addWiFiAPListener(WiFiAPListener wiFiAPListener) {
 		wiFiAPObserver.addWiFiAPListener(wiFiAPListener);
@@ -170,7 +172,9 @@ public class WiFiAPService extends Service {
             {
                 int state = intent.getIntExtra("wifi_state",  0);
                 Log.i(TAG, "state= "+state);
-                wiFiAPObserver.stateChanged(state);
+                Message msg = new Message();
+                sendMessage(WIFI_ACTION_CONNECT, msg);
+                //wiFiAPObserver.stateChanged(state);
             }
         }
 	};
@@ -178,7 +182,28 @@ public class WiFiAPService extends Service {
 	@Override
 	public IBinder onBind(Intent intent) {
 		// TODO Auto-generated method stub
-		return null;
+		return mBinder;
 	}
 
+	@Override
+    public boolean onUnbind(Intent intent)
+    {
+        // All clients have unbound with unbindService()
+		Log.i(TAG, "server onUnbind");
+    	Intent localIntent = new Intent();
+    	localIntent.setClass(this, WiFiAPService.class); // 
+    	startService(localIntent);
+		return super.onUnbind(intent);
+    }
+	
+    @Override
+    public void onRebind(Intent intent)
+    {
+        // A client is binding to the service with bindService(),
+        // after onUnbind() has already been called
+    	Log.d("LOG","LocalService ->onRebind"); 
+        super.onRebind(intent);
+    }
+    
 }
+

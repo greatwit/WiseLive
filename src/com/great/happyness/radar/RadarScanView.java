@@ -75,7 +75,7 @@ public class RadarScanView extends View
     public RadarScanView(Context context, AttributeSet attrs, int defStyleAttr,
             int defStyleRes)
     {
-        super(context, attrs, defStyleAttr, defStyleRes);
+        super(context, attrs, defStyleAttr);
         init(attrs, context);
     }
 
