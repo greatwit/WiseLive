@@ -15,9 +15,48 @@ import com.great.happyness.utils.AbLogUtil;
 
 public class ProtocolEngine extends Thread {
 	
-	
-	
 	private String TAG = "ProtocolEngine";
+	
+	/**
+	 * 网络基本收发 链路相关
+	 * 
+	 */
+	private UdpOperation mUdpOpt = UdpOperation.gSingleton;
+
+//	private MulticastUdpOperation mMulticastUdpOpt = MulticastUdpOperation.gSingleton;
+
+	/**
+	 * 接收其他分机控制消息，通知给ControlManger 网络异常消息，通知给ControlManger
+	 */
+	private ArrayList<IMessageNotify> notifyObjList = new ArrayList<IMessageNotify>();
+
+	public UdpPackageInfoQueue getMgPackBuffer() {
+		return mgPackBuffer;
+	}
+
+	private boolean mRunflag = false;
+
+	private Object mMutex = new Object();
+
+	private  UdpPackageInfoQueue mgPackBuffer = new UdpPackageInfoQueue();
+
+	//private  Thread mSendThrad = null;
+	
+	private  UdpPackageInfoQueue mgSendBuffer = new UdpPackageInfoQueue();
+	
+	private  ProtocolHandle mProtocolHandle = null;
+
+	//public static ProtocolEngine gProtocolEngine = new ProtocolEngine();
+
+	private static ProtocolEngine gProtocolEngine=null;  
+    //静态工厂方法   
+    public static ProtocolEngine getInstance() {  
+         if (gProtocolEngine == null) {    
+        	 gProtocolEngine = new  ProtocolEngine();
+         }    
+        return gProtocolEngine;  
+    }
+	
 	public ProtocolEngine() {
 		mProtocolHandle = new ProtocolHandle(this);
 	}
@@ -31,7 +70,6 @@ public class ProtocolEngine extends Thread {
 			 * 打开应当处理线程
 			 */
 			mProtocolHandle.start();
-
 		}	 
 	}
 
@@ -63,7 +101,7 @@ public class ProtocolEngine extends Thread {
 				 * 线程可能阻塞在此处
 				 * 
 				 */
-//				AbLogUtil.d(TAG,"单播 接收");
+				AbLogUtil.d(TAG,"单播 接收");
 				UdpPackageInfo recv = mUdpOpt.read();
 				/**
 				 * 
@@ -71,7 +109,7 @@ public class ProtocolEngine extends Thread {
 				 */
 				mgPackBuffer.pushPackage(recv);
 			} catch (Exception e) {
-				AbLogUtil.d(TAG,"单播 接收错误" + e.getMessage());
+				AbLogUtil.e(TAG,"单播 接收错误" + e.getMessage());
 				break;
 			}
 		}
@@ -96,17 +134,16 @@ public class ProtocolEngine extends Thread {
 	 * 
 	 * @param udpPackage
 	 * @return
+	 * @throws Exception 
 	 */
-	public synchronized boolean SendPack(UdpPackageInfo udpPackage) {
+	public synchronized boolean SendPack(UdpPackageInfo udpPackage) throws Exception {
 		/**
 		 *  加入发送缓冲区，异步与主线程
 		 * 
 		 */
-		return mgSendBuffer.pushPackage(udpPackage);
+		//return mgSendBuffer.pushPackage(udpPackage);
+		return mUdpOpt.send(udpPackage);
 	}
-
-
- 
 
 	/**
 	 * 
@@ -152,43 +189,5 @@ public class ProtocolEngine extends Thread {
 		return bflag;
 	}
 
-	/**
-	 * 网络基本收发 链路相关
-	 * 
-	 */
-	private UdpOperation mUdpOpt = UdpOperation.gSingleton;
-
-//	private MulticastUdpOperation mMulticastUdpOpt = MulticastUdpOperation.gSingleton;
-
-	/**
-	 * 接收其他分机控制消息，通知给ControlManger 网络异常消息，通知给ControlManger
-	 */
-	private ArrayList<IMessageNotify> notifyObjList = new ArrayList<IMessageNotify>();
-
-	public UdpPackageInfoQueue getMgPackBuffer() {
-		return mgPackBuffer;
-	}
-
-	private boolean mRunflag = false;
-
-	private Object mMutex = new Object();
-
-	private  UdpPackageInfoQueue mgPackBuffer = new UdpPackageInfoQueue();
-
-	//private  Thread mSendThrad = null;
-	
-	private  UdpPackageInfoQueue mgSendBuffer = new UdpPackageInfoQueue();
-	
-	private  ProtocolHandle mProtocolHandle = null;
-
-	//public static ProtocolEngine gProtocolEngine = new ProtocolEngine();
-
-	private static ProtocolEngine gProtocolEngine=null;  
-    //静态工厂方法   
-    public static ProtocolEngine getInstance() {  
-         if (gProtocolEngine == null) {    
-        	 gProtocolEngine = new  ProtocolEngine();
-         }    
-        return gProtocolEngine;  
-    }
 }
+

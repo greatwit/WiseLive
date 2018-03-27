@@ -3,6 +3,7 @@ package com.great.happyness.service;
 
 import com.great.happyness.aidl.IServiceListen;
 import com.great.happyness.aidl.IActivityReq;
+import com.great.happyness.network.ProtocolEngine;
 import com.great.happyness.wifi.WiFiAPListener;
 import com.great.happyness.wifi.WiFiAPObserver;
 
@@ -11,6 +12,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.wifi.WifiManager;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Binder;
 import android.os.IBinder;
@@ -34,19 +37,32 @@ public class WiFiAPService extends Service {
 	public static String ACTION_STOP_SERVICE 		= "action_stop_service";
 	private static WiFiAPObserver wiFiAPObserver 	= new WiFiAPObserver();
 	
-    public static final int WIFI_ACTION_CONNECT 	= 255;
-    public static final int WIFI_ACTION_DISCONNECT 	= 256;
+	public static String FUNC_START_UDP_ENGINE 		= "StartUdpEngine";
+	public static String FUNC_STOP_UDP_ENGINE 		= "StopUdpEngine";
+	
+    public static final int WIFI_CMD 	= 121;
+    public static final int NET_CMD 	= 122;
 	
     private static RemoteCallbackList<IServiceListen> mListenerList = new RemoteCallbackList<IServiceListen>();
 	
+    private ProtocolEngine mProtoEngine = ProtocolEngine.getInstance();
+    
     Binder mBinder = new IActivityReq.Stub() {
         @Override
         public void action(int action, String datum) throws RemoteException {
         	Log.i(TAG, "action:"+action + " datum:"+datum);
             switch (action) {
-	            case WIFI_ACTION_CONNECT:
+	            case WIFI_CMD:
 	            	break;
-	            case WIFI_ACTION_DISCONNECT:
+	            case NET_CMD:
+	            	if(datum.equals(FUNC_START_UDP_ENGINE))
+	            	{
+	            		mProtoEngine.StartEngine();
+	            	}
+	            	if(datum.equals(FUNC_STOP_UDP_ENGINE))
+	            	{
+	            		mProtoEngine.StopEngine();
+	            	}
 	            	break;
             }
         }
@@ -55,6 +71,7 @@ public class WiFiAPService extends Service {
         public void registerListener(IServiceListen listener) throws RemoteException {
             if (listener != null) {
                 mListenerList.register(listener);
+                Log.i(TAG, "registerListener:"+listener);
             }
         }
 
@@ -62,6 +79,7 @@ public class WiFiAPService extends Service {
         public void unregisterListener(IServiceListen listener) throws RemoteException {
             if (listener != null) {
                 mListenerList.unregister(listener);
+                Log.i(TAG, "unregisterListener:"+listener);
             }
         }
     };
@@ -75,6 +93,7 @@ public class WiFiAPService extends Service {
                 IServiceListen broadcastItem = mListenerList.getBroadcastItem(i);
                 if (broadcastItem != null) {
                     broadcastItem.onAction(action, msg);
+                    Log.w(TAG, "broadcastItem:"+action);
                 }
             }
         } catch (RemoteException e) {
@@ -83,7 +102,7 @@ public class WiFiAPService extends Service {
             try {
                 mListenerList.finishBroadcast();
             } catch (IllegalArgumentException illegalArgumentException) {
-                Log.e("Error while diffusing message to listener  finishBroadcast ", illegalArgumentException.toString());
+                Log.e(TAG, illegalArgumentException.toString());
             }
         }
     }
@@ -135,6 +154,12 @@ public class WiFiAPService extends Service {
 	{
 		Log.i(TAG, "WiFiAPService onCreate");
 		IntentFilter mFilter = new IntentFilter();
+		mFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
+        mFilter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
+        mFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+        mFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        mFilter.addAction(WifiManager.RSSI_CHANGED_ACTION);
+        
         mFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
         mFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
         mFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
@@ -168,12 +193,12 @@ public class WiFiAPService extends Service {
         public void onReceive(Context context, Intent intent) 
         {
         	String action = intent.getAction();
-            if ("android.net.wifi.WIFI_AP_STATE_CHANGED".equals(action)) 
+            //if ("android.net.wifi.WIFI_AP_STATE_CHANGED".equals(action)) 
             {
                 int state = intent.getIntExtra("wifi_state",  0);
-                Log.i(TAG, "state= "+state);
+                Log.i(TAG, "wifi state= "+state);
                 Message msg = new Message();
-                sendMessage(WIFI_ACTION_CONNECT, msg);
+                sendMessage(WIFI_CMD, msg);
                 //wiFiAPObserver.stateChanged(state);
             }
         }

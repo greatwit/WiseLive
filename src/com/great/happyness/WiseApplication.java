@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.great.happyness.aidl.IActivityReq;
+import com.great.happyness.aidl.ServiceControl;
 import com.great.happyness.service.WiFiAPService;
 
 import android.app.Activity;
@@ -33,7 +34,7 @@ public class WiseApplication extends Application implements Application.Activity
 	public static float DIMEN_RATE 	= -1.0F;
 	public static int DIMEN_DPI 	= -1;
 
-	
+	ServiceControl mServCont = ServiceControl.getInstance();
 	
 	public synchronized static WiseApplication getInstance() {
 		return instance;
@@ -95,7 +96,7 @@ public class WiseApplication extends Application implements Application.Activity
     
     private void bindService() {
         Intent intent = new Intent(this, WiFiAPService.class);
-        bindService(intent, mServiceConnection, Service.BIND_AUTO_CREATE);
+        bindService(intent, mServCont, Service.BIND_AUTO_CREATE);
         Log.w(TAG, "bindService");
     }
     

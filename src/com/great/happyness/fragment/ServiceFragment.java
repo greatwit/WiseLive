@@ -7,6 +7,10 @@ import com.great.happyness.R;
 import com.great.happyness.ConnectWifiActivity;
 import com.great.happyness.WebrtcActivity;
 
+import com.great.happyness.aidl.IActivityReq;
+import com.great.happyness.aidl.IServiceListen;
+import com.great.happyness.aidl.ServiceControl;
+import com.great.happyness.service.WiFiAPService;
 import com.great.happyness.utils.SysConfig;
 import com.great.happyness.wifi.WifiUtils;
 
@@ -15,6 +19,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.wifi.WifiInfo;
 import android.os.Bundle;
+import android.os.Message;
+import android.os.RemoteException;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,14 +34,14 @@ import android.widget.TextView;
 /**
  * 视频播放的Fragment
  * 
- * @author yanfa06
+ * @author 
  * 
  */
 public class ServiceFragment extends Fragment
-		implements OnClickListener 
+		implements OnClickListener
 {
 	private Context mContext;
-	private final String TAG = "ServiceFragment";
+	private final String TAG = ServiceFragment.class.getSimpleName();
 	private View view;
 	private LinearLayout item_create_ll, item_connect_ll, wifi_state_ll;
 	
@@ -46,6 +52,7 @@ public class ServiceFragment extends Fragment
 	private TextView  bar_status;
 	
 	private WifiUtils mWifiUtils;
+	IActivityReq mActReq = null;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -99,7 +106,16 @@ public class ServiceFragment extends Fragment
 				Log.w(TAG,"connected wifi ip:"+mWifiUtils.getGateWayIpAddress());
 			}
 		}
-			
+		
+		mActReq = ServiceControl.getInstance().getActivityReq();
+		if(mActReq!=null)
+		try {
+			mActReq.registerListener(mServListener);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		return view;
 	}
 
@@ -123,6 +139,13 @@ public class ServiceFragment extends Fragment
 		bar_status	= (TextView) view.findViewById(R.id.bar_status);
 	}
 
+    IServiceListen mServListener = new IServiceListen.Stub() {
+		@Override
+		public void onAction(int action, Message msg) throws RemoteException {
+			// TODO Auto-generated method stub
+			Log.i(TAG, "IServiceListen onAction:"+action);
+		}
+    };
 	
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) 
@@ -176,7 +199,13 @@ public class ServiceFragment extends Fragment
 	public void onClick(View v) {
 		switch (v.getId()) {
 			case R.id.item_create_ll:
-				startActivityForResult(new Intent().setClass(mContext, CreateWifiActivity.class), CREATE_GREQUEST_CODE);
+				//startActivityForResult(new Intent().setClass(mContext, CreateWifiActivity.class), CREATE_GREQUEST_CODE);
+				try {
+					mActReq.action(WiFiAPService.NET_CMD, WiFiAPService.ACTION_START_SERVICE);
+				} catch (RemoteException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				break;
 				
 			case R.id.item_connect_ll:
@@ -231,12 +260,20 @@ public class ServiceFragment extends Fragment
 		{
 			String predex = mWifiUtils.getWifiHotspotSSID().substring(0,4);
 			Log.w(TAG,"isWifiApEnabled:"+predex);
-			if(predex.equals(SysConfig.WIFI_AP_PREFIX))
-				mWifiUtils.closeWifiHotspot();
+//			if(predex.equals(SysConfig.WIFI_AP_PREFIX))
+//				mWifiUtils.closeWifiHotspot();
 		}
 		
-		if(!mWifiUtils.isWifiEnable())
-			mWifiUtils.setWifiEnabled(true);
+//		if(!mWifiUtils.isWifiEnable())
+//			mWifiUtils.setWifiEnabled(true);
+		
+		if(mActReq!=null)
+		try {
+			mActReq.registerListener(mServListener);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		super.onDestroy();
 	}

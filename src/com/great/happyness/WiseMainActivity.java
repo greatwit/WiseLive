@@ -4,13 +4,9 @@ package com.great.happyness;
 import java.util.ArrayList;
 
 import android.app.Service;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteException;
 import android.support.v4.app.FragmentActivity;
@@ -22,6 +18,7 @@ import android.widget.Toast;
 
 import com.great.happyness.aidl.IActivityReq;
 import com.great.happyness.aidl.IServiceListen;
+import com.great.happyness.aidl.ServiceControl;
 import com.great.happyness.fragment.CommonTabLayout;
 import com.great.happyness.fragment.CustomTabEntity;
 import com.great.happyness.fragment.HomeFragment;
@@ -29,10 +26,6 @@ import com.great.happyness.fragment.OnTabSelectListener;
 import com.great.happyness.fragment.PersonalFragment;
 import com.great.happyness.fragment.ServiceFragment;
 import com.great.happyness.fragment.TabEntity;
-import com.great.happyness.service.WiFiAPService;
-import com.great.happyness.utils.SysConfig;
-
-
 
 
 public class WiseMainActivity extends FragmentActivity
@@ -46,7 +39,7 @@ public class WiseMainActivity extends FragmentActivity
 	private ServiceFragment serviceFragment;
 	private PersonalFragment personalFragment;
 
-	private String[] mTitles = { "主页", "服务","设置" };//"服务", "购物"
+	private String[] mTitles = { "文件", "相机","设置" };//"服务", "购物"
 	private int[] mIconUnselectIds = { R.drawable.ic_home_normal,
 			R.drawable.ic_service_normal, 
 			R.drawable.ic_personal_normal };//R.drawable.ic_service_normal, R.drawable.ic_shopping_normal,
@@ -54,15 +47,13 @@ public class WiseMainActivity extends FragmentActivity
 			R.drawable.ic_service_select,
 			R.drawable.ic_personal_select };//R.drawable.ic_service_select, R.drawable.ic_shopping_select,
 
-	IActivityReq mActivityReq;
-	WiseMainActivity mWiseThis;
+	
+	//ServiceControl mServCont = ServiceControl.getInstance();
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) 
     {
         super.onCreate(savedInstanceState);
-        mWiseThis = this;
-        bindService();
         
         setContentView(R.layout.activity_main_fragment);
         initVIew();
@@ -75,6 +66,8 @@ public class WiseMainActivity extends FragmentActivity
 		}
 		tabLayout.setTabData(data);
 		tabLayout.setCurrentTab(currentTabPosition);
+		
+
     }
 
 	@Override
@@ -99,33 +92,7 @@ public class WiseMainActivity extends FragmentActivity
 		// 点击监听
 		tabLayout.setOnTabSelectListener(mTabSelectListener);
     }
-    
-    ServiceConnection mServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-        	Log.w(TAG, "onServiceConnected 1");
-        	mActivityReq = IActivityReq.Stub.asInterface(service);
-        	try {
-				mActivityReq.action(255, "abc");
-				mActivityReq.registerListener(mServListener);
-			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-            Log.w(TAG, "onServiceConnected 2");
-        }
 
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-        	Log.w(TAG, "onServiceDisconnected");
-        }
-    };
-    
-    private void bindService() {
-        Intent intent = new Intent(this, WiFiAPService.class);
-        bindService(intent, mServiceConnection, Service.BIND_AUTO_CREATE);
-        Log.w(TAG, "bindService");
-    }
     
     IServiceListen mServListener = new IServiceListen.Stub() {
 		@Override
@@ -223,13 +190,7 @@ public class WiseMainActivity extends FragmentActivity
 	@Override
 	public void onDestroy() {
 		Log.w(TAG,"onDestroy");
-    	try {
-			mActivityReq.unregisterListener(mServListener);
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		unbindService(mServiceConnection);
+
 		super.onDestroy();
 	}
 
