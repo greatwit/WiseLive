@@ -201,7 +201,7 @@ public class ServiceFragment extends Fragment
 			case R.id.item_create_ll:
 				//startActivityForResult(new Intent().setClass(mContext, CreateWifiActivity.class), CREATE_GREQUEST_CODE);
 				try {
-					mActReq.action(WiFiAPService.NET_CMD, WiFiAPService.ACTION_START_SERVICE);
+					mActReq.action(WiFiAPService.NET_CMD, WiFiAPService.FUNC_START_UDP_ENGINE);
 				} catch (RemoteException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -209,7 +209,13 @@ public class ServiceFragment extends Fragment
 				break;
 				
 			case R.id.item_connect_ll:
-				startActivityForResult(new Intent().setClass(mContext, ConnectWifiActivity.class), CONNECT_GREQUEST_CODE);
+				//startActivityForResult(new Intent().setClass(mContext, ConnectWifiActivity.class), CONNECT_GREQUEST_CODE);
+				try {
+					mActReq.action(WiFiAPService.NET_CMD, "a");
+				} catch (RemoteException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				break;
 	
 			case R.id.bar_recv:

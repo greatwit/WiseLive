@@ -6,6 +6,8 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 
+import com.great.happyness.utils.AbLogUtil;
+import com.great.happyness.utils.SignUtils;
 import com.great.happyness.utils.SysConfig;
 
 
@@ -56,9 +58,8 @@ public class UdpOperation implements IUdpOperation {
 			recv.setData(datagramPacket.getData());
 			recv.setFromAddr(datagramPacket.getAddress());
 
-			// AbLogUtil.d(TAG,datagramPacket.getAddress().getHostAddress().toString()
-			// + ":" + SignUtils.bytesToHexString(datagramPacket.getData())
-			// + " addr:" + DeviceInfo.getFullAddr());
+			 AbLogUtil.d(TAG,datagramPacket.getAddress().getHostAddress().toString()
+			 + ":" + SignUtils.bytesToHexString(datagramPacket.getData()));
 
 			return recv;
 		} catch (IOException e) {
@@ -85,6 +86,12 @@ public class UdpOperation implements IUdpOperation {
 			e.printStackTrace();
 		}
 		return false;
+	}
+	
+	public void closeSocket()
+	{
+		datagramSocket.close();
+		datagramSocket = null;
 	}
 
 	public static UdpOperation gSingleton = new UdpOperation();

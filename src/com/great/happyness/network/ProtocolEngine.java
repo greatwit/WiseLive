@@ -77,7 +77,9 @@ public class ProtocolEngine extends Thread {
 		if (!isAlive()) {
 			try {
 				interrupt();
+				AbLogUtil.d(TAG,"try interrupt");
 			} catch (Exception e) {
+				AbLogUtil.e(TAG,"error:"+e);
 			}
 		
 			return;
@@ -86,7 +88,9 @@ public class ProtocolEngine extends Thread {
 		if (getflag()) {
 			setflag(false);
 			try {
-				sleep(500);
+				mUdpOpt.closeSocket();
+				sleep(200);
+				AbLogUtil.d(TAG,"try StopEngine");
 			} catch (Exception e) {
 
 			}
@@ -113,6 +117,7 @@ public class ProtocolEngine extends Thread {
 				break;
 			}
 		}
+		AbLogUtil.d(TAG,"退出接收线程");
 		super.run();
 	}
 
