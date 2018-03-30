@@ -16,7 +16,7 @@ public interface IPackageOperation {
 	 *  
 	 * @return
 	 */
-	public byte[] encodePack();
+	public byte[] encodePack(String data);
 	
 	
 	/***

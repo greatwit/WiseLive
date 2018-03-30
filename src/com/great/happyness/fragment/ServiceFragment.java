@@ -2,16 +2,15 @@ package com.great.happyness.fragment;
 
 import java.util.ArrayList;
 
+import com.great.happyness.ConnectWifiActivity;
 import com.great.happyness.CreateWifiActivity;
 import com.great.happyness.R;
-import com.great.happyness.ConnectWifiActivity;
 import com.great.happyness.WebrtcActivity;
 
 import com.great.happyness.aidl.IActivityReq;
 import com.great.happyness.aidl.IServiceListen;
 import com.great.happyness.aidl.ServiceControl;
 import com.great.happyness.service.WiFiAPService;
-import com.great.happyness.utils.SysConfig;
 import com.great.happyness.wifi.WifiUtils;
 
 import android.app.Activity;
@@ -54,6 +53,7 @@ public class ServiceFragment extends Fragment
 	private WifiUtils mWifiUtils;
 	IActivityReq mActReq = null;
 	
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		mContext = getActivity();
@@ -75,7 +75,6 @@ public class ServiceFragment extends Fragment
 
 			bar_recv.setVisibility(View.VISIBLE);
 			bar_recv.setImageDrawable(getResources().getDrawable(R.drawable.camera));
-			
 			
 			ArrayList<String> array = mWifiUtils.getConnectedIP();
 			int consize = array.size();
@@ -144,6 +143,17 @@ public class ServiceFragment extends Fragment
 		public void onAction(int action, Message msg) throws RemoteException {
 			// TODO Auto-generated method stub
 			Log.i(TAG, "IServiceListen onAction:"+action);
+			switch(action)
+			{
+				case WiFiAPService.WIFI_CMD:
+					break;
+					
+				case WiFiAPService.NET_CMD:
+					break;
+					
+					default:
+						break;
+			}
 		}
     };
 	
@@ -199,23 +209,23 @@ public class ServiceFragment extends Fragment
 	public void onClick(View v) {
 		switch (v.getId()) {
 			case R.id.item_create_ll:
-				//startActivityForResult(new Intent().setClass(mContext, CreateWifiActivity.class), CREATE_GREQUEST_CODE);
-				try {
-					mActReq.action(WiFiAPService.NET_CMD, WiFiAPService.FUNC_START_UDP_ENGINE);
-				} catch (RemoteException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				startActivityForResult(new Intent().setClass(mContext, CreateWifiActivity.class), CREATE_GREQUEST_CODE);
+//				try {
+//					mActReq.action(WiFiAPService.NET_CMD, WiFiAPService.FUNC_START_UDP_ENGINE);
+//				} catch (RemoteException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
 				break;
 				
 			case R.id.item_connect_ll:
-				//startActivityForResult(new Intent().setClass(mContext, ConnectWifiActivity.class), CONNECT_GREQUEST_CODE);
-				try {
-					mActReq.action(WiFiAPService.NET_CMD, "a");
-				} catch (RemoteException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				startActivityForResult(new Intent().setClass(mContext, ConnectWifiActivity.class), CONNECT_GREQUEST_CODE);
+//				try {
+//					mActReq.sendData("192.168.0.1", SysConfig.UDP_TALK_PORT, "a");
+//				} catch (RemoteException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
 				break;
 	
 			case R.id.bar_recv:

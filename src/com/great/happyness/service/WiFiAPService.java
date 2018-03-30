@@ -3,6 +3,7 @@ package com.great.happyness.service;
 
 import com.great.happyness.aidl.IServiceListen;
 import com.great.happyness.aidl.IActivityReq;
+import com.great.happyness.network.CameraReqPack;
 import com.great.happyness.network.ProtocolEngine;
 import com.great.happyness.wifi.WiFiAPListener;
 import com.great.happyness.wifi.WiFiAPObserver;
@@ -44,6 +45,8 @@ public class WiFiAPService extends Service {
 	
     private ProtocolEngine mProtoEngine = ProtocolEngine.getInstance();
     
+    private CameraReqPack mCamPack = new CameraReqPack();
+    
     Binder mBinder = new IActivityReq.Stub() {
         @Override
         public void action(int action, String datum) throws RemoteException {
@@ -55,8 +58,7 @@ public class WiFiAPService extends Service {
 	            	if(datum.equals(FUNC_START_UDP_ENGINE))
 	            	{
 	            		mProtoEngine.StartEngine();
-	            	}
-	            	if(datum.equals(FUNC_STOP_UDP_ENGINE))
+	            	}else if(datum.equals(FUNC_STOP_UDP_ENGINE))
 	            	{
 	            		mProtoEngine.StopEngine();
 	            	}
@@ -73,6 +75,22 @@ public class WiFiAPService extends Service {
         public void unregisterListener(IServiceListen listener) throws RemoteException {
         	ListenerManager.Instance().unregister(listener);
         }
+
+		@Override
+		public int sendData(String addr, int port, String data) throws RemoteException 
+		{
+			// TODO Auto-generated method stub
+				byte[] sendbyte = mCamPack.encodePack(data);
+				Log.w(TAG, "leng:"+ sendbyte.length + "sendbyte:"+sendbyte);
+			int res = 0;
+			try {
+				res = mProtoEngine.SendData(addr, port, sendbyte);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return res;
+		}
     };
     
 	/**
@@ -161,12 +179,12 @@ public class WiFiAPService extends Service {
         public void onReceive(Context context, Intent intent) 
         {
         	String action = intent.getAction();
-            //if ("android.net.wifi.WIFI_AP_STATE_CHANGED".equals(action)) 
+            if ("android.net.wifi.WIFI_AP_STATE_CHANGED".equals(action)) 
             {
                 int state = intent.getIntExtra("wifi_state",  0);
                 Log.i(TAG, "wifi state= "+state);
-                Message msg = new Message();
-                ListenerManager.Instance().sendMessage(WIFI_CMD, msg);
+                //Message msg = new Message();
+                //ListenerManager.Instance().sendMessage(WIFI_CMD, msg);
                 //wiFiAPObserver.stateChanged(state);
             }
         }

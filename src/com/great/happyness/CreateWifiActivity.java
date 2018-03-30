@@ -41,7 +41,7 @@ public class CreateWifiActivity extends Activity implements OnClickListener{
     private ImageView bar_goback;
     private QRCodePopWin mQrcodePopWin 	= null;
     
-	private String TAG = "CreateWifiActivity";
+	private String TAG = getClass().getSimpleName();
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) 
@@ -101,7 +101,7 @@ public class CreateWifiActivity extends Activity implements OnClickListener{
 			switch(msg.what)
 			{
 				case MESSAGE_CREATE_BEGIN:
-					if(mWifiUtils.isWifiApEnabled())
+					if(mWifiUtils.isWifiApEnabled())//判断热点是否打开
 					{
 		            	int pw = (int) (WiseApplication.SCREEN_WIDTH*0.8);
 		            	int ph = (int) (WiseApplication.SCREEN_WIDTH*0.8);
@@ -159,17 +159,18 @@ public class CreateWifiActivity extends Activity implements OnClickListener{
     {
         IntentFilter intentFilter = new IntentFilter();
 //        intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
-//        intentFilter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
-//        intentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+        intentFilter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
+        intentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
 //        intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-//        intentFilter.addAction(WifiManager.RSSI_CHANGED_ACTION);
-//        intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
-//        intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
-//        intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
-//        intentFilter.addAction(WifiP2pManager.WIFI_P2P_DISCOVERY_CHANGED_ACTION);
-//        intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
-//        intentFilter.addAction("android.net.wifi.WIFI_AP_STATE_CHANGED");
-//        intentFilter.addAction("android.net.wifi.WIFI_HOTSPOT_CLIENTS_CHANGED");
+        intentFilter.addAction(WifiManager.RSSI_CHANGED_ACTION);
+        
+        intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
+        intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
+        intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
+        intentFilter.addAction(WifiP2pManager.WIFI_P2P_DISCOVERY_CHANGED_ACTION);
+        intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
+        intentFilter.addAction("android.net.wifi.WIFI_AP_STATE_CHANGED");
+        intentFilter.addAction("android.net.wifi.WIFI_HOTSPOT_CLIENTS_CHANGED");
 
         registerReceiver(receiver, intentFilter);
     }
@@ -184,8 +185,8 @@ public class CreateWifiActivity extends Activity implements OnClickListener{
             Log.w(TAG, "action:"+action);
             if (action.equals(WifiManager.WIFI_STATE_CHANGED_ACTION)) 
             {
-                Log.w(TAG, "WifiManager.WIFI_STATE_CHANGED_ACTION");
                 int wifiState = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, 0);
+                Log.w(TAG, "WIFI_STATE_CHANGED_ACTION state:"+wifiState);
                 switch (wifiState) 
                 {
                     case WifiManager.WIFI_STATE_ENABLED:
@@ -197,6 +198,9 @@ public class CreateWifiActivity extends Activity implements OnClickListener{
                         //wifi关闭发出的广播
                         break;
                 }
+            }
+            else if (action.equals("android.net.wifi.WIFI_AP_STATE_CHANGED"))
+            {
             }
             else if (action.equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) 
             {

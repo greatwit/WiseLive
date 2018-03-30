@@ -5,6 +5,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 
 import com.great.happyness.utils.AbLogUtil;
 import com.great.happyness.utils.SignUtils;
@@ -29,7 +30,7 @@ public class UdpOperation implements IUdpOperation {
 	protected UdpOperation() {
 		/***
 		 * TODO 建立网络读写对象
-		 */
+		 */ 
 		try {
 			datagramSocket = new DatagramSocket(SysConfig.UDP_TALK_PORT);
 		} catch (SocketException e) {
@@ -86,6 +87,17 @@ public class UdpOperation implements IUdpOperation {
 			e.printStackTrace();
 		}
 		return false;
+	}
+	
+	public int send(String addr, int port, byte[] data) throws Exception
+	{
+		try {
+			DatagramPacket p = new DatagramPacket(data, data.length, InetAddress.getByName(addr), port);
+			datagramSocket.send(p);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return data.length;
 	}
 	
 	public void closeSocket()

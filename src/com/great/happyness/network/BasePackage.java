@@ -11,11 +11,11 @@ public class BasePackage implements IPackageOperation {
 	 *  包命令ID
 	 *  
 	 */
-	protected byte mCmdId = 0;
+	protected byte mCmdId 	= 0;
 	protected byte mCmdType = 0;
 	private byte[] buffer;
 	protected byte[] byteHead;
-	protected int nHeadLen = 28;
+	protected int nHeadLen 	= 14;
 	protected int nExtandSeqID  = 0;
 	
 	/**
@@ -61,11 +61,11 @@ public class BasePackage implements IPackageOperation {
 	
 	/**
 	 * 初始化包头文件
-	 * 包头	命令		命令类型	长度		时间戳	来源设备
-	 *6byte	1byte	1byte	2byte	4byte	14byte
+	 * 包头	命令		命令类型	长度		时间戳	//来源设备
+	 *6byte	1byte	1byte	2byte	4byte	//14byte
 	 */
 	protected void initHead(){
-		byteHead = new byte[28];
+		byteHead = new byte[14];
 		byteHead[0] = (byte) 0x6d;
 		byteHead[1] = (byte) 0xf1;
 		byteHead[2] = (byte) 0x8d;
@@ -91,14 +91,15 @@ public class BasePackage implements IPackageOperation {
 	 */
 	private static void encodePreprocess(){
 	}
+	
 	/**
 	 *   解包包头包尾
 	 * @param strBuffer
 	 * @return
 	 */
 	private boolean decodePreprocess(byte[] buffer){
-		mCmdId = buffer[6];
-		mCmdType = buffer[7];
+		mCmdId   	= buffer[6];
+		mCmdType 	= buffer[7];
 		return true;
 	}
 	
@@ -128,7 +129,7 @@ public class BasePackage implements IPackageOperation {
 	 * 
 	 */
 	@Override
-	public byte[] encodePack() {
+	public byte[] encodePack(String data) {
 		encodePreprocess();
 		
 		return buffer;
@@ -162,6 +163,7 @@ public class BasePackage implements IPackageOperation {
 		 * 
 		 */
 		BasePackage ackPackage = null;
+		
 		/**
 		 * TODO
 		 * Step 2:

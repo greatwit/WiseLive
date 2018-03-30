@@ -2,6 +2,11 @@ package com.great.happyness.network;
 
 import java.util.ArrayList;
 
+import android.os.Bundle;
+import android.os.Message;
+
+import com.great.happyness.service.ListenerManager;
+import com.great.happyness.service.WiFiAPService;
 import com.great.happyness.utils.AbLogUtil;
 
 
@@ -15,7 +20,7 @@ import com.great.happyness.utils.AbLogUtil;
 
 public class ProtocolEngine extends Thread {
 	
-	private String TAG = "ProtocolEngine";
+	private String TAG = getClass().getSimpleName();
 	
 	/**
 	 * 网络基本收发 链路相关
@@ -111,7 +116,12 @@ public class ProtocolEngine extends Thread {
 				 * 
 				 *  加入到协议缓冲队列,接受和处理在异步出来
 				 */
-				mgPackBuffer.pushPackage(recv);
+				//mgPackBuffer.pushPackage(recv);
+				Bundle bundle = new Bundle();      
+                bundle.putByteArray("data",recv.getData());  //往Bundle中存放数据        
+                Message msg = new Message();
+                msg.setData(bundle);
+                ListenerManager.Instance().sendMessage(WiFiAPService.NET_CMD, msg);
 			} catch (Exception e) {
 				AbLogUtil.e(TAG,"单播 接收错误" + e.getMessage());
 				break;
@@ -148,6 +158,15 @@ public class ProtocolEngine extends Thread {
 		 */
 		//return mgSendBuffer.pushPackage(udpPackage);
 		return mUdpOpt.send(udpPackage);
+	}
+	
+	public int SendData(String addr, int port, byte[] data) throws Exception {
+		/**
+		 *  加入发送缓冲区，异步与主线程
+		 * 
+		 */
+		//return mgSendBuffer.pushPackage(udpPackage);
+		return mUdpOpt.send(addr, port, data);
 	}
 
 	/**
