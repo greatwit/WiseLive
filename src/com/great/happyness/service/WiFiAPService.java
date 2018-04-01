@@ -18,7 +18,6 @@ import android.net.wifi.WifiManager;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Binder;
 import android.os.IBinder;
-import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -90,6 +89,18 @@ public class WiFiAPService extends Service {
 				e.printStackTrace();
 			}
 			return res;
+		}
+
+		@Override
+		public boolean startUdpServer() throws RemoteException {
+			// TODO Auto-generated method stub
+			return mProtoEngine.StartEngine();
+		}
+
+		@Override
+		public boolean stopUdpServer() throws RemoteException {
+			// TODO Auto-generated method stub
+			return mProtoEngine.StopEngine();
 		}
     };
     

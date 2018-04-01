@@ -19,4 +19,8 @@
         <item name="android:windowContentOverlay">@null</item>
     </style>
 
+    <style name="animpopwin" parent="@android:style/Animation">  
+      <item name="android:windowEnterAnimation">@anim/push_in</item>  
+      <item name="android:windowExitAnimation">@anim/push_out</item>  
+    </style> 
 </resources>

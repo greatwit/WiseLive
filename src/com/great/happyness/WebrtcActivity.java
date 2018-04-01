@@ -32,7 +32,7 @@ import android.widget.TextView;
 public class WebrtcActivity extends Activity  implements MediaEngineObserver
 {
 
-  private String TAG;
+  private String TAG; 
 
   private ImageButton btStartStopCall;
   private TextView tvStats;

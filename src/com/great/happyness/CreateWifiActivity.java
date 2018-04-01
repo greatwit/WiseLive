@@ -10,7 +10,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.net.wifi.p2p.WifiP2pManager;
@@ -113,12 +112,6 @@ public class CreateWifiActivity extends Activity implements OnClickListener{
 					}
 					else
 					{
-						//关掉wifi
-						if(mWifiUtils.isWifiEnable())
-						{
-							mWifiUtils.setWifiEnabled(false);
-							mTasksView.setProgress(60);
-						}
 						if(mWifiUtils.createWifiHotspot(SysConfig.WIFI_AP_SSID, SysConfig.WIFI_AP_KEY))
 						{
 			            	tvhot_state.setText("创建成功，等待连接");
@@ -137,7 +130,6 @@ public class CreateWifiActivity extends Activity implements OnClickListener{
 			        		mTasksView.setProgress(100);
 						}
 					}
-						
 					break;
 					
 				case MESSAGE_CREATE_SUCC:
@@ -150,7 +142,6 @@ public class CreateWifiActivity extends Activity implements OnClickListener{
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
-
             }
         }
     };
@@ -169,6 +160,7 @@ public class CreateWifiActivity extends Activity implements OnClickListener{
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_DISCOVERY_CHANGED_ACTION);
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
+        //wifi ap打开和关闭的广播
         intentFilter.addAction("android.net.wifi.WIFI_AP_STATE_CHANGED");
         intentFilter.addAction("android.net.wifi.WIFI_HOTSPOT_CLIENTS_CHANGED");
 
@@ -201,11 +193,14 @@ public class CreateWifiActivity extends Activity implements OnClickListener{
             }
             else if (action.equals("android.net.wifi.WIFI_AP_STATE_CHANGED"))
             {
+            	//10---正在关闭；11---已关闭；12---正在开启；13---已开启
+            	int state = intent.getIntExtra("wifi_state", 0);
+            	Log.w(TAG, "wifi ap state:"+state);
             }
             else if (action.equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) 
             {
                 NetworkInfo info = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
-                Log.w(TAG, "WifiManager.NETWORK_STATE_CHANGED_ACTION state:"+info.getState());
+                Log.w(TAG, "WifiManager.NETWORK_STATE_CHANGED_ACTION state::"+info.getState());
                 if (info.getState().equals(NetworkInfo.State.DISCONNECTED)) 
                 {
                 	//tvhot_state.setText("连接已断开");
@@ -215,15 +210,8 @@ public class CreateWifiActivity extends Activity implements OnClickListener{
                     NetworkInfo.DetailedState state = info.getDetailedState();
                     if (state == state.CONNECTING) {
                     	tvhot_state.setText("连接中...");
-                    }else if (state == state.CONNECTED) {
-                    	tvhot_state.setText("连接成功:"+info.toString());
-                        Intent reintent = new Intent();
-                        //把返回数据存入Intent
-                        reintent.putExtra("result", true);
-                        //设置返回数据
-                        CreateWifiActivity.this.setResult(RESULT_OK, reintent);
-                        //关闭Activity
-                        finish();
+                    }else if (state == state.CONNECTED) //奇怪了，这里会有连接成功的状态出来
+                    {
                     }else if (state == state.AUTHENTICATING) {
                     	tvhot_state.setText("正在验证身份信息...");
                     } else if (state == state.OBTAINING_IPADDR) {
@@ -257,7 +245,7 @@ public class CreateWifiActivity extends Activity implements OnClickListener{
                 //关闭Activity
                 Intent reintent = new Intent();
                 //把返回数据存入Intent
-                reintent.putExtra("result", false);
+                reintent.putExtra("result", mWifiUtils.isWifiApEnabled());
                 //设置返回数据
                 CreateWifiActivity.this.setResult(RESULT_OK, reintent);
                 

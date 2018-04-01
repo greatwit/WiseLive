@@ -317,7 +317,6 @@ public class ConnectWifiActivity extends Activity implements OnClickListener, Ca
 
 	public void drawViewfinder() {
 		viewfinderView.drawViewfinder();
-
 	}
 
 	public void handleDecode(final Result obj, Bitmap barcode) {
@@ -334,7 +333,7 @@ public class ConnectWifiActivity extends Activity implements OnClickListener, Ca
 		{
 			//if(!mWifiUtils.isWifiEnable())
 			if (mWifiUtils.isWifiApEnabled())
-				mWifiUtils.closeWifiHotspot();
+				mWifiUtils.destroyWifiHotspot();
 			
 			mWifiUtils.setWifiEnabled(true);
 			mWifiUtils.wifiConnect(resultString, SysConfig.WIFI_AP_KEY, WifiUtils.WIFICIPHER_WPA);

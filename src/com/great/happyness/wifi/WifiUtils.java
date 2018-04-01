@@ -272,8 +272,9 @@ public class WifiUtils
      */
     public boolean createWifiHotspot(String ssid, String key) 
     {
-        //tvhot_state.setText("创建热点...");
-        
+		////wifi和热点不能同时打开，所以打开热点的时候需要关闭wifi
+		setWifiEnabled(false);
+		
         WifiConfiguration config = new WifiConfiguration();
         config.SSID 		= ssid;
         config.preSharedKey = key;
@@ -300,7 +301,7 @@ public class WifiUtils
     /**
      * 关闭WiFi热点
      */
-    public void closeWifiHotspot() 
+    public void destroyWifiHotspot() 
     {
         try {
             Method method 				= mWifiManager.getClass().getMethod("getWifiApConfiguration");

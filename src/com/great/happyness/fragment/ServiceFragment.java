@@ -10,7 +10,9 @@ import com.great.happyness.WebrtcActivity;
 import com.great.happyness.aidl.IActivityReq;
 import com.great.happyness.aidl.IServiceListen;
 import com.great.happyness.aidl.ServiceControl;
+import com.great.happyness.popwin.CameraPopwin;
 import com.great.happyness.service.WiFiAPService;
+import com.great.happyness.utils.SysConfig;
 import com.great.happyness.wifi.WifiUtils;
 
 import android.app.Activity;
@@ -52,7 +54,7 @@ public class ServiceFragment extends Fragment
 	
 	private WifiUtils mWifiUtils;
 	IActivityReq mActReq = null;
-	
+	private CameraPopwin mCamPopwin = null;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -173,12 +175,20 @@ public class ServiceFragment extends Fragment
 
 					boolean result = bundle.getBoolean("result");
 					Log.w(TAG, "onActivityResult content:" + result);
-
-					wifi_state_ll.setVisibility(View.VISIBLE);
-					bar_recv.setVisibility(View.VISIBLE);
-					bar_recv.setImageDrawable(getResources().getDrawable(R.drawable.camera));
 					if(result)
-						bar_send.setVisibility(View.VISIBLE);
+					{
+						wifi_state_ll.setVisibility(View.VISIBLE);
+						bar_recv.setVisibility(View.VISIBLE);
+						bar_recv.setImageDrawable(getResources().getDrawable(R.drawable.camera));
+						//bar_send.setVisibility(View.VISIBLE);
+						try {
+							if(mActReq!=null)
+								mActReq.startUdpServer();
+						} catch (RemoteException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
 				}
 				else
 				{
@@ -198,6 +208,17 @@ public class ServiceFragment extends Fragment
 					wifi_state_ll.setVisibility(View.VISIBLE);
 					bar_recv.setVisibility(View.GONE);
 					bar_send.setVisibility(View.VISIBLE);
+					
+					try {
+						if(mActReq!=null)
+						{
+							mActReq.startUdpServer();
+							mActReq.sendData("192.168.43.1", SysConfig.UDP_TALK_PORT, "a");
+						}
+					} catch (RemoteException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 				else
 					bar_status.setText("连接失败");
@@ -210,22 +231,10 @@ public class ServiceFragment extends Fragment
 		switch (v.getId()) {
 			case R.id.item_create_ll:
 				startActivityForResult(new Intent().setClass(mContext, CreateWifiActivity.class), CREATE_GREQUEST_CODE);
-//				try {
-//					mActReq.action(WiFiAPService.NET_CMD, WiFiAPService.FUNC_START_UDP_ENGINE);
-//				} catch (RemoteException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
 				break;
 				
 			case R.id.item_connect_ll:
 				startActivityForResult(new Intent().setClass(mContext, ConnectWifiActivity.class), CONNECT_GREQUEST_CODE);
-//				try {
-//					mActReq.sendData("192.168.0.1", SysConfig.UDP_TALK_PORT, "a");
-//				} catch (RemoteException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
 				break;
 	
 			case R.id.bar_recv:
@@ -233,6 +242,35 @@ public class ServiceFragment extends Fragment
 				break;
 				
 			case R.id.bar_send:
+				int[] location = new int[2];  
+				bar_send.getLocationOnScreen(location);  
+				
+				if (mCamPopwin == null) { 
+				    mCamPopwin = new CameraPopwin(getActivity(), this, 180, 80);  
+				    //监听窗口的焦点事件，点击窗口外面则取消显示  
+				    mCamPopwin.getContentView().setOnFocusChangeListener(new View.OnFocusChangeListener() {  
+				          
+				        @Override  
+				        public void onFocusChange(View v, boolean hasFocus) {  
+				            if (!hasFocus) {  
+				            	mCamPopwin.dismiss();  
+				            }  
+				        }  
+				    });  
+				}  
+				//设置默认获取焦点  
+				mCamPopwin.setFocusable(true);  
+				//以某个控件的x和y的偏移量位置开始显示窗口  
+				mCamPopwin.showAsDropDown(bar_send);  
+				//如果窗口存在，则更新  
+				mCamPopwin.update(); 
+				break;
+				
+            case R.id.layout_touch:  
+            	Log.i(TAG, "layout_touch");
+                break;
+                
+            case R.id.layout_camera:  
 				String destip = "";
 				if(mWifiUtils.isWifiEnable())
 					destip = mWifiUtils.getGateWayIpAddress();
@@ -246,11 +284,11 @@ public class ServiceFragment extends Fragment
 				Intent intent = new Intent().setClass(mContext, WebrtcActivity.class);
 				intent.putExtra("destip", destip);
 				startActivity(intent);
-				break;
+                break; 
 				
 			case R.id.bar_delete:
 				if(mWifiUtils.isWifiApEnabled())
-					mWifiUtils.closeWifiHotspot();
+					mWifiUtils.destroyWifiHotspot();
 				wifi_state_ll.setVisibility(View.GONE);
 				break;
 				
@@ -276,8 +314,16 @@ public class ServiceFragment extends Fragment
 		{
 			String predex = mWifiUtils.getWifiHotspotSSID().substring(0,4);
 			Log.w(TAG,"isWifiApEnabled:"+predex);
+
+			try {
+				if(mActReq!=null)
+					mActReq.stopUdpServer();
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 //			if(predex.equals(SysConfig.WIFI_AP_PREFIX))
-//				mWifiUtils.closeWifiHotspot();
+//			mWifiUtils.closeWifiHotspot();
 		}
 		
 //		if(!mWifiUtils.isWifiEnable())

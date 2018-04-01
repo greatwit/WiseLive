@@ -66,7 +66,7 @@ public class ProtocolEngine extends Thread {
 		mProtocolHandle = new ProtocolHandle(this);
 	}
 
-	public void StartEngine() {
+	public boolean StartEngine() {
 		if (!getflag()) {
 			setflag(true);
 			//打开自己的线程
@@ -75,10 +75,12 @@ public class ProtocolEngine extends Thread {
 			 * 打开应当处理线程
 			 */
 			mProtocolHandle.start();
-		}	 
+			return true;
+		}	
+		return false;
 	}
 
-	public void StopEngine() {
+	public boolean StopEngine() {
 		if (!isAlive()) {
 			try {
 				interrupt();
@@ -87,7 +89,7 @@ public class ProtocolEngine extends Thread {
 				AbLogUtil.e(TAG,"error:"+e);
 			}
 		
-			return;
+			return false;
 		}
 		
 		if (getflag()) {
@@ -99,7 +101,9 @@ public class ProtocolEngine extends Thread {
 			} catch (Exception e) {
 
 			}
+			return true;
 		}
+		return false;
 	}
 
 	@Override
