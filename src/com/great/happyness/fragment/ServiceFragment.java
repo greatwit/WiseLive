@@ -1,16 +1,19 @@
 package com.great.happyness.fragment;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
+import com.great.happyness.CameraSenderActivity;
 import com.great.happyness.ConnectWifiActivity;
 import com.great.happyness.CreateWifiActivity;
 import com.great.happyness.R;
-import com.great.happyness.WebrtcActivity;
+import com.great.happyness.RtcCameraActivity;
 
 import com.great.happyness.aidl.IActivityReq;
 import com.great.happyness.aidl.IServiceListen;
 import com.great.happyness.aidl.ServiceControl;
 import com.great.happyness.popwin.CameraPopwin;
+import com.great.happyness.service.ServiceCreatedListen;
 import com.great.happyness.service.WiFiAPService;
 import com.great.happyness.utils.SysConfig;
 import com.great.happyness.wifi.WifiUtils;
@@ -18,10 +21,15 @@ import com.great.happyness.wifi.WifiUtils;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.AssetFileDescriptor;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnCompletionListener;
 import android.net.wifi.WifiInfo;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.RemoteException;
+import android.os.Vibrator;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -38,8 +46,9 @@ import android.widget.TextView;
  * @author 
  * 
  */
+@SuppressWarnings("deprecation")
 public class ServiceFragment extends Fragment
-		implements OnClickListener
+		implements OnClickListener, ServiceCreatedListen
 {
 	private Context mContext;
 	private final String TAG = ServiceFragment.class.getSimpleName();
@@ -53,12 +62,16 @@ public class ServiceFragment extends Fragment
 	private TextView  bar_status;
 	
 	private WifiUtils mWifiUtils;
-	IActivityReq mActReq = null;
+	private boolean mServiceRegisted = false;
 	private CameraPopwin mCamPopwin = null;
+	
+	private MediaPlayer mediaPlayer;
+	private static final float BEEP_VOLUME = 0.10f;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		mContext = getActivity();
+		
 		super.onCreate(savedInstanceState);
 	}
 
@@ -69,6 +82,15 @@ public class ServiceFragment extends Fragment
 		init();
 		
 		mWifiUtils = new WifiUtils(mContext);
+		checkWifiStatus();
+		initBeepSound();
+
+		return view;
+	}
+
+
+	private void checkWifiStatus()
+	{
 		if (!mWifiUtils.isWifiApEnabled()) {
 			wifi_state_ll.setVisibility(View.GONE);
 		}else
@@ -107,19 +129,78 @@ public class ServiceFragment extends Fragment
 				Log.w(TAG,"connected wifi ip:"+mWifiUtils.getGateWayIpAddress());
 			}
 		}
-		
-		mActReq = ServiceControl.getInstance().getActivityReq();
-		if(mActReq!=null)
-		try {
-			mActReq.registerListener(mServListener);
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return view;
 	}
+	
+	/**
+	 * When the beep has finished playing, rewind to queue up another one.
+	 */
+	private final OnCompletionListener beepListener = new OnCompletionListener() {
+		public void onCompletion(MediaPlayer mediaPlayer) {
+			mediaPlayer.seekTo(0);
+		}
+	};
+	
+	private void initBeepSound() {
+		if ( mediaPlayer == null) {
+			// The volume on STREAM_SYSTEM is not adjustable, and users found it
+			// too loud,
+			// so we now play on the music stream.
+			//setVolumeControlStream(AudioManager.STREAM_MUSIC);
+			mediaPlayer = new MediaPlayer();
+			mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+			mediaPlayer.setOnCompletionListener(beepListener);
 
+			AssetFileDescriptor file = getResources().openRawResourceFd(R.raw.beep);
+			try {
+				mediaPlayer.setDataSource(file.getFileDescriptor(), file.getStartOffset(), file.getLength());
+				file.close();
+				mediaPlayer.setVolume(BEEP_VOLUME, BEEP_VOLUME);
+				mediaPlayer.prepare();
+			} catch (IOException e) {
+				mediaPlayer = null;
+			}
+		}
+	}
+	
+	private void playBeepSoundAndVibrate() 
+	{
+		AudioManager aum = (AudioManager)mContext.getSystemService(Context.AUDIO_SERVICE);
+		if (aum.getRingerMode() != AudioManager.RINGER_MODE_SILENT && mediaPlayer != null) 
+	    {
+			//mediaPlayer.start();
+	    }
+		
+		Vibrator vibrator = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
+		long [] pattern = { 0, 180, 180, 180};   // {100,400,100,400} 停止 开启 停止 开启   
+        vibrator.vibrate(pattern, -1);
+	}
+	
+	private IActivityReq getBinderReq()
+	{
+		IActivityReq actReq = ServiceControl.getInstance().getActivityReq();
+		if(actReq!=null && mServiceRegisted == false)
+		{
+			try {
+				actReq.registerListener(mServListener);
+				mServiceRegisted = true;
+				Log.i(TAG, "mActReq.registerListener");
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}else
+		{
+			Log.e(TAG, "mActReq == null");
+			ServiceControl.getInstance().registListener(this);
+		}
+		return actReq;
+	}
+	
+	@Override
+	public void serviceChanged(int state) {
+		// TODO Auto-generated method stub
+	}
+	
 	private void init() 
 	{
 		item_create_ll = (LinearLayout) view.findViewById(R.id.item_create_ll);
@@ -151,6 +232,16 @@ public class ServiceFragment extends Fragment
 					break;
 					
 				case WiFiAPService.NET_CMD:
+					byte[] data = msg.getData().getByteArray("data");
+					switch(data[14])
+					{
+						case 'a':
+							playBeepSoundAndVibrate();
+							break;
+							
+						case 'b':
+							break;
+					}
 					break;
 					
 					default:
@@ -176,19 +267,7 @@ public class ServiceFragment extends Fragment
 					boolean result = bundle.getBoolean("result");
 					Log.w(TAG, "onActivityResult content:" + result);
 					if(result)
-					{
-						wifi_state_ll.setVisibility(View.VISIBLE);
-						bar_recv.setVisibility(View.VISIBLE);
-						bar_recv.setImageDrawable(getResources().getDrawable(R.drawable.camera));
-						//bar_send.setVisibility(View.VISIBLE);
-						try {
-							if(mActReq!=null)
-								mActReq.startUdpServer();
-						} catch (RemoteException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
+						checkWifiStatus();
 				}
 				else
 				{
@@ -210,10 +289,10 @@ public class ServiceFragment extends Fragment
 					bar_send.setVisibility(View.VISIBLE);
 					
 					try {
-						if(mActReq!=null)
+						if(getBinderReq()!=null)
 						{
-							mActReq.startUdpServer();
-							mActReq.sendData("192.168.43.1", SysConfig.UDP_TALK_PORT, "a");
+							getBinderReq().startUdpServer();
+							getBinderReq().sendData("192.168.43.1", SysConfig.UDP_TALK_PORT, "a");
 						}
 					} catch (RemoteException e) {
 						// TODO Auto-generated catch block
@@ -228,13 +307,21 @@ public class ServiceFragment extends Fragment
 	
 	@Override
 	public void onClick(View v) {
+		String addr = "";
 		switch (v.getId()) {
 			case R.id.item_create_ll:
 				startActivityForResult(new Intent().setClass(mContext, CreateWifiActivity.class), CREATE_GREQUEST_CODE);
+				try {
+					if(getBinderReq()!=null)
+						getBinderReq().startUdpServer();
+				} catch (RemoteException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				break;
 				
-			case R.id.item_connect_ll:
-				startActivityForResult(new Intent().setClass(mContext, ConnectWifiActivity.class), CONNECT_GREQUEST_CODE);
+			case R.id.item_connect_ll://ConnectWifiActivity
+				startActivityForResult(new Intent().setClass(mContext, RtcCameraActivity.class), CONNECT_GREQUEST_CODE);
 				break;
 	
 			case R.id.bar_recv:
@@ -268,28 +355,63 @@ public class ServiceFragment extends Fragment
 				
             case R.id.layout_touch:  
             	Log.i(TAG, "layout_touch");
+            	if (mWifiUtils.isWifiApEnabled()){
+            		ArrayList<String> strArr = mWifiUtils.getConnectedIP();
+            		addr = strArr.get(0);
+            		Log.i(TAG, "connected wifi addr:"+addr);
+            	}else
+            	{
+            		addr = "192.168.43.1";
+            	}
+				try {
+					getBinderReq().sendData(addr, SysConfig.UDP_TALK_PORT, "a");
+				} catch (RemoteException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
                 break;
                 
-            case R.id.layout_camera:  
-				String destip = "";
-				if(mWifiUtils.isWifiEnable())
-					destip = mWifiUtils.getGateWayIpAddress();
-				else
-				{
-					ArrayList<String> array = mWifiUtils.getConnectedIP();
-					int consize = array.size();
-					if(consize>0)
-						destip = array.get(0);
+            case R.id.layout_camera:
+            	if (mWifiUtils.isWifiApEnabled()){
+            		ArrayList<String> strArr = mWifiUtils.getConnectedIP();
+            		addr = strArr.get(0);
+            		Log.i(TAG, "connected wifi addr:"+addr);
+            	}else
+            	{
+            		addr = "192.168.43.1";
+            	}
+				try {
+					getBinderReq().sendData(addr, SysConfig.UDP_TALK_PORT, "b");
+				} catch (RemoteException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
-				Intent intent = new Intent().setClass(mContext, WebrtcActivity.class);
-				intent.putExtra("destip", destip);
-				startActivity(intent);
+//				String destip = "";
+//				if(mWifiUtils.isWifiEnable())
+//					destip = mWifiUtils.getGateWayIpAddress();
+//				else
+//				{
+//					ArrayList<String> array = mWifiUtils.getConnectedIP();
+//					int consize = array.size();
+//					if(consize>0)
+//						destip = array.get(0);
+//				}
+//				Intent intent = new Intent().setClass(mContext, WebrtcActivity.class);
+//				intent.putExtra("destip", destip);
+//				startActivity(intent);
                 break; 
 				
 			case R.id.bar_delete:
 				if(mWifiUtils.isWifiApEnabled())
 					mWifiUtils.destroyWifiHotspot();
 				wifi_state_ll.setVisibility(View.GONE);
+				try {
+					if(getBinderReq()!=null)
+						getBinderReq().stopUdpServer();
+				} catch (RemoteException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				break;
 				
 			default:
@@ -315,13 +437,6 @@ public class ServiceFragment extends Fragment
 			String predex = mWifiUtils.getWifiHotspotSSID().substring(0,4);
 			Log.w(TAG,"isWifiApEnabled:"+predex);
 
-			try {
-				if(mActReq!=null)
-					mActReq.stopUdpServer();
-			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 //			if(predex.equals(SysConfig.WIFI_AP_PREFIX))
 //			mWifiUtils.closeWifiHotspot();
 		}
@@ -329,15 +444,18 @@ public class ServiceFragment extends Fragment
 //		if(!mWifiUtils.isWifiEnable())
 //			mWifiUtils.setWifiEnabled(true);
 		
-		if(mActReq!=null)
+		if(getBinderReq()!=null && mServiceRegisted)
 		try {
-			mActReq.registerListener(mServListener);
+			getBinderReq().unregisterListener(mServListener);
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
+		
 		super.onDestroy();
 	}
+
+
 }
 

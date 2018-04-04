@@ -21,7 +21,6 @@ public class HomeFragment extends Fragment
 	private final String TAG = "HomeFragment";
 	private Context mContext;
 	private View view;
-	private FrameLayout progress;
 
 
 	@Override
@@ -34,19 +33,13 @@ public class HomeFragment extends Fragment
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		view = LayoutInflater.from(mContext).inflate(R.layout.fragment_home, null);
-		init();
+		view = LayoutInflater.from(mContext).inflate(R.layout.activity_rtc_sender, null);
 		return view;
 	}
 
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-	}
-
-	private void init() {
-		progress = (FrameLayout) view.findViewById(R.id.progress);
-		//item_opendoor_0 = (View) view.findViewById(R.id.item_opendoor_0);
 	}
 
 

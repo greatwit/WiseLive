@@ -1,11 +1,7 @@
 package com.great.happyness.wifi;
 
 /**
- * @ClassName:  WiFiAPListener   
- * @Description:  Listenning the state of wifi hot
- * @author: jajuan.wang  
- * @date:   2015-06-09 00:52  
- * version:1.0.0
+
  */
 public interface WiFiAPListener {
 	

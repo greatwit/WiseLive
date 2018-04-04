@@ -42,10 +42,18 @@
             	  />
 
         <activity android:name=".SendEncodeActivity" />
-        <activity android:name=".WebrtcActivity" 
+        <activity android:name=".RtcCameraActivity" 
             	  android:theme="@android:style/Theme.NoTitleBar"
             	  android:screenOrientation="portrait"
             	  />
+        <activity android:name=".RtcRecvActivity" 
+            	  android:theme="@android:style/Theme.NoTitleBar"
+            	  android:screenOrientation="portrait"
+            	  />
+        <activity android:name=".CameraSenderActivity" 
+    	  		  android:theme="@android:style/Theme.NoTitleBar"
+    	  		  android:screenOrientation="portrait"
+    	  />
         
         <activity
             android:name=".RecvDecodeActivity"

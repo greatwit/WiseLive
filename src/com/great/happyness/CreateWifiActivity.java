@@ -1,6 +1,11 @@
 package com.great.happyness;
 
+import com.great.happyness.aidl.IActivityReq;
+import com.great.happyness.aidl.IServiceListen;
+import com.great.happyness.aidl.ServiceControl;
 import com.great.happyness.popwin.QRCodePopWin;
+import com.great.happyness.service.ServiceCreatedListen;
+import com.great.happyness.service.WiFiAPService;
 import com.great.happyness.utils.CompletedView;
 import com.great.happyness.utils.SysConfig;
 import com.great.happyness.wifi.WifiUtils;
@@ -16,6 +21,7 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.RemoteException;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -24,7 +30,8 @@ import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class CreateWifiActivity extends Activity implements OnClickListener{
+public class CreateWifiActivity extends Activity implements 
+	ServiceCreatedListen, OnClickListener{
     private int mTotalProgress   = 12;
     private int mCurrentProgress = 0;
     //进度条
@@ -39,6 +46,8 @@ public class CreateWifiActivity extends Activity implements OnClickListener{
     private TextView  tvhot_state;
     private ImageView bar_goback;
     private QRCodePopWin mQrcodePopWin 	= null;
+    
+    private boolean mServiceRegisted = false;
     
 	private String TAG = getClass().getSimpleName();
 	
@@ -62,7 +71,7 @@ public class CreateWifiActivity extends Activity implements OnClickListener{
 		} else {
 			tvhot_state.setText("SSID:" + SysConfig.WIFI_AP_SSID );
 		}
-        
+		getBinderReq();
         new Thread(new ProgressRunable()).start();
     }
 
@@ -92,6 +101,55 @@ public class CreateWifiActivity extends Activity implements OnClickListener{
 		//showPopFormBottom();
 	}
     
+	private IActivityReq getBinderReq()
+	{
+		IActivityReq actReq = ServiceControl.getInstance().getActivityReq();
+		if(actReq!=null && mServiceRegisted == false)
+		{
+			try {
+				actReq.registerListener(mServListener);
+				mServiceRegisted = true;
+				Log.i(TAG, "mActReq.registerListener");
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}else
+		{
+			Log.e(TAG, "mActReq == null");
+			ServiceControl.getInstance().registListener(this);
+		}
+		return actReq;
+	}
+	
+    IServiceListen mServListener = new IServiceListen.Stub() {
+		@Override
+		public void onAction(int action, Message msg) throws RemoteException {
+			// TODO Auto-generated method stub
+			Log.i(TAG, "IServiceListen onAction:"+action);
+			switch(action)
+			{
+				case WiFiAPService.NET_CMD:
+					byte[] data = msg.getData().getByteArray("data");
+					switch(data[14])
+					{
+						case 'a':
+			                Intent reintent = new Intent();
+			                //把返回数据存入Intent
+			                reintent.putExtra("result", mWifiUtils.isWifiApEnabled());
+			                //设置返回数据
+			                CreateWifiActivity.this.setResult(RESULT_OK, reintent);
+			                finish();
+							break;	
+					}
+					break;
+					
+					default:
+						break;
+			}
+		}
+    };
+	
 	public Handler mHandler = new Handler()
 	{
 		@Override
@@ -179,7 +237,7 @@ public class CreateWifiActivity extends Activity implements OnClickListener{
             {
                 int wifiState = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, 0);
                 Log.w(TAG, "WIFI_STATE_CHANGED_ACTION state:"+wifiState);
-                switch (wifiState) 
+                switch (wifiState)
                 {
                     case WifiManager.WIFI_STATE_ENABLED:
                         //获取到wifi开启的广播时，开始扫描
@@ -231,6 +289,14 @@ public class CreateWifiActivity extends Activity implements OnClickListener{
         
         if(mQrcodePopWin!=null)
         	mQrcodePopWin.dismiss();
+        
+		if(getBinderReq()!=null && mServiceRegisted)
+		try {
+			getBinderReq().unregisterListener(mServListener);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 
 	@Override
@@ -253,6 +319,12 @@ public class CreateWifiActivity extends Activity implements OnClickListener{
                 Log.w(TAG, "bar_goback");
             	break;
         }
+	}
+
+	@Override
+	public void serviceChanged(int state) {
+		// TODO Auto-generated method stub
+		
 	}
     
 }

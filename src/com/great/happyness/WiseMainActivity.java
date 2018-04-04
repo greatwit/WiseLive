@@ -2,23 +2,16 @@ package com.great.happyness;
 
 
 import java.util.ArrayList;
+ 
 
-import android.app.Service;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
-import android.os.RemoteException;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.Toast;
 
-
-import com.great.happyness.aidl.IActivityReq;
-import com.great.happyness.aidl.IServiceListen;
-import com.great.happyness.aidl.ServiceControl;
 import com.great.happyness.fragment.CommonTabLayout;
 import com.great.happyness.fragment.CustomTabEntity;
 import com.great.happyness.fragment.HomeFragment;
@@ -66,7 +59,6 @@ public class WiseMainActivity extends FragmentActivity
 		}
 		tabLayout.setTabData(data);
 		tabLayout.setCurrentTab(currentTabPosition);
-		
 
     }
 
@@ -94,13 +86,7 @@ public class WiseMainActivity extends FragmentActivity
     }
 
     
-    IServiceListen mServListener = new IServiceListen.Stub() {
-		@Override
-		public void onAction(int action, Message msg) throws RemoteException {
-			// TODO Auto-generated method stub
-			Log.w(TAG, "IServiceListen onAction:"+action);
-		}
-    };
+
     
     private long exitTime = 0;
     @Override

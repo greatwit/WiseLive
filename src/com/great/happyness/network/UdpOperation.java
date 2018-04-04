@@ -54,6 +54,7 @@ public class UdpOperation implements IUdpOperation {
 		try {
 			// 准备接收数据
 			datagramSocket.receive(datagramPacket);
+			AbLogUtil.d(TAG, "receive ---------------");
 			UdpPackageInfo recv = new UdpPackageInfo();
 
 			recv.setData(datagramPacket.getData());
@@ -80,8 +81,8 @@ public class UdpOperation implements IUdpOperation {
 		InetAddress local = udpPackage.getFromAddr();
 		DatagramPacket p = new DatagramPacket(udpPackage.getData(), udpPackage.getData().length, local, udpPackage.getPort());
 		try {
-//			AbLogUtil.d(TAG, local.getHostAddress().toString() + ":" + udpPackage.getPort() + " buf:" + SignUtils.bytesToHexString(udpPackage.getData()));
 			datagramSocket.send(p);
+			AbLogUtil.d(TAG, local.getHostAddress().toString() + ":" + udpPackage.getPort() + " buf:" + SignUtils.bytesToHexString(udpPackage.getData()));
 			return true;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -93,6 +94,7 @@ public class UdpOperation implements IUdpOperation {
 	{
 		try {
 			DatagramPacket p = new DatagramPacket(data, data.length, InetAddress.getByName(addr), port);
+			AbLogUtil.d(TAG, "addr:"+addr + "port:"+port + "data:"+data + " datalen:"+data.length);
 			datagramSocket.send(p);
 		} catch (IOException e) {
 			e.printStackTrace();

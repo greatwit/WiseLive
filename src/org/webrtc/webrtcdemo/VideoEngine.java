@@ -86,6 +86,7 @@ public class VideoEngine {
   public native int connectCaptureDevice(int cameraId, int channel);
   public native int startCapture(int cameraId);
   public native int stopCapture(int cameraId);
+  public native int provideCameraBuffer(int cameraId, byte[] javaCameraFrame, int length);
   public native int releaseCaptureDevice(int cameraId);
   public native int getOrientation(CameraDesc camera);
   public native int setRotateCapturedFrames(int cameraId, int degrees);

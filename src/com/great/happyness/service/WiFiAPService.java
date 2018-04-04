@@ -1,10 +1,13 @@
 package com.great.happyness.service;
 
 
+import java.net.InetAddress;
+
 import com.great.happyness.aidl.IServiceListen;
 import com.great.happyness.aidl.IActivityReq;
 import com.great.happyness.network.CameraReqPack;
 import com.great.happyness.network.ProtocolEngine;
+import com.great.happyness.network.UdpPackageInfo;
 import com.great.happyness.wifi.WiFiAPListener;
 import com.great.happyness.wifi.WiFiAPObserver;
 
@@ -83,7 +86,12 @@ public class WiFiAPService extends Service {
 				Log.w(TAG, "leng:"+ sendbyte.length + "sendbyte:"+sendbyte);
 			int res = 0;
 			try {
-				res = mProtoEngine.SendData(addr, port, sendbyte);
+				//res = mProtoEngine.SendData(addr, port, sendbyte);
+				UdpPackageInfo pack = new UdpPackageInfo();
+				pack.setData(sendbyte);
+				pack.setFromAddr(InetAddress.getByName(addr));
+				pack.setPort(port);
+				mProtoEngine.SendPack(pack);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

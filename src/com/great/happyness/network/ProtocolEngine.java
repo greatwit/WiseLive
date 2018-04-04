@@ -45,8 +45,7 @@ public class ProtocolEngine extends Thread {
 
 	private  UdpPackageInfoQueue mgPackBuffer = new UdpPackageInfoQueue();
 
-	//private  Thread mSendThrad = null;
-	
+	private  Thread mSendThrad = null;
 	private  UdpPackageInfoQueue mgSendBuffer = new UdpPackageInfoQueue();
 	
 	private  ProtocolHandle mProtocolHandle = null;
@@ -75,16 +74,38 @@ public class ProtocolEngine extends Thread {
 			 * 打开应当处理线程
 			 */
 			mProtocolHandle.start();
+			
+			mSendThrad = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					while(mRunflag){
+					UdpPackageInfo udpPackage = mgSendBuffer.popPackage();
+					try{
+						mUdpOpt.send(udpPackage);
+					} catch (Exception e) {
+						AbLogUtil.e(TAG,"error:"+e);
+					}
+				}
+			}});
+			mSendThrad.start();
 			return true;
 		}	
 		return false;
 	}
 
 	public boolean StopEngine() {
+		if(!mSendThrad.isAlive()){
+			try {
+				interrupt();
+			} catch (Exception e) {
+
+			}
+		}
+		
 		if (!isAlive()) {
 			try {
 				interrupt();
-				AbLogUtil.d(TAG,"try interrupt");
+				AbLogUtil.d(TAG,"try interrupt 关闭udp接收服务");
 			} catch (Exception e) {
 				AbLogUtil.e(TAG,"error:"+e);
 			}
@@ -97,12 +118,15 @@ public class ProtocolEngine extends Thread {
 			try {
 				mUdpOpt.closeSocket();
 				sleep(200);
-				AbLogUtil.d(TAG,"try StopEngine");
+				AbLogUtil.d(TAG,"try StopEngine 已经关闭udp接收服务");
 			} catch (Exception e) {
 
 			}
 			return true;
 		}
+		
+		mSendThrad = null;
+		
 		return false;
 	}
 
@@ -114,8 +138,9 @@ public class ProtocolEngine extends Thread {
 				 * 线程可能阻塞在此处
 				 * 
 				 */
-				AbLogUtil.d(TAG,"单播 接收");
+				AbLogUtil.d(TAG,"单播 等待接收数据");
 				UdpPackageInfo recv = mUdpOpt.read();
+				AbLogUtil.e(TAG, "recv len:"+ recv.getData().length + " data:"+recv.getData());
 				/**
 				 * 
 				 *  加入到协议缓冲队列,接受和处理在异步出来
@@ -160,8 +185,8 @@ public class ProtocolEngine extends Thread {
 		 *  加入发送缓冲区，异步与主线程
 		 * 
 		 */
-		//return mgSendBuffer.pushPackage(udpPackage);
-		return mUdpOpt.send(udpPackage);
+		return mgSendBuffer.pushPackage(udpPackage);
+		//return mUdpOpt.send(udpPackage);
 	}
 	
 	public int SendData(String addr, int port, byte[] data) throws Exception {

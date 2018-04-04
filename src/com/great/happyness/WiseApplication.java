@@ -5,25 +5,20 @@ import java.util.List;
 
 import com.great.happyness.aidl.IActivityReq;
 import com.great.happyness.aidl.ServiceControl;
-import com.great.happyness.service.WiFiAPService;
+import com.great.happyness.service.ServiceCreatedListen;
 
 import android.app.Activity;
 import android.app.Application;
-import android.app.Service;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
 
 import android.os.Bundle;
-import android.os.IBinder;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
 
 
-public class WiseApplication extends Application implements Application.ActivityLifecycleCallbacks{
+public class WiseApplication extends Application implements 
+ServiceCreatedListen, Application.ActivityLifecycleCallbacks{
 	public static final String TAG = WiseApplication.class.getSimpleName();
 
 	private static WiseApplication instance 	= null;
@@ -52,7 +47,7 @@ public class WiseApplication extends Application implements Application.Activity
 	@Override
 	public void onCreate() {
 		setInstance(this);
-		bindService();
+		mServCont.bindService(this, this);
 		getScreenSize();
 		super.onCreate();
 		this.registerActivityLifecycleCallbacks(this);
@@ -79,26 +74,6 @@ public class WiseApplication extends Application implements Application.Activity
 			SCREEN_WIDTH = t;
 		}
 	}
-
-    static boolean linkSuccess;
-    ServiceConnection mServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-        	mActivityReq = IActivityReq.Stub.asInterface(service);
-            Log.w(TAG, "onServiceConnected");
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-        	Log.w(TAG, "onServiceDisconnected");
-        }
-    };
-    
-    private void bindService() {
-        Intent intent = new Intent(this, WiFiAPService.class);
-        bindService(intent, mServCont, Service.BIND_AUTO_CREATE);
-        Log.w(TAG, "bindService");
-    }
     
     
 	
@@ -186,6 +161,12 @@ public class WiseApplication extends Application implements Application.Activity
 
 	@Override
 	public void onActivityDestroyed(Activity activity) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void serviceChanged(int state) {
 		// TODO Auto-generated method stub
 		
 	}

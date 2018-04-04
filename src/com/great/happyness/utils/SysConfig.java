@@ -3,7 +3,6 @@ package com.great.happyness.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.content.pm.PackageManager.NameNotFoundException;
 
 
 public class SysConfig 
@@ -63,6 +62,7 @@ public class SysConfig
 	//1111 right to left : video receive, video send, audio
 	private static String PLAY_NAME	= "play_value";
 	private static String PLAY_KEY 	= "play_key";
+	private static String PLAY_ADDR = "play_addr";
 	public static int getSavePlay(Context context)
 	{
 		int iResult = 0x7;//0111
@@ -88,4 +88,30 @@ public class SysConfig
 
 	    return 0;
 	}
+	
+	public static String getSaveAddr(Context context)
+	{
+		String iResult = "";//
+		if(context==null)
+			return iResult;
+		
+		SharedPreferences sharedPreferences = context.getSharedPreferences(PLAY_NAME, Context.MODE_MULTI_PROCESS|Context.MODE_WORLD_READABLE);
+	    iResult = sharedPreferences.getString(PLAY_ADDR, iResult);
+	    
+	    return iResult;
+	}
+
+	public static int setSaveAddr(Context context, String value)
+	{
+		if(context==null)
+			return -1;
+
+		SharedPreferences sp = context.getSharedPreferences(PLAY_NAME, Context.MODE_MULTI_PROCESS|Context.MODE_WORLD_READABLE);
+	    Editor editor = sp.edit();
+	    editor.putString(PLAY_ADDR, value);
+	    editor.commit();
+
+	    return 0;
+	}
+	
 }

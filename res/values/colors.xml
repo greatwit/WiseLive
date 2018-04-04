@@ -36,6 +36,11 @@
     <color name="possible_result_points">#c0ffff00</color>
     <color name="result_view">#b0000000</color>
     
+    <color name="blue">#2196F3</color>
+    <color name="dark_blue">#1976D2</color>
+    <color name="accent_blue">#448AFF</color>
+    <color name="light_grey">#ffbebebe</color>
+    
     <!-- circle process -->
     <color name="pcolorPrimary">#3F51B5</color>
     <color name="pcolorPrimaryDark">#303F9F</color>
