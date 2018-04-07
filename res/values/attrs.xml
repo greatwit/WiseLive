@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
 
+    
     <!-- indicator -->
     <!-- 设置显示器颜色 -->
     <attr name="tl_indicator_color" format="color" />
@@ -387,4 +388,23 @@
         <attr name="ringBgColor" format="color"/>
     </declare-styleable>
     
+    
+        <!-- camera video -->
+    <declare-styleable name="CameraPreference">
+        <attr name="title" format="string" />
+    </declare-styleable>
+    <declare-styleable name="ListPreference">
+        <attr name="key" format="string" />
+        <attr name="defaultValue" format="string" />
+        <attr name="entryValues" format="reference" />
+        <attr name="entries" format="reference" />
+    </declare-styleable>
+    <declare-styleable name="IconIndicator">
+        <attr name="icons" format="reference" />
+        <attr name="modes" format="reference" />
+    </declare-styleable>
+    <declare-styleable name="IconListPreference">
+        <attr name="icons" />
+        <attr name="largeIcons" format="reference" />
+    </declare-styleable>
 </resources>

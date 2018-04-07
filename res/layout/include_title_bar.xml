@@ -38,7 +38,6 @@
         android:contentDescription="@string/app_name"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
-        android:src="@drawable/setting"
         android:visibility="gone" />
 
     <TextView

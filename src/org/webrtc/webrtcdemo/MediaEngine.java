@@ -102,8 +102,8 @@ public class MediaEngine implements VideoDecodeEncodeObserver {
   private String remoteIp;
 
     // Audio
-  private VoiceEngine voe;
-  private int audioChannel;
+  //private VoiceEngine voe;
+  //private int audioChannel;
   private boolean audioEnabled;
   private boolean voeRunning;
   private int audioCodecIndex;
@@ -158,17 +158,18 @@ public class MediaEngine implements VideoDecodeEncodeObserver {
   public MediaEngine(Context context) 
   {
     this.context = context;
-    voe = new VoiceEngine();
-    check(voe.init() == 0, "Failed voe Init");
-    audioChannel = voe.createChannel();
-    check(audioChannel >= 0, "Failed voe CreateChannel");
+    //voe = new VoiceEngine();
+    //check(voe.init() == 0, "Failed voe Init");
+    //audioChannel = voe.createChannel();
+    //check(audioChannel >= 0, "Failed voe CreateChannel");
+    
     vie = new VideoEngine();
     check(vie.init() == 0, "Failed voe Init");
-    check(vie.setVoiceEngine(voe) == 0, "Failed setVoiceEngine");
+    //check(vie.setVoiceEngine(voe) == 0, "Failed setVoiceEngine");
     videoChannel = vie.createChannel();
-    check(audioChannel >= 0, "Failed voe CreateChannel");
-    check(vie.connectAudioChannel(videoChannel, audioChannel) == 0,
-        "Failed ConnectAudioChannel");
+    //check(audioChannel >= 0, "Failed voe CreateChannel");
+    //check(vie.connectAudioChannel(videoChannel, audioChannel) == 0,
+    //    "Failed ConnectAudioChannel");
 
     cameras = new CameraInfo[2];
     CameraInfo info = new CameraInfo();
@@ -177,10 +178,10 @@ public class MediaEngine implements VideoDecodeEncodeObserver {
       cameras[info.facing] = info;
     }
     setDefaultCamera();
-    check(voe.setSpeakerVolume(volumeLevel) == 0,
-        "Failed setSpeakerVolume");
-    check(voe.setAecmMode(VoiceEngine.AecmModes.SPEAKERPHONE, false) == 0,
-        "VoE set Aecm speakerphone mode failed");
+//    check(voe.setSpeakerVolume(volumeLevel) == 0,
+//        "Failed setSpeakerVolume");
+//    check(voe.setAecmMode(VoiceEngine.AecmModes.SPEAKERPHONE, false) == 0,
+//        "VoE set Aecm speakerphone mode failed");
     check(vie.setKeyFrameRequestMethod(videoChannel,
             VideoEngine.VieKeyFrameRequestMethod.
             KEY_FRAME_REQUEST_PLI_RTCP) == 0,
@@ -230,13 +231,13 @@ public class MediaEngine implements VideoDecodeEncodeObserver {
     }
     check(vie.deleteChannel(videoChannel) == 0, "DeleteChannel");
     vie.dispose();
-    check(voe.deleteChannel(audioChannel) == 0, "VoE delete channel failed");
-    voe.dispose();
+//    check(voe.deleteChannel(audioChannel) == 0, "VoE delete channel failed");
+//    voe.dispose();
   }
 
   public void start() {
     if (audioEnabled) {
-      startVoE();
+      //startVoE();
     }
     if (receiveVideo || sendVideo) {
       startViE();
@@ -244,7 +245,7 @@ public class MediaEngine implements VideoDecodeEncodeObserver {
   }
 
   public void stop() {
-    stopVoe();
+    //stopVoe();
     stopVie();
   }
 
@@ -285,9 +286,9 @@ public class MediaEngine implements VideoDecodeEncodeObserver {
   public void startVoE() {
 	if(voeRunning==false)
 	{
-	    check(voe.startListen(audioChannel) == 0, "Failed StartListen");
-	    check(voe.startPlayout(audioChannel) == 0, "VoE start playout failed");
-	    check(voe.startSend(audioChannel) == 0, "VoE start send failed");
+//	    check(voe.startListen(audioChannel) == 0, "Failed StartListen");
+//	    check(voe.startPlayout(audioChannel) == 0, "VoE start playout failed");
+//	    check(voe.startSend(audioChannel) == 0, "VoE start send failed");
 	    voeRunning = true;
 	}else
 		check(!voeRunning, "VoE already started");
@@ -297,10 +298,10 @@ public class MediaEngine implements VideoDecodeEncodeObserver {
   private void stopVoe() {
 	if(voeRunning)
 	{
-	    check(voeRunning, "VoE not started");
-	    check(voe.stopSend(audioChannel) == 0, "VoE stop send failed");
-	    check(voe.stopPlayout(audioChannel) == 0, "VoE stop playout failed");
-	    check(voe.stopListen(audioChannel) == 0, "VoE stop listen failed");
+//	    check(voeRunning, "VoE not started");
+//	    check(voe.stopSend(audioChannel) == 0, "VoE stop send failed");
+//	    check(voe.stopPlayout(audioChannel) == 0, "VoE stop playout failed");
+//	    check(voe.stopListen(audioChannel) == 0, "VoE stop listen failed");
 	    voeRunning = false;
 	}
   }
@@ -315,27 +316,27 @@ public class MediaEngine implements VideoDecodeEncodeObserver {
 
   public void setAudioCodec(int codecNumber) {
     audioCodecIndex = codecNumber;
-    CodecInst codec = voe.getCodec(codecNumber);
-    check(voe.setSendCodec(audioChannel, codec) == 0, "Failed setSendCodec");
-    codec.dispose();
+//    CodecInst codec = voe.getCodec(codecNumber);
+//    check(voe.setSendCodec(audioChannel, codec) == 0, "Failed setSendCodec");
+//    codec.dispose();
   }
 
   public String[] audioCodecsAsString() {
-    String[] retVal = new String[voe.numOfCodecs()];
-    for (int i = 0; i < voe.numOfCodecs(); ++i) {
-      CodecInst codec = voe.getCodec(i);
-      retVal[i] = codec.toString();
-      codec.dispose();
-    }
-    return retVal;
+//    String[] retVal = new String[voe.numOfCodecs()];
+//    for (int i = 0; i < voe.numOfCodecs(); ++i) {
+//      CodecInst codec = voe.getCodec(i);
+//      retVal[i] = codec.toString();
+//      codec.dispose();
+//    }
+    return null;//retVal;
   }
 
   private CodecInst[] defaultAudioCodecs() {
-    CodecInst[] retVal = new CodecInst[voe.numOfCodecs()];
-     for (int i = 0; i < voe.numOfCodecs(); ++i) {
-      retVal[i] = voe.getCodec(i);
-    }
-    return retVal;
+//    CodecInst[] retVal = new CodecInst[voe.numOfCodecs()];
+//     for (int i = 0; i < voe.numOfCodecs(); ++i) {
+//      retVal[i] = voe.getCodec(i);
+//    }
+    return null;//retVal;
   }
 
   public int getIsacIndex() {
@@ -356,8 +357,8 @@ public class MediaEngine implements VideoDecodeEncodeObserver {
   public int audioTxPort() { return audioTxPort; }
 
   public void setAudioRxPort(int audioRxPort) {
-    check(voe.setLocalReceiver(audioChannel, audioRxPort) == 0,
-        "Failed setLocalReceiver");
+//    check(voe.setLocalReceiver(audioChannel, audioRxPort) == 0,
+//        "Failed setLocalReceiver");
     this.audioRxPort = audioRxPort;
   }
 
@@ -367,28 +368,28 @@ public class MediaEngine implements VideoDecodeEncodeObserver {
 
   public void setAgc(boolean enable) {
     enableAgc = enable;
-    VoiceEngine.AgcConfig agc_config =
-        new VoiceEngine.AgcConfig(3, 9, true);
-    check(voe.setAgcConfig(agc_config) == 0, "VoE set AGC Config failed");
-    check(voe.setAgcStatus(enableAgc, VoiceEngine.AgcModes.FIXED_DIGITAL) == 0,
-        "VoE set AGC Status failed");
+//    VoiceEngine.AgcConfig agc_config =
+//        new VoiceEngine.AgcConfig(3, 9, true);
+//    check(voe.setAgcConfig(agc_config) == 0, "VoE set AGC Config failed");
+//    check(voe.setAgcStatus(enableAgc, VoiceEngine.AgcModes.FIXED_DIGITAL) == 0,
+//        "VoE set AGC Status failed");
   }
 
   public boolean nsEnabled() { return enableNs; }
 
   public void setNs(boolean enable) {
     enableNs = enable;
-    check(voe.setNsStatus(enableNs,
-            VoiceEngine.NsModes.MODERATE_SUPPRESSION) == 0,
-        "VoE set NS Status failed");
+//    check(voe.setNsStatus(enableNs,
+//            VoiceEngine.NsModes.MODERATE_SUPPRESSION) == 0,
+//        "VoE set NS Status failed");
   }
 
   public boolean aecmEnabled() { return enableAecm; }
 
   public void setEc(boolean enable) {
     enableAecm = enable;
-    check(voe.setEcStatus(enable, VoiceEngine.EcModes.AECM) == 0,
-        "voe setEcStatus");
+//    check(voe.setEcStatus(enable, VoiceEngine.EcModes.AECM) == 0,
+//        "voe setEcStatus");
   }
 
   public boolean speakerEnabled() {
@@ -407,33 +408,33 @@ public class MediaEngine implements VideoDecodeEncodeObserver {
 
   public void setDebuging(boolean enable) {
     apmRecord = enable;
-    if (!enable) {
-      check(voe.stopDebugRecording() == 0, "Failed stopping debug");
-      return;
-    }
+//    if (!enable) {
+//      check(voe.stopDebugRecording() == 0, "Failed stopping debug");
+//      return;
+//    }
     if (!createDebugDirectory()) {
       check(false, "Unable to create debug directory.");
       return;
     }
     String debugDirectory = getDebugDirectory();
-    check(voe.startDebugRecording(debugDirectory +  String.format("/apm_%d.dat",
-                System.currentTimeMillis())) == 0,
-        "Failed starting debug");
+//    check(voe.startDebugRecording(debugDirectory +  String.format("/apm_%d.dat",
+//                System.currentTimeMillis())) == 0,
+//        "Failed starting debug");
   }
 
   public void setIncomingVoeRtpDump(boolean enable) {
     audioRtpDump = enable;
-    if (!enable) {
-      check(voe.stopRtpDump(videoChannel,
-              VoiceEngine.RtpDirections.INCOMING) == 0,
-          "voe stopping rtp dump");
-      return;
-    }
-    String debugDirectory = getDebugDirectory();
-    check(voe.startRtpDump(videoChannel, debugDirectory +
-            String.format("/voe_%d.rtp", System.currentTimeMillis()),
-            VoiceEngine.RtpDirections.INCOMING) == 0,
-        "voe starting rtp dump");
+//    if (!enable) {
+//      check(voe.stopRtpDump(videoChannel,
+//              VoiceEngine.RtpDirections.INCOMING) == 0,
+//          "voe stopping rtp dump");
+//      return;
+//    }
+//    String debugDirectory = getDebugDirectory();
+//    check(voe.startRtpDump(videoChannel, debugDirectory +
+//            String.format("/voe_%d.rtp", System.currentTimeMillis()),
+//            VoiceEngine.RtpDirections.INCOMING) == 0,
+//        "voe starting rtp dump");
   }
 
   private void updateAudioOutput() {
@@ -623,10 +624,10 @@ public class MediaEngine implements VideoDecodeEncodeObserver {
     if (remoteIp == null) {
       return;
     }
-    if (audioTxPort != 0) {
-      check(voe.setSendDestination(audioChannel, audioTxPort,
-              remoteIp) == 0, "VoE set send destination failed");
-    }
+//    if (audioTxPort != 0) {
+//      check(voe.setSendDestination(audioChannel, audioTxPort,
+//              remoteIp) == 0, "VoE set send destination failed");
+//    }
     if (videoTxPort != 0) {
       check(vie.setSendDestination(videoChannel, videoTxPort, remoteIp) == 0,
           "Failed setSendDestination");

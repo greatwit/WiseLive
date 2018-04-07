@@ -56,6 +56,7 @@ public class WiFiAPService extends Service {
             switch (action) {
 	            case WIFI_CMD:
 	            	break;
+	            	
 	            case NET_CMD:
 	            	if(datum.equals(FUNC_START_UDP_ENGINE))
 	            	{
@@ -82,8 +83,9 @@ public class WiFiAPService extends Service {
 		public int sendData(String addr, int port, String data) throws RemoteException 
 		{
 			// TODO Auto-generated method stub
-				byte[] sendbyte = mCamPack.encodePack(data);
-				Log.w(TAG, "leng:"+ sendbyte.length + "sendbyte:"+sendbyte);
+			byte[] sendbyte = mCamPack.encodePack(data);
+			Log.w(TAG, "leng:"+ sendbyte.length + "sendbyte:"+sendbyte);
+			
 			int res = 0;
 			try {
 				//res = mProtoEngine.SendData(addr, port, sendbyte);

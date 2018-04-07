@@ -21,5 +21,5 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     
     <dimen name="activity_tool_bar_height">60dp</dimen>
-    
+    <dimen name="hint_y_offset">64dip</dimen>
 </resources>

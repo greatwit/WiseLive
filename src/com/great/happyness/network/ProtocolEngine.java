@@ -94,7 +94,7 @@ public class ProtocolEngine extends Thread {
 	}
 
 	public boolean StopEngine() {
-		if(!mSendThrad.isAlive()){
+		if(mSendThrad!=null && !mSendThrad.isAlive()){
 			try {
 				interrupt();
 			} catch (Exception e) {

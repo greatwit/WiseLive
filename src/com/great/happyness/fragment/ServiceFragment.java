@@ -3,15 +3,15 @@ package com.great.happyness.fragment;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import com.great.happyness.CameraSenderActivity;
 import com.great.happyness.ConnectWifiActivity;
 import com.great.happyness.CreateWifiActivity;
 import com.great.happyness.R;
 import com.great.happyness.RtcCameraActivity;
-
+import com.great.happyness.RtcRecvActivity;
 import com.great.happyness.aidl.IActivityReq;
 import com.great.happyness.aidl.IServiceListen;
 import com.great.happyness.aidl.ServiceControl;
+import com.great.happyness.camera.VideoCameraActivity;
 import com.great.happyness.popwin.CameraPopwin;
 import com.great.happyness.service.ServiceCreatedListen;
 import com.great.happyness.service.WiFiAPService;
@@ -53,7 +53,7 @@ public class ServiceFragment extends Fragment
 	private Context mContext;
 	private final String TAG = ServiceFragment.class.getSimpleName();
 	private View view;
-	private LinearLayout item_create_ll, item_connect_ll, wifi_state_ll;
+	private LinearLayout item_create_ll, item_connect_ll, item_camera_ll, wifi_state_ll;
 	
 	private final static int CREATE_GREQUEST_CODE 	= 1;
 	private final static int CONNECT_GREQUEST_CODE 	= 2;
@@ -63,7 +63,7 @@ public class ServiceFragment extends Fragment
 	
 	private WifiUtils mWifiUtils;
 	private boolean mServiceRegisted = false;
-	private CameraPopwin mCamPopwin = null;
+	private CameraPopwin mCamPopwin  = null;
 	
 	private MediaPlayer mediaPlayer;
 	private static final float BEEP_VOLUME = 0.10f;
@@ -71,13 +71,13 @@ public class ServiceFragment extends Fragment
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		mContext = getActivity();
-		
 		super.onCreate(savedInstanceState);
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
+			Bundle savedInstanceState) 
+	{
 		view = LayoutInflater.from(mContext).inflate(R.layout.fragment_service, null);
 		init();
 		
@@ -167,7 +167,7 @@ public class ServiceFragment extends Fragment
 		AudioManager aum = (AudioManager)mContext.getSystemService(Context.AUDIO_SERVICE);
 		if (aum.getRingerMode() != AudioManager.RINGER_MODE_SILENT && mediaPlayer != null) 
 	    {
-			//mediaPlayer.start();
+			mediaPlayer.start();
 	    }
 		
 		Vibrator vibrator = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
@@ -178,12 +178,15 @@ public class ServiceFragment extends Fragment
 	private IActivityReq getBinderReq()
 	{
 		IActivityReq actReq = ServiceControl.getInstance().getActivityReq();
-		if(actReq!=null && mServiceRegisted == false)
+		if(actReq!=null)
 		{
 			try {
-				actReq.registerListener(mServListener);
-				mServiceRegisted = true;
-				Log.i(TAG, "mActReq.registerListener");
+					if(mServiceRegisted == false)
+					{
+						actReq.registerListener(mServListener);
+						mServiceRegisted = true;
+						Log.i(TAG, "mActReq.registerListener");
+					}
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -209,6 +212,9 @@ public class ServiceFragment extends Fragment
 		item_connect_ll = (LinearLayout) view.findViewById(R.id.item_connect_ll);
 		item_connect_ll.setOnClickListener(this);
 		
+		item_camera_ll = (LinearLayout) view.findViewById(R.id.item_camera_ll);
+		item_camera_ll.setOnClickListener(this);
+		
 		wifi_state_ll = (LinearLayout) view.findViewById(R.id.wifi_state_ll);
 		
 		bar_recv 	= (ImageView) view.findViewById(R.id.bar_recv);
@@ -226,6 +232,7 @@ public class ServiceFragment extends Fragment
 		public void onAction(int action, Message msg) throws RemoteException {
 			// TODO Auto-generated method stub
 			Log.i(TAG, "IServiceListen onAction:"+action);
+			//a是触电，b是触电返回；c是打开拍照请求，d是打开拍照后回复；e是发命令关闭对方，f是关闭回复。
 			switch(action)
 			{
 				case WiFiAPService.WIFI_CMD:
@@ -233,6 +240,7 @@ public class ServiceFragment extends Fragment
 					
 				case WiFiAPService.NET_CMD:
 					byte[] data = msg.getData().getByteArray("data");
+					Log.i(TAG, "IServiceListen command:"+data[14]);
 					switch(data[14])
 					{
 						case 'a':
@@ -240,6 +248,19 @@ public class ServiceFragment extends Fragment
 							break;
 							
 						case 'b':
+							break;
+							
+						case 'c':
+							Intent intent1 = new Intent().setClass(mContext, RtcCameraActivity.class);
+							intent1.putExtra("destip", getDestip());
+							startActivity(intent1);
+							sendCommand("d");
+							break;
+							
+						case 'd'://主动发送端接收到的命令
+							break;
+							
+						case 'e':
 							break;
 					}
 					break;
@@ -305,9 +326,35 @@ public class ServiceFragment extends Fragment
 		}
 	}
 	
+	private String getDestip()
+	{
+		String addr = "";
+    	if (mWifiUtils.isWifiApEnabled()){
+    		ArrayList<String> strArr = mWifiUtils.getConnectedIP();
+    		addr = strArr.get(0);
+    		Log.i(TAG, "connected wifi addr:"+addr);
+    	}else
+    	{
+    		addr = "192.168.43.1";
+    	}
+    	return addr;
+	}
+	
+	private void sendCommand(String comm)
+	{
+		String addr = getDestip();
+		try {
+			if(comm!=null&&!"".equals(comm))
+			getBinderReq().sendData(addr, SysConfig.UDP_TALK_PORT, comm);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	@Override
 	public void onClick(View v) {
-		String addr = "";
+		Intent intent;
 		switch (v.getId()) {
 			case R.id.item_create_ll:
 				startActivityForResult(new Intent().setClass(mContext, CreateWifiActivity.class), CREATE_GREQUEST_CODE);
@@ -320,10 +367,15 @@ public class ServiceFragment extends Fragment
 				}
 				break;
 				
-			case R.id.item_connect_ll://ConnectWifiActivity
-				startActivityForResult(new Intent().setClass(mContext, RtcCameraActivity.class), CONNECT_GREQUEST_CODE);
+			case R.id.item_connect_ll://
+				startActivityForResult(new Intent().setClass(mContext, ConnectWifiActivity.class), CONNECT_GREQUEST_CODE);
 				break;
-	
+			
+			case R.id.item_camera_ll://打开单机照相机
+				intent = new Intent().setClass(mContext, VideoCameraActivity.class);
+				startActivity(intent);
+				break;
+				
 			case R.id.bar_recv:
 				startActivityForResult(new Intent().setClass(mContext, CreateWifiActivity.class), CREATE_GREQUEST_CODE);
 				break;
@@ -355,50 +407,13 @@ public class ServiceFragment extends Fragment
 				
             case R.id.layout_touch:  
             	Log.i(TAG, "layout_touch");
-            	if (mWifiUtils.isWifiApEnabled()){
-            		ArrayList<String> strArr = mWifiUtils.getConnectedIP();
-            		addr = strArr.get(0);
-            		Log.i(TAG, "connected wifi addr:"+addr);
-            	}else
-            	{
-            		addr = "192.168.43.1";
-            	}
-				try {
-					getBinderReq().sendData(addr, SysConfig.UDP_TALK_PORT, "a");
-				} catch (RemoteException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+            	sendCommand("a");
                 break;
                 
             case R.id.layout_camera:
-            	if (mWifiUtils.isWifiApEnabled()){
-            		ArrayList<String> strArr = mWifiUtils.getConnectedIP();
-            		addr = strArr.get(0);
-            		Log.i(TAG, "connected wifi addr:"+addr);
-            	}else
-            	{
-            		addr = "192.168.43.1";
-            	}
-				try {
-					getBinderReq().sendData(addr, SysConfig.UDP_TALK_PORT, "b");
-				} catch (RemoteException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-//				String destip = "";
-//				if(mWifiUtils.isWifiEnable())
-//					destip = mWifiUtils.getGateWayIpAddress();
-//				else
-//				{
-//					ArrayList<String> array = mWifiUtils.getConnectedIP();
-//					int consize = array.size();
-//					if(consize>0)
-//						destip = array.get(0);
-//				}
-//				Intent intent = new Intent().setClass(mContext, WebrtcActivity.class);
-//				intent.putExtra("destip", destip);
-//				startActivity(intent);
+				intent = new Intent().setClass(mContext, RtcRecvActivity.class);
+				startActivity(intent);
+            	sendCommand("c");
                 break; 
 				
 			case R.id.bar_delete:

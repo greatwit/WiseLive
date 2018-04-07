@@ -8,9 +8,8 @@ import org.webrtc.webrtcdemo.NativeWebRtcContextRegistry;
 
 import com.great.happyness.utils.SysConfig;
 
-
 import android.app.Activity;
-
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.SurfaceView;
@@ -20,26 +19,28 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 
 public class RtcCameraActivity extends Activity implements MediaEngineObserver
 {
   private String  TAG = getClass().getSimpleName();
 
-  private Button btStartStopCall;
-  
   private boolean mPreviewCall = true;
-
+  
+  private Button btStartStopCall;
+  private TextView txttitle;
   // Remote and local stream displays.
   private LinearLayout llLocalSurface;
   
   private VideoCaptureShow mVideoCapture;
   
   private NativeWebRtcContextRegistry contextRegistry = null;
-  static public MediaEngine mediaEngine = null;
+  public MediaEngine mediaEngine = null;
   
   @Override
-  protected void onCreate(Bundle savedInstanceState) {
+  protected void onCreate(Bundle savedInstanceState) 
+  {
     super.onCreate(savedInstanceState);
     // Global settings.
     requestWindowFeature(Window.FEATURE_NO_TITLE);// 去掉标题栏
@@ -47,8 +48,10 @@ public class RtcCameraActivity extends Activity implements MediaEngineObserver
             WindowManager.LayoutParams.FLAG_FULLSCREEN);// 设置全屏
     getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     
-    String destip = SysConfig.getSaveAddr(this);
-    destip = "192.168.0.190";
+    //String destip = SysConfig.getSaveAddr(this);
+    //destip = "192.168.0.190";
+    Intent intent = getIntent();
+    String destip = intent.getStringExtra("destip");
 	Log.w(TAG, "get destip:" + destip );
 	
     setContentView(R.layout.activity_webrtc);
@@ -60,7 +63,7 @@ public class RtcCameraActivity extends Activity implements MediaEngineObserver
 
     // Load all settings dictated in xml.
     mediaEngine = new MediaEngine(this);
-    mediaEngine.setRemoteIp(destip);//127.0.0.1 192.168.250.208
+    mediaEngine.setRemoteIp(destip);	//127.0.0.1 192.168.250.208
     mediaEngine.setTrace(true);
 
     mediaEngine.setSendVideo(true);
@@ -70,7 +73,10 @@ public class RtcCameraActivity extends Activity implements MediaEngineObserver
     mediaEngine.setVideoTxPort(11111);
     mediaEngine.setNack(true);
     
+    txttitle = (TextView) findViewById(R.id.txttitle);
+    txttitle.setText("拍照端");
     
+    //切换相机
     ImageView btSwitchCamera = (ImageView) findViewById(R.id.change);
     if (getEngine().hasMultipleCameras()) {
       btSwitchCamera.setOnClickListener(new View.OnClickListener() {
@@ -82,10 +88,7 @@ public class RtcCameraActivity extends Activity implements MediaEngineObserver
       btSwitchCamera.setEnabled(false);
     }
     
-    //btSwitchCamera.setText(getEngine().frontCameraIsSet() ? R.string.backCamera : R.string.frontCamera);
-
     btStartStopCall = (Button) findViewById(R.id.takepicture);
-    //btStartStopCall.setBackgroundResource(getEngine().isRunning() ? R.drawable.record_stop : R.drawable.record_start);
     btStartStopCall.setOnClickListener(new View.OnClickListener() {
         public void onClick(View button) {
           //toggleStart();
@@ -115,7 +118,6 @@ public class RtcCameraActivity extends Activity implements MediaEngineObserver
 
   private void setViews() {
     SurfaceView svLocal = mVideoCapture.getLocalSurfaceView();
-    //svLocal.setZOrderOnTop(true);
     if (svLocal != null) {
       llLocalSurface.addView(svLocal);
     }
@@ -148,7 +150,6 @@ public class RtcCameraActivity extends Activity implements MediaEngineObserver
       svLocal = mVideoCapture.getLocalSurfaceView();
       llLocalSurface.addView(svLocal);
     }
-    //btSwitchCamera.setText(getEngine().frontCameraIsSet() ? R.string.backCamera : R.string.frontCamera);
   }
 
   public void toggleStart() {
@@ -157,7 +158,6 @@ public class RtcCameraActivity extends Activity implements MediaEngineObserver
     } else {
       startCall();
     }
-    //btStartStopCall.setBackgroundResource(getEngine().isRunning() ? R.drawable.record_stop : R.drawable.record_start);
   }
 
   public void stopAll() {

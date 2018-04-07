@@ -26,7 +26,6 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -36,7 +35,7 @@ public class RtcRecvActivity extends Activity  implements MediaEngineObserver
   private String  TAG = "WebrtcActivity";
 
   private Button btStartStopCall;
-
+  private TextView txttitle;
   // Remote and local stream displays.
   private LinearLayout llRemoteSurface;
   
@@ -65,39 +64,28 @@ public class RtcRecvActivity extends Activity  implements MediaEngineObserver
 
     // Load all settings dictated in xml.
     mediaEngine = new MediaEngine(this);
-    mediaEngine.setRemoteIp(destip);//127.0.0.1 192.168.250.208
-    mediaEngine.setTrace(true);
-    mediaEngine.setSendVideo(true);
+    //mediaEngine.setRemoteIp(destip);//127.0.0.1 192.168.250.208
+    mediaEngine.setSendVideo(false);
     
+    mediaEngine.setTrace(true);
     mediaEngine.setReceiveVideo(true);
     
     mediaEngine.setVideoCodec(0);
     // TODO(hellner): resolutions should probably be in the xml as well.
     mediaEngine.setResolutionIndex(MediaEngine.numberOfResolutions() - 3);
-    mediaEngine.setVideoTxPort(11111);
+    //mediaEngine.setVideoTxPort(11111);
     mediaEngine.setVideoRxPort(11111);
     mediaEngine.setNack(true);
     
-    
-    int play = SysConfig.getSavePlay(this);
-    if((play&0x4)==0x4)
-    {
-    	mediaEngine.setAudio(true);
-        mediaEngine.setAudioCodec(mediaEngine.getIsacIndex());
-        mediaEngine.setAudioRxPort(11113);
-        mediaEngine.setAudioTxPort(11113);
-        mediaEngine.setSpeaker(false);
-        mediaEngine.setDebuging(false);
-    }
-    else
-    	mediaEngine.setAudio(false);
+    txttitle = (TextView) findViewById(R.id.txttitle);
+    txttitle.setText("控制端");
     
 
     btStartStopCall = (Button) findViewById(R.id.takepicture);
     //btStartStopCall.setBackgroundResource(getEngine().isRunning() ? R.drawable.record_stop : R.drawable.record_start);
     btStartStopCall.setOnClickListener(new View.OnClickListener() {
         public void onClick(View button) {
-          toggleStart();
+          //toggleStart();
         }
       });
     
@@ -105,8 +93,8 @@ public class RtcRecvActivity extends Activity  implements MediaEngineObserver
     Log.w(TAG, "spCodecSize.setSelection:"+ SysConfig.getSaveResolution(this) );
 
     getEngine().setObserver(this);
-    
-    Log.i(TAG, VideoCaptureDeviceInfoAndroid.getDeviceInfo());
+    toggleStart();
+    //Log.i(TAG, VideoCaptureDeviceInfoAndroid.getDeviceInfo());
   }
   
   private MediaEngine getEngine() { return mediaEngine; }
@@ -116,11 +104,6 @@ public class RtcRecvActivity extends Activity  implements MediaEngineObserver
     if (remoteSurfaceView != null) {
       llRemoteSurface.addView(remoteSurfaceView);
     }
-//    SurfaceView svLocal = getEngine().getLocalSurfaceView();
-//    svLocal.setZOrderOnTop(true);
-//    if (svLocal != null) {
-//      llLocalSurface.addView(svLocal);
-//    }
   }
 
   private void clearViews() {
@@ -128,10 +111,6 @@ public class RtcRecvActivity extends Activity  implements MediaEngineObserver
     if (remoteSurfaceView != null) {
       llRemoteSurface.removeView(remoteSurfaceView);
     }
-//    SurfaceView svLocal = getEngine().getLocalSurfaceView();
-//    if (svLocal != null) {
-//      llLocalSurface.removeView(svLocal);
-//    }
   }
 
   // tvStats need to be updated on the UI thread.
@@ -165,7 +144,7 @@ public class RtcRecvActivity extends Activity  implements MediaEngineObserver
     } else {
       startCall();
     }
-    btStartStopCall.setBackgroundResource(getEngine().isRunning() ? R.drawable.record_stop : R.drawable.record_start);
+    //btStartStopCall.setBackgroundResource(getEngine().isRunning() ? R.drawable.record_stop : R.drawable.record_start);
   }
 
   public void stopAll() {

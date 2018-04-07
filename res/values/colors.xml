@@ -50,4 +50,7 @@
     
     <color name="white_overlay">#ffffffff</color>
     
+    <color name="recording_time_elapsed_text">#FFFFFFFF</color>
+    <color name="recording_time_remaining_text">#FFFF0033</color>
+    
 </resources>

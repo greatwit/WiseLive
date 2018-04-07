@@ -10,10 +10,65 @@ package com.great.happyness;
 public final class R {
     public static final class anim {
         public static final int dialog_load_animation=0x7f040000;
-        public static final int pop_enter_anim=0x7f040001;
-        public static final int pop_exit_anim=0x7f040002;
-        public static final int push_in=0x7f040003;
-        public static final int push_out=0x7f040004;
+        public static final int on_screen_hint_enter=0x7f040001;
+        public static final int on_screen_hint_exit=0x7f040002;
+        public static final int pop_enter_anim=0x7f040003;
+        public static final int pop_exit_anim=0x7f040004;
+        public static final int push_in=0x7f040005;
+        public static final int push_out=0x7f040006;
+    }
+    public static final class array {
+        public static final int flashmode_icons=0x7f07000c;
+        /**  Camera Preferences Color effect dialog box entries 
+         */
+        public static final int pref_camera_coloreffect_entries=0x7f070019;
+        public static final int pref_camera_coloreffect_entryvalues=0x7f07001a;
+        /**  Camera Preferences flash mode dialog box entries 
+         */
+        public static final int pref_camera_flashmode_entries=0x7f070009;
+        public static final int pref_camera_flashmode_entryvalues=0x7f07000a;
+        public static final int pref_camera_flashmode_icons=0x7f07000b;
+        /**  Camera Preferences focus mode dialog box entries 
+         */
+        public static final int pref_camera_focusmode_entries=0x7f070007;
+        public static final int pref_camera_focusmode_entryvalues=0x7f070008;
+        /**  Camera Preferences JPEG quality dialog box entries 
+         */
+        public static final int pref_camera_jpegquality_entries=0x7f070005;
+        public static final int pref_camera_jpegquality_entryvalues=0x7f070006;
+        /**  Camera Preferences Picture size dialog box entries 
+         */
+        public static final int pref_camera_picturesize_entries=0x7f070003;
+        /**  When launching the camera app first time, we will set the picture
+         size to the first one in the list that is also supported by the
+         driver 
+         */
+        public static final int pref_camera_picturesize_entryvalues=0x7f070004;
+        public static final int pref_camera_recordlocation_entries=0x7f070012;
+        public static final int pref_camera_recordlocation_entryvalues=0x7f070011;
+        public static final int pref_camera_recordlocation_icons=0x7f070013;
+        /**  Camera Preferences Scene Mode dialog box entries 
+         */
+        public static final int pref_camera_scenemode_entries=0x7f07001b;
+        public static final int pref_camera_scenemode_entryvalues=0x7f07001c;
+        /**  Videocamera Preferences flash mode dialog box entries 
+         */
+        public static final int pref_camera_video_flashmode_entries=0x7f07000d;
+        public static final int pref_camera_video_flashmode_entryvalues=0x7f07000e;
+        public static final int pref_camera_video_flashmode_icons=0x7f07000f;
+        /**  Camera Preferences White Balance dialog box entries 
+         */
+        public static final int pref_camera_whitebalance_entries=0x7f070015;
+        public static final int pref_camera_whitebalance_entryvalues=0x7f070016;
+        public static final int pref_camera_whitebalance_icons=0x7f070017;
+        /**  Camera Preferences Video Quality entries 
+         */
+        public static final int pref_video_quality_entries=0x7f070000;
+        public static final int pref_video_quality_entryvalues=0x7f070001;
+        public static final int recordlocation_icons=0x7f070014;
+        public static final int video_flashmode_icons=0x7f070010;
+        public static final int video_quality_icons=0x7f070002;
+        public static final int whitebalance_icons=0x7f070018;
     }
     public static final class attr {
         /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
@@ -204,6 +259,14 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
 <p>May be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
          */
         public static final int dayNightTwoTextColorAttr=0x7f01004e;
+        /** <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int defaultValue=0x7f010082;
         /** <p>Must be an integer value, such as "<code>100</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -212,6 +275,14 @@ theme attribute (in the form
 containing a value of this type.
          */
         public static final int duration=0x7f01003d;
+        /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
+or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
+         */
+        public static final int entries=0x7f010084;
+        /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
+or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
+         */
+        public static final int entryValues=0x7f010083;
         /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -228,6 +299,22 @@ theme attribute (in the form
 containing a value of this type.
          */
         public static final int fromDeg=0x7f01002b;
+        /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
+or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
+         */
+        public static final int icons=0x7f010085;
+        /** <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int key=0x7f010081;
+        /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
+or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
+         */
+        public static final int largeIcons=0x7f010087;
         /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -236,6 +323,10 @@ theme attribute (in the form
 containing a value of this type.
          */
         public static final int linearProgress=0x7f010038;
+        /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
+or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
+         */
+        public static final int modes=0x7f010086;
         /**  圆角矩形背景色 
          <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
 "<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
@@ -797,6 +888,14 @@ theme attribute (in the form
 containing a value of this type.
          */
         public static final int tailColor=0x7f01007a;
+        /** <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int title=0x7f010080;
         /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
 "<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
 <p>This may also be a reference to a resource (in the form
@@ -1191,226 +1290,313 @@ containing a value of this type.
         public static final int toDeg=0x7f01002c;
     }
     public static final class color {
-        public static final int accent_blue=0x7f07001d;
-        public static final int black=0x7f070006;
-        public static final int black_light=0x7f070015;
-        public static final int blue=0x7f07001b;
-        public static final int blue_powder=0x7f070002;
-        public static final int colorAccent=0x7f070005;
-        public static final int colorPrimary=0x7f070003;
-        public static final int colorPrimaryDark=0x7f070004;
-        public static final int colorRed=0x7f070023;
-        public static final int color_default_bg=0x7f07000f;
-        public static final int color_device=0x7f07000c;
-        public static final int color_file=0x7f07000d;
-        public static final int color_storage=0x7f07000e;
-        public static final int color_yellow=0x7f070011;
-        public static final int dark_blue=0x7f07001c;
-        public static final int darker_gray=0x7f070007;
-        public static final int gray=0x7f070012;
-        public static final int gray_light=0x7f070013;
-        public static final int gray_light_1=0x7f070014;
-        public static final int green=0x7f070001;
-        public static final int hole_gray_blue=0x7f07000b;
-        public static final int holo_blue_light=0x7f07000a;
-        public static final int light_grey=0x7f07001e;
-        public static final int pcolorAccent=0x7f070021;
+        public static final int accent_blue=0x7f08001d;
+        public static final int black=0x7f080006;
+        public static final int black_light=0x7f080015;
+        public static final int blue=0x7f08001b;
+        public static final int blue_powder=0x7f080002;
+        public static final int colorAccent=0x7f080005;
+        public static final int colorPrimary=0x7f080003;
+        public static final int colorPrimaryDark=0x7f080004;
+        public static final int colorRed=0x7f080023;
+        public static final int color_default_bg=0x7f08000f;
+        public static final int color_device=0x7f08000c;
+        public static final int color_file=0x7f08000d;
+        public static final int color_storage=0x7f08000e;
+        public static final int color_yellow=0x7f080011;
+        public static final int dark_blue=0x7f08001c;
+        public static final int darker_gray=0x7f080007;
+        public static final int gray=0x7f080012;
+        public static final int gray_light=0x7f080013;
+        public static final int gray_light_1=0x7f080014;
+        public static final int green=0x7f080001;
+        public static final int hole_gray_blue=0x7f08000b;
+        public static final int holo_blue_light=0x7f08000a;
+        public static final int light_grey=0x7f08001e;
+        public static final int pcolorAccent=0x7f080021;
         /**  circle process 
          */
-        public static final int pcolorPrimary=0x7f07001f;
-        public static final int pcolorPrimaryDark=0x7f070020;
-        public static final int possible_result_points=0x7f070019;
-        public static final int red=0x7f070000;
-        public static final int result_view=0x7f07001a;
-        public static final int transparent=0x7f070010;
-        public static final int transparent_white=0x7f070009;
+        public static final int pcolorPrimary=0x7f08001f;
+        public static final int pcolorPrimaryDark=0x7f080020;
+        public static final int possible_result_points=0x7f080019;
+        public static final int recording_time_elapsed_text=0x7f080025;
+        public static final int recording_time_remaining_text=0x7f080026;
+        public static final int red=0x7f080000;
+        public static final int result_view=0x7f08001a;
+        public static final int transparent=0x7f080010;
+        public static final int transparent_white=0x7f080009;
         /**  captrue 
          */
-        public static final int viewfinder_frame=0x7f070016;
-        public static final int viewfinder_laser=0x7f070017;
-        public static final int viewfinder_mask=0x7f070018;
-        public static final int white=0x7f070008;
-        public static final int white2=0x7f070022;
-        public static final int white_overlay=0x7f070024;
+        public static final int viewfinder_frame=0x7f080016;
+        public static final int viewfinder_laser=0x7f080017;
+        public static final int viewfinder_mask=0x7f080018;
+        public static final int white=0x7f080008;
+        public static final int white2=0x7f080022;
+        public static final int white_overlay=0x7f080024;
     }
     public static final class dimen {
-        public static final int activity_horizontal_margin=0x7f080002;
-        public static final int activity_tool_bar_height=0x7f080004;
-        public static final int activity_vertical_margin=0x7f080003;
-        public static final int phone_list_height=0x7f080001;
-        public static final int tablet_list_width=0x7f080000;
+        public static final int activity_horizontal_margin=0x7f090002;
+        public static final int activity_tool_bar_height=0x7f090004;
+        public static final int activity_vertical_margin=0x7f090003;
+        public static final int hint_y_offset=0x7f090005;
+        public static final int phone_list_height=0x7f090001;
+        public static final int tablet_list_width=0x7f090000;
     }
     public static final class drawable {
         public static final int bg_color=0x7f020000;
-        public static final int btn_take_photo=0x7f020001;
-        public static final int cam_focus=0x7f020002;
-        public static final int camera=0x7f020003;
-        public static final int camera_back=0x7f020004;
-        public static final int camera_flash_auto=0x7f020005;
-        public static final int camera_flash_off=0x7f020006;
-        public static final int camera_flash_on=0x7f020007;
-        public static final int camera_flip=0x7f020008;
-        public static final int camera_laun=0x7f020009;
-        public static final int camera_library=0x7f02000a;
-        public static final int connect=0x7f02000b;
-        public static final int control_qr=0x7f02000c;
-        public static final int delete=0x7f02000d;
-        public static final int dialog_load_bg=0x7f02000e;
-        public static final int goback=0x7f02000f;
-        public static final int ic_action_discover=0x7f020010;
-        public static final int ic_action_on_off=0x7f020011;
-        public static final int ic_home_normal=0x7f020012;
-        public static final int ic_home_select=0x7f020013;
-        public static final int ic_personal_normal=0x7f020014;
-        public static final int ic_personal_select=0x7f020015;
-        public static final int ic_service_normal=0x7f020016;
-        public static final int ic_service_select=0x7f020017;
-        public static final int icon=0x7f020018;
-        public static final int icon_file=0x7f020019;
-        public static final int icon_folder=0x7f02001a;
-        public static final int listbg=0x7f02001b;
-        public static final int operator=0x7f02001c;
-        public static final int pconnect=0x7f02001d;
-        public static final int progressbar=0x7f02001e;
-        public static final int qr_mobile=0x7f02001f;
-        public static final int qr_scaner=0x7f020020;
-        public static final int qrcode=0x7f020021;
-        public static final int qrcode_default_grid_scan_line=0x7f020022;
-        public static final int qrcode_default_scan_line=0x7f020023;
-        public static final int record_start=0x7f020024;
-        public static final int record_stop=0x7f020025;
-        public static final int recv=0x7f020026;
-        public static final int scan_icon_scanline=0x7f020027;
-        public static final int send=0x7f020028;
-        public static final int service_icon_0=0x7f020029;
-        public static final int service_icon_1=0x7f02002a;
-        public static final int service_icon_2=0x7f02002b;
-        public static final int setting=0x7f02002c;
-        public static final int shap_bg=0x7f02002d;
-        public static final int textselector=0x7f02002e;
-        public static final int users=0x7f02002f;
+        public static final int border_last_picture=0x7f020001;
+        public static final int border_last_picture_normal=0x7f020002;
+        public static final int border_last_picture_pressed=0x7f020003;
+        public static final int border_view_finder=0x7f020004;
+        public static final int btn_camera_review=0x7f020005;
+        public static final int btn_camera_review_highlight=0x7f020006;
+        public static final int btn_camera_review_normal=0x7f020007;
+        public static final int btn_camera_review_pressed=0x7f020008;
+        public static final int btn_ic_camera_shutter=0x7f020009;
+        public static final int btn_ic_mode_switch_camera=0x7f02000a;
+        public static final int btn_ic_mode_switch_video=0x7f02000b;
+        public static final int btn_ic_review_cancel=0x7f02000c;
+        public static final int btn_ic_review_done=0x7f02000d;
+        public static final int btn_ic_review_play=0x7f02000e;
+        public static final int btn_ic_review_retake_photo=0x7f02000f;
+        public static final int btn_ic_review_retake_video=0x7f020010;
+        public static final int btn_ic_video_record=0x7f020011;
+        public static final int btn_ic_video_record_stop=0x7f020012;
+        public static final int btn_mode_switch_bg=0x7f020013;
+        public static final int btn_mode_switch_knob=0x7f020014;
+        public static final int btn_mode_switch_knob_normal=0x7f020015;
+        public static final int btn_mode_switch_knob_pressed=0x7f020016;
+        public static final int btn_shutter=0x7f020017;
+        public static final int btn_shutter_normal=0x7f020018;
+        public static final int btn_shutter_pressed=0x7f020019;
+        public static final int btn_take_photo=0x7f02001a;
+        public static final int cam_focus=0x7f02001b;
+        public static final int camconnect=0x7f02001c;
+        public static final int camera=0x7f02001d;
+        public static final int camera_back=0x7f02001e;
+        public static final int camera_background=0x7f02001f;
+        public static final int camera_flash_auto=0x7f020020;
+        public static final int camera_flash_off=0x7f020021;
+        public static final int camera_flash_on=0x7f020022;
+        public static final int camera_flip=0x7f020023;
+        public static final int camera_laun=0x7f020024;
+        public static final int camera_library=0x7f020025;
+        public static final int connect=0x7f020026;
+        public static final int control_qr=0x7f020027;
+        public static final int delete=0x7f020028;
+        public static final int dialog_load_bg=0x7f020029;
+        public static final int focus_focus_failed=0x7f02002a;
+        public static final int focus_focused=0x7f02002b;
+        public static final int focus_focusing=0x7f02002c;
+        public static final int goback=0x7f02002d;
+        public static final int ic_action_on_off=0x7f02002e;
+        public static final int ic_home_normal=0x7f02002f;
+        public static final int ic_home_select=0x7f020030;
+        public static final int ic_menu_camera_video_view=0x7f020031;
+        public static final int ic_menuselect_camera_facing_back=0x7f020032;
+        public static final int ic_menuselect_camera_facing_front=0x7f020033;
+        public static final int ic_menuselect_flash_auto=0x7f020034;
+        public static final int ic_menuselect_flash_off=0x7f020035;
+        public static final int ic_menuselect_flash_on=0x7f020036;
+        public static final int ic_menuselect_gps_off=0x7f020037;
+        public static final int ic_menuselect_gps_on=0x7f020038;
+        public static final int ic_menuselect_off=0x7f020039;
+        public static final int ic_menuselect_on=0x7f02003a;
+        public static final int ic_menuselect_wb_auto=0x7f02003b;
+        public static final int ic_menuselect_wb_cloudy=0x7f02003c;
+        public static final int ic_menuselect_wb_daylight=0x7f02003d;
+        public static final int ic_menuselect_wb_fluorescent=0x7f02003e;
+        public static final int ic_menuselect_wb_incandescent=0x7f02003f;
+        public static final int ic_personal_normal=0x7f020040;
+        public static final int ic_personal_select=0x7f020041;
+        public static final int ic_recording_indicator=0x7f020042;
+        public static final int ic_service_normal=0x7f020043;
+        public static final int ic_service_select=0x7f020044;
+        public static final int ic_viewfinder_camera_facing_back=0x7f020045;
+        public static final int ic_viewfinder_camera_facing_front=0x7f020046;
+        public static final int ic_viewfinder_flash_auto=0x7f020047;
+        public static final int ic_viewfinder_flash_off=0x7f020048;
+        public static final int ic_viewfinder_flash_on=0x7f020049;
+        public static final int ic_viewfinder_gps_no_signal=0x7f02004a;
+        public static final int ic_viewfinder_gps_off=0x7f02004b;
+        public static final int ic_viewfinder_gps_on=0x7f02004c;
+        public static final int ic_viewfinder_iconbar=0x7f02004d;
+        public static final int ic_viewfinder_settings=0x7f02004e;
+        public static final int ic_viewfinder_video_quality_high=0x7f02004f;
+        public static final int ic_viewfinder_video_quality_low=0x7f020050;
+        public static final int ic_viewfinder_video_quality_mms=0x7f020051;
+        public static final int ic_viewfinder_video_quality_youtube=0x7f020052;
+        public static final int ic_viewfinder_wb_auto=0x7f020053;
+        public static final int ic_viewfinder_wb_cloudy=0x7f020054;
+        public static final int ic_viewfinder_wb_daylight=0x7f020055;
+        public static final int ic_viewfinder_wb_fluorescent=0x7f020056;
+        public static final int ic_viewfinder_wb_incandescent=0x7f020057;
+        public static final int icon_file=0x7f020058;
+        public static final int icon_folder=0x7f020059;
+        public static final int listbg=0x7f02005a;
+        public static final int menu_popup=0x7f02005b;
+        public static final int menu_popup_triangle=0x7f02005c;
+        public static final int on_screen_hint_frame=0x7f02005d;
+        public static final int operator=0x7f02005e;
+        public static final int progressbar=0x7f02005f;
+        public static final int qr_mobile=0x7f020060;
+        public static final int qr_scaner=0x7f020061;
+        public static final int qrcode=0x7f020062;
+        public static final int qrcode_default_grid_scan_line=0x7f020063;
+        public static final int qrcode_default_scan_line=0x7f020064;
+        public static final int recv=0x7f020065;
+        public static final int scan_icon_scanline=0x7f020066;
+        public static final int scrollbar_handle_vertical=0x7f020067;
+        public static final int send=0x7f020068;
+        public static final int service_icon_0=0x7f020069;
+        public static final int shap_bg=0x7f02006a;
+        public static final int textselector=0x7f02006b;
+        public static final int users=0x7f02006c;
+        public static final int zoom_background=0x7f02006d;
+        public static final int zoom_finetickmark=0x7f02006e;
+        public static final int zoom_slider=0x7f02006f;
+        public static final int zoom_tickmark=0x7f020070;
     }
     public static final class id {
-        public static final int BLOCK=0x7f060004;
-        public static final int BOTH=0x7f060007;
-        public static final int BOTTOM=0x7f060001;
-        public static final int LEFT=0x7f060008;
-        public static final int NONE=0x7f060005;
-        public static final int NORMAL=0x7f060002;
-        public static final int RIGHT=0x7f060009;
-        public static final int SELECT=0x7f060006;
-        public static final int TOP=0x7f060000;
-        public static final int TRIANGLE=0x7f060003;
+        public static final int BLOCK=0x7f0a000f;
+        public static final int BOTH=0x7f0a0012;
+        public static final int BOTTOM=0x7f0a000d;
+        public static final int LEFT=0x7f0a0015;
+        public static final int NONE=0x7f0a0013;
+        public static final int NORMAL=0x7f0a0010;
+        public static final int RIGHT=0x7f0a0016;
+        public static final int SELECT=0x7f0a0014;
+        public static final int TOP=0x7f0a000e;
+        public static final int TRIANGLE=0x7f0a0011;
         /**  Messages IDs 
          */
-        public static final int auto_focus=0x7f060011;
-        public static final int back=0x7f06003d;
-        public static final int bar_delete=0x7f060059;
-        public static final int bar_goback=0x7f060020;
-        public static final int bar_recv=0x7f060056;
-        public static final int bar_send=0x7f060057;
-        public static final int bar_status=0x7f060058;
+        public static final int auto_focus=0x7f0a0000;
+        public static final int back=0x7f0a003d;
+        public static final int bar_delete=0x7f0a0063;
+        public static final int bar_goback=0x7f0a0020;
+        public static final int bar_recv=0x7f0a0060;
+        public static final int bar_send=0x7f0a0061;
+        public static final int bar_status=0x7f0a0062;
         /**  qrcode 
  Messages IDs 
          */
-        public static final int bgaqrcode_camera_preview=0x7f06001d;
-        public static final int bottom=0x7f060010;
-        public static final int btEncodecStart=0x7f060038;
-        public static final int bt_qr_capture=0x7f060036;
-        public static final int btn_close_hostspot=0x7f060023;
-        public static final int btn_create_hostspot=0x7f060022;
-        public static final int btn_native_listen=0x7f06002e;
-        public static final int btn_native_send=0x7f06002f;
-        public static final int btn_search=0x7f060024;
-        public static final int btn_upper_listen=0x7f06002c;
-        public static final int btn_upper_send=0x7f06002d;
-        public static final int btn_video_listen=0x7f060026;
-        public static final int btn_video_send=0x7f060027;
-        public static final int buttonLayout=0x7f06003a;
-        public static final int camera_top=0x7f060040;
-        public static final int cbAudio=0x7f060052;
-        public static final int cbVideoReceive=0x7f060050;
-        public static final int cbVideoSend=0x7f060051;
-        public static final int change=0x7f060042;
-        public static final int create_icon=0x7f06005b;
-        public static final int create_title=0x7f06005c;
-        public static final int decode=0x7f060012;
-        public static final int decode_failed=0x7f060013;
-        public static final int decode_succeeded=0x7f060014;
-        public static final int encode_failed=0x7f060015;
-        public static final int encode_succeeded=0x7f060016;
-        public static final int exit=0x7f060030;
-        public static final int fl_body=0x7f06002b;
-        public static final int flashBtn=0x7f060041;
-        public static final int focus_index=0x7f060044;
-        public static final int icon_text=0x7f060063;
-        public static final int imgcamera=0x7f06006c;
-        public static final int imgqr=0x7f06006e;
-        public static final int imgtouch=0x7f060069;
-        public static final int item_connect_ll=0x7f06005d;
-        public static final int item_create_ll=0x7f06005a;
-        public static final int iv_tab_icon=0x7f060066;
-        public static final int launch_product_query=0x7f060017;
-        public static final int layout_camera=0x7f06006b;
-        public static final int layout_touch=0x7f060068;
-        public static final int left=0x7f06000e;
-        public static final int listView=0x7f060028;
-        public static final int list_ad_pic_1=0x7f06004e;
-        public static final int list_menu_1=0x7f060049;
-        public static final int list_menu_2=0x7f060048;
-        public static final int llRemoteView=0x7f060045;
-        public static final int ll_tap=0x7f060064;
-        public static final int main_title_bar=0x7f060029;
-        public static final int main_title_bar_goback=0x7f060060;
-        public static final int main_title_bar_icon=0x7f060062;
-        public static final int main_title_bar_text=0x7f060061;
-        public static final int main_view=0x7f06001e;
-        public static final int masking=0x7f060043;
-        public static final int next=0x7f06003e;
-        public static final int panel_take_photo=0x7f06003b;
-        public static final int photo_area=0x7f06003f;
-        public static final int preview_view=0x7f060034;
-        public static final int progress=0x7f06004b;
-        public static final int progressWheel=0x7f06004d;
-        public static final int progressWheel_text=0x7f06004c;
-        public static final int progressbar=0x7f06004a;
-        public static final int qr_capture_ll=0x7f060033;
-        public static final int quit=0x7f060018;
-        public static final int radar_ll=0x7f060031;
-        public static final int random_textview=0x7f060032;
-        public static final int restart_preview=0x7f060019;
-        public static final int return_scan_result=0x7f06001a;
-        public static final int right=0x7f06000f;
-        public static final int rtv_msg_tip=0x7f060067;
-        public static final int scrollview_main=0x7f060047;
-        public static final int scrollview_personal=0x7f06004f;
-        public static final int scrollview_service=0x7f060054;
-        public static final int search_book_contents_failed=0x7f06001b;
-        public static final int search_book_contents_succeeded=0x7f06001c;
-        public static final int sfv_video=0x7f060037;
-        public static final int spCodecSize=0x7f060053;
-        public static final int spinner_row=0x7f060046;
-        public static final int surfaceView=0x7f060039;
-        public static final int tab_layout=0x7f06002a;
-        public static final int takepicture=0x7f06003c;
-        public static final int tasks_view=0x7f06001f;
-        public static final int top=0x7f06000d;
-        public static final int tv_tab_title=0x7f060065;
-        public static final int tvconn_state=0x7f060025;
-        public static final int tvhot_state=0x7f060021;
-        public static final int txtcamera=0x7f06006d;
-        public static final int txtqr=0x7f06006f;
-        public static final int txtstat=0x7f060070;
-        public static final int txttouch=0x7f06006a;
-        public static final int viewfinder_view=0x7f060035;
-        public static final int wifi_name=0x7f060071;
-        public static final int wifi_signal=0x7f060072;
-        public static final int wifi_state_ll=0x7f060055;
-        public static final int wise_connect_icon=0x7f06005e;
-        public static final int wise_connect_title=0x7f06005f;
-        public static final int x=0x7f06000a;
-        public static final int y=0x7f06000b;
-        public static final int z=0x7f06000c;
+        public static final int bgaqrcode_camera_preview=0x7f0a000c;
+        public static final int bottom=0x7f0a001a;
+        public static final int btEncodecStart=0x7f0a0038;
+        public static final int bt_qr_capture=0x7f0a0036;
+        public static final int btn_cancel=0x7f0a0048;
+        public static final int btn_close_hostspot=0x7f0a0023;
+        public static final int btn_create_hostspot=0x7f0a0022;
+        public static final int btn_done=0x7f0a004c;
+        public static final int btn_native_listen=0x7f0a002e;
+        public static final int btn_native_send=0x7f0a002f;
+        public static final int btn_play=0x7f0a004a;
+        public static final int btn_retake=0x7f0a0049;
+        public static final int btn_search=0x7f0a0024;
+        public static final int btn_upper_listen=0x7f0a002c;
+        public static final int btn_upper_send=0x7f0a002d;
+        public static final int btn_video_listen=0x7f0a0026;
+        public static final int btn_video_send=0x7f0a0027;
+        public static final int buttonLayout=0x7f0a003a;
+        public static final int camera=0x7f0a0052;
+        public static final int camera_preview=0x7f0a0055;
+        public static final int camera_switch=0x7f0a0050;
+        public static final int camera_switch_icon=0x7f0a0051;
+        public static final int camera_switch_set=0x7f0a004e;
+        public static final int camera_top=0x7f0a0040;
+        public static final int cbAudio=0x7f0a005c;
+        public static final int cbVideoReceive=0x7f0a005a;
+        public static final int cbVideoSend=0x7f0a005b;
+        public static final int change=0x7f0a0042;
+        public static final int control_bar=0x7f0a0047;
+        public static final int create_icon=0x7f0a0065;
+        public static final int create_title=0x7f0a0066;
+        public static final int decode=0x7f0a0001;
+        public static final int decode_failed=0x7f0a0002;
+        public static final int decode_succeeded=0x7f0a0003;
+        public static final int encode_failed=0x7f0a0004;
+        public static final int encode_succeeded=0x7f0a0005;
+        public static final int exit=0x7f0a0030;
+        public static final int fl_body=0x7f0a002b;
+        public static final int flashBtn=0x7f0a0041;
+        public static final int focus_index=0x7f0a0044;
+        public static final int focus_rectangle=0x7f0a0056;
+        public static final int frame=0x7f0a0054;
+        public static final int frame_layout=0x7f0a0053;
+        public static final int icon_text=0x7f0a0070;
+        public static final int imgcamera=0x7f0a007a;
+        public static final int imgqr=0x7f0a007c;
+        public static final int imgtouch=0x7f0a0077;
+        public static final int item_camera_ll=0x7f0a006a;
+        public static final int item_connect_ll=0x7f0a0067;
+        public static final int item_create_ll=0x7f0a0064;
+        public static final int iv_tab_icon=0x7f0a0073;
+        public static final int launch_product_query=0x7f0a0006;
+        public static final int layout_camera=0x7f0a0079;
+        public static final int layout_touch=0x7f0a0076;
+        public static final int left=0x7f0a001b;
+        public static final int listView=0x7f0a0028;
+        public static final int llRemoteView=0x7f0a0045;
+        public static final int ll_tap=0x7f0a0071;
+        public static final int main_title_bar=0x7f0a0029;
+        public static final int main_title_bar_goback=0x7f0a006d;
+        public static final int main_title_bar_icon=0x7f0a006f;
+        public static final int main_title_bar_text=0x7f0a006e;
+        public static final int main_view=0x7f0a001e;
+        public static final int masking=0x7f0a0043;
+        public static final int message=0x7f0a0075;
+        public static final int next=0x7f0a003e;
+        public static final int panel_take_photo=0x7f0a003b;
+        public static final int photo_area=0x7f0a003f;
+        public static final int preview_view=0x7f0a0034;
+        public static final int progressbar=0x7f0a007e;
+        public static final int qr_capture_ll=0x7f0a0033;
+        public static final int quit=0x7f0a0007;
+        public static final int radar_ll=0x7f0a0031;
+        public static final int random_textview=0x7f0a0032;
+        public static final int recording_time=0x7f0a0083;
+        public static final int recording_time_rect=0x7f0a0082;
+        public static final int restart_preview=0x7f0a0008;
+        public static final int return_scan_result=0x7f0a0009;
+        public static final int review_thumbnail=0x7f0a004d;
+        public static final int right=0x7f0a001c;
+        public static final int rtv_msg_tip=0x7f0a0074;
+        public static final int scrollview_main=0x7f0a0058;
+        public static final int scrollview_personal=0x7f0a0059;
+        public static final int scrollview_service=0x7f0a005e;
+        public static final int search_book_contents_failed=0x7f0a000a;
+        public static final int search_book_contents_succeeded=0x7f0a000b;
+        public static final int sfv_video=0x7f0a0037;
+        public static final int shutter_button=0x7f0a004b;
+        public static final int spCodecSize=0x7f0a005d;
+        public static final int spinner_row=0x7f0a0057;
+        public static final int surfaceView=0x7f0a0039;
+        public static final int tab_layout=0x7f0a002a;
+        public static final int takepicture=0x7f0a003c;
+        public static final int tasks_view=0x7f0a001f;
+        public static final int top=0x7f0a001d;
+        public static final int tv_tab_title=0x7f0a0072;
+        public static final int tvconn_state=0x7f0a0025;
+        public static final int tvhot_state=0x7f0a0021;
+        public static final int txtcamera=0x7f0a007b;
+        public static final int txtqr=0x7f0a007d;
+        public static final int txtstat=0x7f0a007f;
+        public static final int txttitle=0x7f0a0046;
+        public static final int txttouch=0x7f0a0078;
+        public static final int video_camera=0x7f0a0080;
+        public static final int video_frame=0x7f0a0081;
+        public static final int video_switch_icon=0x7f0a004f;
+        public static final int viewfinder_view=0x7f0a0035;
+        public static final int wifi_name=0x7f0a0084;
+        public static final int wifi_signal=0x7f0a0085;
+        public static final int wifi_state_ll=0x7f0a005f;
+        public static final int wise_camera_icon=0x7f0a006b;
+        public static final int wise_camera_title=0x7f0a006c;
+        public static final int wise_connect_icon=0x7f0a0068;
+        public static final int wise_connect_title=0x7f0a0069;
+        public static final int x=0x7f0a0017;
+        public static final int y=0x7f0a0018;
+        public static final int z=0x7f0a0019;
     }
     public static final class layout {
         public static final int activity_create_wifi=0x7f030000;
@@ -1422,75 +1608,411 @@ containing a value of this type.
         public static final int activity_native_encode=0x7f030006;
         public static final int activity_rtc_sender=0x7f030007;
         public static final int activity_webrtc=0x7f030008;
-        public static final int dropdownitems=0x7f030009;
-        public static final int fragment_home=0x7f03000a;
-        public static final int fragment_personal=0x7f03000b;
-        public static final int fragment_service=0x7f03000c;
-        public static final int include_title_bar=0x7f03000d;
-        public static final int layout_tab_bottom=0x7f03000e;
-        public static final int layout_tab_left=0x7f03000f;
-        public static final int layout_tab_right=0x7f030010;
-        public static final int layout_tab_top=0x7f030011;
-        public static final int popwin_camera=0x7f030012;
-        public static final int popwin_create_qr=0x7f030013;
-        public static final int popwin_processbar=0x7f030014;
-        public static final int wifi_list_item=0x7f030015;
+        public static final int attach_camera_control=0x7f030009;
+        public static final int camera_control=0x7f03000a;
+        public static final int capture_camera_activity=0x7f03000b;
+        public static final int dropdownitems=0x7f03000c;
+        public static final int fragment_home=0x7f03000d;
+        public static final int fragment_personal=0x7f03000e;
+        public static final int fragment_service=0x7f03000f;
+        public static final int include_title_bar=0x7f030010;
+        public static final int layout_tab_bottom=0x7f030011;
+        public static final int layout_tab_left=0x7f030012;
+        public static final int layout_tab_right=0x7f030013;
+        public static final int layout_tab_top=0x7f030014;
+        public static final int on_screen_hint=0x7f030015;
+        public static final int popwin_camera=0x7f030016;
+        public static final int popwin_create_qr=0x7f030017;
+        public static final int popwin_processbar=0x7f030018;
+        public static final int video_camera_activity=0x7f030019;
+        public static final int wifi_list_item=0x7f03001a;
     }
     public static final class menu {
-        public static final int action_items=0x7f0b0000;
+        public static final int action_items=0x7f0d0000;
     }
     public static final class raw {
-        public static final int beep=0x7f050000;
+        public static final int beep=0x7f060000;
     }
     public static final class string {
-        public static final int add_operator=0x7f090004;
-        public static final int add_user=0x7f090003;
-        public static final int announcement=0x7f090015;
-        public static final int app_name=0x7f090000;
-        public static final int backCamera=0x7f09001b;
-        public static final int camera=0x7f09001a;
-        public static final int close_hostspot=0x7f090006;
-        public static final int create_group=0x7f090002;
-        public static final int create_hostspot=0x7f090005;
-        public static final int enableAudio=0x7f090021;
-        public static final int enableVideoReceive=0x7f09001f;
-        public static final int enableVideoSend=0x7f090020;
-        public static final int experience_village=0x7f090012;
-        public static final int facilitate_people_service=0x7f090014;
-        public static final int frontCamera=0x7f09001c;
-        public static final int goback=0x7f090018;
-        public static final int imagedescription=0x7f090022;
-        public static final int intelligent_live=0x7f090001;
-        public static final int loading=0x7f090010;
-        public static final int native_listen=0x7f09000b;
-        public static final int native_send=0x7f09000a;
-        public static final int payment=0x7f090016;
-        public static final int property_service=0x7f090013;
-        public static final int qr=0x7f090017;
-        public static final int search=0x7f090007;
-        public static final int startCall=0x7f09001d;
-        public static final int stopCall=0x7f09001e;
-        public static final int tip_loading=0x7f09000f;
-        public static final int touch=0x7f090019;
-        public static final int upper_listen=0x7f090009;
-        public static final int upper_send=0x7f090008;
-        public static final int video_listen=0x7f09000d;
-        public static final int video_send=0x7f09000c;
-        public static final int video_test=0x7f09000e;
-        public static final int visitor=0x7f090011;
+        /**  alert to the user that the camera fails to read or write the SD card. 
+         */
+        public static final int access_sd_fail=0x7f0b002e;
+        public static final int add_operator=0x7f0b0005;
+        public static final int add_user=0x7f0b0003;
+        public static final int announcement=0x7f0b0016;
+        public static final int app_name=0x7f0b0000;
+        public static final int backCamera=0x7f0b001c;
+        public static final int camera=0x7f0b001b;
+        /**  General strings 
+ title for the dialog showing the error of camera hardware 
+         */
+        public static final int camera_error_title=0x7f0b0024;
+        /**  button indicating that the picture just taken should be deleted 
+ button indicating that the picture just taken should be shared by email, mms, etc 
+ button indicating that the picture just taken should be set as a contact photo, wallpaper, etc 
+ button indicating that the picture just taken should be cropped 
+ Toast after trying to share a picture indicating that there are no applications which are capable of so doing. 
+ Toast after trying to share a video indicating that there are no applications which are capable of so doing. 
+ Menu item for playing the video. 
+ Button indicating to go to the image gallery 
+         */
+        public static final int camera_gallery_photos_text=0x7f0b0035;
+        /**  label for the icon meaning 'show me all the images that were taken with the camera' 
+         */
+        public static final int camera_label=0x7f0b0026;
+        /**  message for the dialog showing the error of camera hardware 
+         */
+        public static final int cannot_connect_camera=0x7f0b0025;
+        public static final int close_hostspot=0x7f0b0007;
+        public static final int confirm_restore_message=0x7f0b0030;
+        /**  Settings stuff 
+ Menu items: 
+ menu pick to go to the settings screen 
+ menu pick to view the details of the currently selected image 
+ menu pick to show the location of the currently selected image on maps
+ menu pick to rotate the currently selected image (brings up submenu) 
+ menu pick to rotate the currently selected image to the left 
+ menu pick to rotate the currently selected image to the right 
+ Confirmation dialog title after deleting a picture 
+ Confirmation dialog message after deleting a picture 
+ Confirmation dialog message after deleting a video 
+ Confirmation dialog when restoring settings 
+         */
+        public static final int confirm_restore_title=0x7f0b002f;
+        public static final int create_group=0x7f0b0002;
+        public static final int create_hostspot=0x7f0b0006;
+        /**  Framing grid settings in preference 
+ Message to show when there's no lat/lng information in the image 
+ Title of Details dialog  
+ Label in message of Details dialog  
+ Label in message of Details dialog  
+ Label in message of Details dialog  
+ Label in message of Details dialog  
+ Label in message of Details dialog  
+ Label in message of Details dialog  
+ Label in message of Details dialog  
+ Label in message of Details dialog  
+ Label in message of Details dialog  
+ Label in message of Details dialog  
+ Label in message of Details dialog  
+ Label in message of Details dialog  
+ Label in message of Details dialog  
+ Label in message of Details dialog  
+ Used to format image dimensions in Details dialog. e.g. 64 x 64 
+ Used to format short video duration in Details dialog. minutes:seconds e.g. 00:30 
+ Used to format video duration in Details dialog. hours:minutes:seconds e.g. 0:21:30 
+ Unit of measure in the Details dialog frames per second. e.g. 20 fps 
+ Unit of measure in the Details dialog K bits per second. e.g. 192 Kbps 
+ Unit of measure in the Details dialog M bits per second. e.g. 2.3 Mbps 
+ Details dialog "OK" button. Dismisses dialog. 
+         */
+        public static final int details_ok=0x7f0b0088;
+        public static final int enableAudio=0x7f0b0022;
+        public static final int enableVideoReceive=0x7f0b0020;
+        public static final int enableVideoSend=0x7f0b0021;
+        public static final int experience_village=0x7f0b0013;
+        public static final int facilitate_people_service=0x7f0b0015;
+        public static final int frontCamera=0x7f0b001d;
+        /**  label for the folder that contains Camera pictures in the gallery 
+         */
+        public static final int gallery_camera_bucket_name=0x7f0b0028;
+        /**  label for the folder that contains Camera videos in the gallery 
+         */
+        public static final int gallery_camera_videos_bucket_name=0x7f0b0029;
+        public static final int goback=0x7f0b0019;
+        /**  Camera format string for new image files. Passed to java.text.SimpleDateFormat. 
+         */
+        public static final int image_file_name_format=0x7f0b008a;
+        public static final int imagedescription=0x7f0b0023;
+        public static final int intelligent_live=0x7f0b0001;
+        public static final int loading=0x7f0b0011;
+        public static final int native_listen=0x7f0b000c;
+        public static final int native_send=0x7f0b000b;
+        /**  alert to the user that an SD card must be installed before using the camera 
+         */
+        public static final int no_storage=0x7f0b002b;
+        /**  alert to the user that the SD card is too full to complete the operation 
+         */
+        public static final int not_enough_space=0x7f0b002c;
+        public static final int payment=0x7f0b0017;
+        /**  Settings screen, Camcorder setting category title 
+         */
+        public static final int pref_camcorder_settings_category=0x7f0b0046;
+        /**  Default color effect setting. 
+         */
+        public static final int pref_camera_coloreffect_default=0x7f0b0066;
+        public static final int pref_camera_coloreffect_entry_aqua=0x7f0b006e;
+        public static final int pref_camera_coloreffect_entry_bluetint=0x7f0b0072;
+        public static final int pref_camera_coloreffect_entry_greentint=0x7f0b0073;
+        public static final int pref_camera_coloreffect_entry_mono=0x7f0b0069;
+        public static final int pref_camera_coloreffect_entry_mosaic=0x7f0b0070;
+        public static final int pref_camera_coloreffect_entry_negative=0x7f0b006b;
+        /**  Settings screen, Color effect dialog radio button choices 
+         */
+        public static final int pref_camera_coloreffect_entry_none=0x7f0b0068;
+        public static final int pref_camera_coloreffect_entry_pastel=0x7f0b006f;
+        public static final int pref_camera_coloreffect_entry_posterize=0x7f0b006d;
+        public static final int pref_camera_coloreffect_entry_redtint=0x7f0b0071;
+        public static final int pref_camera_coloreffect_entry_sepia=0x7f0b006a;
+        /**  Color effect that overexposes and reverses some of the tones. 
+         */
+        public static final int pref_camera_coloreffect_entry_solarize=0x7f0b006c;
+        /**  Settings screen, Select Color effect title 
+         */
+        public static final int pref_camera_coloreffect_title=0x7f0b0067;
+        /**  Default flash mode setting.
+         */
+        public static final int pref_camera_flashmode_default=0x7f0b0058;
+        /**  Settings screen, Flash mode dialog radio button choices 
+         */
+        public static final int pref_camera_flashmode_entry_auto=0x7f0b005b;
+        public static final int pref_camera_flashmode_entry_off=0x7f0b005d;
+        public static final int pref_camera_flashmode_entry_on=0x7f0b005c;
+        /**  Value for flash off setting
+         */
+        public static final int pref_camera_flashmode_no_flash=0x7f0b0059;
+        /**  Settings screen, Flash mode title 
+         */
+        public static final int pref_camera_flashmode_title=0x7f0b005a;
+        /**  Default focus mode setting.
+         */
+        public static final int pref_camera_focusmode_default=0x7f0b0053;
+        /**  Settings screen, Focue mode dialog radio button choices 
+         */
+        public static final int pref_camera_focusmode_entry_auto=0x7f0b0055;
+        public static final int pref_camera_focusmode_entry_infinity=0x7f0b0056;
+        public static final int pref_camera_focusmode_entry_macro=0x7f0b0057;
+        /**  Settings screen, Focus mode title 
+         */
+        public static final int pref_camera_focusmode_title=0x7f0b0054;
+        public static final int pref_camera_id_default=0x7f0b0038;
+        /**  In select camera setting, back facing camera. [CHAR LIMIT=14] 
+         */
+        public static final int pref_camera_id_entry_back=0x7f0b0039;
+        /**  In select camera setting, front-facing camera. [CHAR LIMIT=14] 
+         */
+        public static final int pref_camera_id_entry_front=0x7f0b003a;
+        /**  Settings screen, camera selection dialog title. Users can select a camera from the phone (front-facing or back-facing). [CHAR LIMIT=20] 
+         */
+        public static final int pref_camera_id_title=0x7f0b0037;
+        /**  Default picture quality setting. See
+         pref_camera_jpegquality_entryvalues for possible values 
+         */
+        public static final int pref_camera_jpegquality_default=0x7f0b004e;
+        public static final int pref_camera_jpegquality_entry_fine=0x7f0b0051;
+        public static final int pref_camera_jpegquality_entry_normal=0x7f0b0052;
+        /**  Settings screen, Picture quality dialog radio button choices 
+         */
+        public static final int pref_camera_jpegquality_entry_superfine=0x7f0b0050;
+        /**  Settings screen, Picture quality title 
+         */
+        public static final int pref_camera_jpegquality_title=0x7f0b004f;
+        public static final int pref_camera_picturesize_entry_1024x768=0x7f0b004b;
+        public static final int pref_camera_picturesize_entry_1600x1200=0x7f0b004a;
+        public static final int pref_camera_picturesize_entry_2048x1536=0x7f0b0049;
+        /**  Settings screen, Picture size dialog radio button choices 
+         */
+        public static final int pref_camera_picturesize_entry_2592x1936=0x7f0b0048;
+        public static final int pref_camera_picturesize_entry_320x240=0x7f0b004d;
+        public static final int pref_camera_picturesize_entry_640x480=0x7f0b004c;
+        /**  Settings screen, Picture size title 
+         */
+        public static final int pref_camera_picturesize_title=0x7f0b0047;
+        public static final int pref_camera_recordlocation_default=0x7f0b003c;
+        /**  Settings screen, Record location dialog choices 
+         */
+        public static final int pref_camera_recordlocation_entry_off=0x7f0b003d;
+        public static final int pref_camera_recordlocation_entry_on=0x7f0b003e;
+        /**  Settings screen, setting title text 
+         */
+        public static final int pref_camera_recordlocation_title=0x7f0b003b;
+        /**  Default scene mode setting. 
+         */
+        public static final int pref_camera_scenemode_default=0x7f0b0074;
+        /**  Scene mode that takes an image quickly with little motion blur. 
+         */
+        public static final int pref_camera_scenemode_entry_action=0x7f0b0077;
+        /**  Settings menu, scene mode choices 
+         */
+        public static final int pref_camera_scenemode_entry_auto=0x7f0b0076;
+        /**  Scene mode optimized for taking images on the beach. 
+         */
+        public static final int pref_camera_scenemode_entry_beach=0x7f0b007d;
+        /**  Scene mode optimized for capturing the naturally warm color of scenes lit by candles. [CHAR LIMIT=16] 
+         */
+        public static final int pref_camera_scenemode_entry_candlelight=0x7f0b0083;
+        /**  Scene mode optimized for taking images of fireworks. 
+         */
+        public static final int pref_camera_scenemode_entry_fireworks=0x7f0b0081;
+        /**  Scene mode that takes an image of a landscape assuming all subjects are relatively far from the phone. 
+         */
+        public static final int pref_camera_scenemode_entry_landscape=0x7f0b0079;
+        /**  Scene mode that takes long exposures to capture night scenes without flash. 
+         */
+        public static final int pref_camera_scenemode_entry_night=0x7f0b007a;
+        /**  Scene mode that takes night shots with long exposure and flash to illuminate the subject while still capturing darker detail in the background. 
+         */
+        public static final int pref_camera_scenemode_entry_night_portrait=0x7f0b007b;
+        /**  Scene mode optimized for taking indoor low-lights pictures. [CHAR LIMIT=16] 
+         */
+        public static final int pref_camera_scenemode_entry_party=0x7f0b0082;
+        /**  Scene mode that takes an image with as little noise as possible so details of the subject are maintained. 
+         */
+        public static final int pref_camera_scenemode_entry_portrait=0x7f0b0078;
+        /**  Scene mode optimized for taking images in the snow. 
+         */
+        public static final int pref_camera_scenemode_entry_snow=0x7f0b007e;
+        /**  Scene mode for taking a photo as sharp as possible. 
+         */
+        public static final int pref_camera_scenemode_entry_steadyphoto=0x7f0b0080;
+        /**  Scene mode optimized for taking images in the sunset. 
+         */
+        public static final int pref_camera_scenemode_entry_sunset=0x7f0b007f;
+        /**  Scene mode to be used in a stage show. 
+         */
+        public static final int pref_camera_scenemode_entry_theatre=0x7f0b007c;
+        /**  Settings screen, Select Scene mode 
+         */
+        public static final int pref_camera_scenemode_title=0x7f0b0075;
+        /**  Settings screen, Camera setting category title 
+         */
+        public static final int pref_camera_settings_category=0x7f0b0045;
+        /**  Default videocamera flash mode setting.
+         */
+        public static final int pref_camera_video_flashmode_default=0x7f0b005e;
+        /**  Default white balance setting. 
+         */
+        public static final int pref_camera_whitebalance_default=0x7f0b005f;
+        /**  Settings screen, White balance dialog radio button choices 
+         */
+        public static final int pref_camera_whitebalance_entry_auto=0x7f0b0061;
+        public static final int pref_camera_whitebalance_entry_cloudy=0x7f0b0065;
+        public static final int pref_camera_whitebalance_entry_daylight=0x7f0b0063;
+        public static final int pref_camera_whitebalance_entry_fluorescent=0x7f0b0064;
+        public static final int pref_camera_whitebalance_entry_incandescent=0x7f0b0062;
+        /**  Settings screen, white balance title 
+         */
+        public static final int pref_camera_whitebalance_title=0x7f0b0060;
+        public static final int pref_exposure_default=0x7f0b0087;
+        /**  Exposure settings in preference 
+         */
+        public static final int pref_exposure_title=0x7f0b0086;
+        public static final int pref_restore_detail=0x7f0b0085;
+        /**  Restore settings item in preference 
+         */
+        public static final int pref_restore_title=0x7f0b0084;
+        public static final int pref_video_quality_default=0x7f0b0040;
+        public static final int pref_video_quality_entry_high=0x7f0b0041;
+        public static final int pref_video_quality_entry_low=0x7f0b0042;
+        public static final int pref_video_quality_entry_mms=0x7f0b0043;
+        public static final int pref_video_quality_entry_youtube=0x7f0b0044;
+        /**  The Video length settings in preference 
+         */
+        public static final int pref_video_quality_title=0x7f0b003f;
+        /**  alert to the user that the SD card is being disk-checked 
+         */
+        public static final int preparing_sd=0x7f0b002d;
+        public static final int property_service=0x7f0b0014;
+        public static final int qr=0x7f0b0018;
+        /**  button in review mode indicating that the video recording session should be canceled 
+         */
+        public static final int review_cancel=0x7f0b0032;
+        /**  button in review mode indicating that the taken video is OK to be attached/uploaded 
+         */
+        public static final int review_ok=0x7f0b0033;
+        /**  button in review mode indicating that the video just taken should be played 
+         */
+        public static final int review_play=0x7f0b0031;
+        /**  button in review mode indicate the user want to retake another picture for attachment 
+         */
+        public static final int review_retake=0x7f0b0034;
+        public static final int search=0x7f0b0008;
+        /**  Low-memory dialog message [CHAR LIMIT=NONE] 
+         */
+        public static final int spaceIsLow_content=0x7f0b0089;
+        public static final int startCall=0x7f0b001e;
+        public static final int stopCall=0x7f0b001f;
+        /**  Button indicating to switch to another camera 
+         */
+        public static final int switch_camera_id=0x7f0b0036;
+        public static final int switch_to_camera_lable=0x7f0b008e;
+        public static final int switch_to_video_lable=0x7f0b008f;
+        public static final int take_photoes=0x7f0b0004;
+        public static final int tip_loading=0x7f0b0010;
+        public static final int touch=0x7f0b001a;
+        public static final int upper_listen=0x7f0b000a;
+        public static final int upper_send=0x7f0b0009;
+        /**  label for the 'video recording application shown in the top level 'all applications' 
+         */
+        public static final int video_camera_label=0x7f0b0027;
+        /**  Video Camera format string for new video files. Passed to java.text.SimpleDateFormat. 
+         */
+        public static final int video_file_name_format=0x7f0b008b;
+        public static final int video_listen=0x7f0b000e;
+        /**  The messsage shown when video record reaches size limit. 
+         */
+        public static final int video_reach_size_limit=0x7f0b008c;
+        public static final int video_send=0x7f0b000d;
+        public static final int video_test=0x7f0b000f;
+        public static final int visitor=0x7f0b0012;
+        /**  alert to the user to wait for some operation to complete 
+         */
+        public static final int wait=0x7f0b002a;
+        /**  The title show on the zoom controller 
+         */
+        public static final int zoom_control_title=0x7f0b008d;
     }
     public static final class style {
+        public static final int Animation_OnScreenHint=0x7f0c0006;
         /**  Base application theme. 
  Customize your theme here. 
          */
-        public static final int AppTheme=0x7f0a0000;
-        public static final int animpopwin=0x7f0a0003;
+        public static final int AppTheme=0x7f0c0000;
+        /**  camera video 
+         */
+        public static final int OnScreenHintTextAppearance=0x7f0c0004;
+        public static final int OnScreenHintTextAppearance_Small=0x7f0c0005;
+        public static final int ReviewControlGroup=0x7f0c0009;
+        public static final int ReviewControlIcon=0x7f0c0008;
+        public static final int ReviewControlText=0x7f0c0007;
+        public static final int animpopwin=0x7f0c0003;
         /**  自定义loading dialog 
          */
-        public static final int loading_dialog=0x7f0a0002;
-        public static final int take_photo_anim=0x7f0a0001;
+        public static final int loading_dialog=0x7f0c0002;
+        public static final int take_photo_anim=0x7f0c0001;
+    }
+    public static final class xml {
+        public static final int camera_preferences=0x7f050000;
+        public static final int video_preferences=0x7f050001;
     }
     public static final class styleable {
+        /**  camera video 
+           <p>Includes the following attributes:</p>
+           <table>
+           <colgroup align="left" />
+           <colgroup align="left" />
+           <tr><th>Attribute</th><th>Description</th></tr>
+           <tr><td><code>{@link #CameraPreference_title com.great.happyness:title}</code></td><td></td></tr>
+           </table>
+           @see #CameraPreference_title
+         */
+        public static final int[] CameraPreference = {
+            0x7f010080
+        };
+        /**
+          <p>This symbol is the offset where the {@link com.great.happyness.R.attr#title}
+          attribute's value can be found in the {@link #CameraPreference} array.
+
+
+          <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.great.happyness:title
+        */
+        public static final int CameraPreference_title = 0;
         /**  CircleImageView 圆形头像 
            <p>Includes the following attributes:</p>
            <table>
@@ -2301,6 +2823,143 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
           @attr name com.great.happyness:dayNightTwoTextColorAttr
         */
         public static final int DayNightMode_dayNightTwoTextColorAttr = 2;
+        /** Attributes that can be used with a IconIndicator.
+           <p>Includes the following attributes:</p>
+           <table>
+           <colgroup align="left" />
+           <colgroup align="left" />
+           <tr><th>Attribute</th><th>Description</th></tr>
+           <tr><td><code>{@link #IconIndicator_icons com.great.happyness:icons}</code></td><td></td></tr>
+           <tr><td><code>{@link #IconIndicator_modes com.great.happyness:modes}</code></td><td></td></tr>
+           </table>
+           @see #IconIndicator_icons
+           @see #IconIndicator_modes
+         */
+        public static final int[] IconIndicator = {
+            0x7f010085, 0x7f010086
+        };
+        /**
+          <p>This symbol is the offset where the {@link com.great.happyness.R.attr#icons}
+          attribute's value can be found in the {@link #IconIndicator} array.
+
+
+          <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
+or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
+          @attr name com.great.happyness:icons
+        */
+        public static final int IconIndicator_icons = 0;
+        /**
+          <p>This symbol is the offset where the {@link com.great.happyness.R.attr#modes}
+          attribute's value can be found in the {@link #IconIndicator} array.
+
+
+          <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
+or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
+          @attr name com.great.happyness:modes
+        */
+        public static final int IconIndicator_modes = 1;
+        /** Attributes that can be used with a IconListPreference.
+           <p>Includes the following attributes:</p>
+           <table>
+           <colgroup align="left" />
+           <colgroup align="left" />
+           <tr><th>Attribute</th><th>Description</th></tr>
+           <tr><td><code>{@link #IconListPreference_icons com.great.happyness:icons}</code></td><td></td></tr>
+           <tr><td><code>{@link #IconListPreference_largeIcons com.great.happyness:largeIcons}</code></td><td></td></tr>
+           </table>
+           @see #IconListPreference_icons
+           @see #IconListPreference_largeIcons
+         */
+        public static final int[] IconListPreference = {
+            0x7f010085, 0x7f010087
+        };
+        /**
+          <p>This symbol is the offset where the {@link com.great.happyness.R.attr#icons}
+          attribute's value can be found in the {@link #IconListPreference} array.
+
+
+          <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
+or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
+          @attr name com.great.happyness:icons
+        */
+        public static final int IconListPreference_icons = 0;
+        /**
+          <p>This symbol is the offset where the {@link com.great.happyness.R.attr#largeIcons}
+          attribute's value can be found in the {@link #IconListPreference} array.
+
+
+          <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
+or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
+          @attr name com.great.happyness:largeIcons
+        */
+        public static final int IconListPreference_largeIcons = 1;
+        /** Attributes that can be used with a ListPreference.
+           <p>Includes the following attributes:</p>
+           <table>
+           <colgroup align="left" />
+           <colgroup align="left" />
+           <tr><th>Attribute</th><th>Description</th></tr>
+           <tr><td><code>{@link #ListPreference_defaultValue com.great.happyness:defaultValue}</code></td><td></td></tr>
+           <tr><td><code>{@link #ListPreference_entries com.great.happyness:entries}</code></td><td></td></tr>
+           <tr><td><code>{@link #ListPreference_entryValues com.great.happyness:entryValues}</code></td><td></td></tr>
+           <tr><td><code>{@link #ListPreference_key com.great.happyness:key}</code></td><td></td></tr>
+           </table>
+           @see #ListPreference_defaultValue
+           @see #ListPreference_entries
+           @see #ListPreference_entryValues
+           @see #ListPreference_key
+         */
+        public static final int[] ListPreference = {
+            0x7f010081, 0x7f010082, 0x7f010083, 0x7f010084
+        };
+        /**
+          <p>This symbol is the offset where the {@link com.great.happyness.R.attr#defaultValue}
+          attribute's value can be found in the {@link #ListPreference} array.
+
+
+          <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.great.happyness:defaultValue
+        */
+        public static final int ListPreference_defaultValue = 1;
+        /**
+          <p>This symbol is the offset where the {@link com.great.happyness.R.attr#entries}
+          attribute's value can be found in the {@link #ListPreference} array.
+
+
+          <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
+or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
+          @attr name com.great.happyness:entries
+        */
+        public static final int ListPreference_entries = 3;
+        /**
+          <p>This symbol is the offset where the {@link com.great.happyness.R.attr#entryValues}
+          attribute's value can be found in the {@link #ListPreference} array.
+
+
+          <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
+or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
+          @attr name com.great.happyness:entryValues
+        */
+        public static final int ListPreference_entryValues = 2;
+        /**
+          <p>This symbol is the offset where the {@link com.great.happyness.R.attr#key}
+          attribute's value can be found in the {@link #ListPreference} array.
+
+
+          <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name com.great.happyness:key
+        */
+        public static final int ListPreference_key = 0;
         /** Attributes that can be used with a MsgView.
            <p>Includes the following attributes:</p>
            <table>

@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
 /**
  * 主页的Fragment
@@ -22,14 +21,12 @@ public class HomeFragment extends Fragment
 	private Context mContext;
 	private View view;
 
-
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		mContext = getActivity();
 		// 注册EventBus
 		super.onCreate(savedInstanceState);
 	}
-
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -42,13 +39,8 @@ public class HomeFragment extends Fragment
 		super.onDestroy();
 	}
 
-
 	@Override
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
-		
 	}
-
-
-
 }

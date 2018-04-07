@@ -30,7 +30,7 @@ import android.view.SurfaceView;
 // complete.
 @SuppressWarnings("deprecation")
 public class VideoCaptureShow implements PreviewCallback, Callback {
-  private final static String TAG = "WEBRTC-JC";
+  private final String TAG = getClass().getSimpleName();
 
   private SurfaceView svLocal;
   private SurfaceHolder localPreview;
@@ -49,17 +49,9 @@ public class VideoCaptureShow implements PreviewCallback, Callback {
   // potentially stalling the capturer if it runs out of buffers to write to).
   private final int numCaptureBuffers = 3;
 
-  // Requests future capturers to send their frames to |localPreview| directly.
-  public void setLocalPreview(Context context) {
-    // It is a gross hack that this is a class-static.  Doing it right would
-    // mean plumbing this through the C++ API and using it from
-    // webrtc/examples/android/media_demo's MediaEngine class.
-
-  }
-
   public SurfaceView getLocalSurfaceView() {
 	    return svLocal;
-	  }
+  }
   
   public VideoCaptureShow(Context context, MediaEngine engine) {
     // Don't add any code here; see the comment above |self| above!
@@ -136,12 +128,12 @@ public class VideoCaptureShow implements PreviewCallback, Callback {
       if (parameters.isVideoStabilizationSupported()) {
         parameters.setVideoStabilization(true);
       }
-      parameters.setPreviewSize(width, height);
+      parameters.setPreviewSize(width, height); 
       //parameters.setRotation(90);
       //parameters.setPreviewFpsRange(min_mfps, max_mfps);
       int format = ImageFormat.NV21;
       parameters.setPreviewFormat(format);
-      camera.setParameters(parameters);
+      camera.setParameters(parameters); 
       int bufSize = width * height * ImageFormat.getBitsPerPixel(format) / 8;
       for (int i = 0; i < numCaptureBuffers; i++) {
         camera.addCallbackBuffer(new byte[bufSize]);
@@ -171,6 +163,9 @@ public class VideoCaptureShow implements PreviewCallback, Callback {
   
   public void setPreviewCallback(boolean callback)
   {
+	  if(camera==null)
+		  return;
+	  
 	  if(callback)
 		  camera.setPreviewCallback(this);
 	  else
@@ -243,7 +238,8 @@ public class VideoCaptureShow implements PreviewCallback, Callback {
     if (camera != callbackCamera) {
       throw new RuntimeException("Unexpected camera in callback!");
     }
-    mEngine.provideCameraBuffer(data, data.length);
+    if(mEngine!=null)
+    	mEngine.provideCameraBuffer(data, data.length);
     camera.addCallbackBuffer(data);
   }
 
