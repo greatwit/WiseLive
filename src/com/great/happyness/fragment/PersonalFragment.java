@@ -1,16 +1,12 @@
 package com.great.happyness.fragment;
 
-import java.util.ArrayList;
-import java.util.Map;
-
-import org.webrtc.webrtcdemo.MediaEngine;
 import org.webrtc.webrtcdemo.SpinnerAdapter;
+import org.webrtc.webrtcdemo.VideoEngine;
 
 import com.great.happyness.R;
 import com.great.happyness.utils.SysConfig;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -18,13 +14,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.ViewGroup.MarginLayoutParams;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
-import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.AdapterView.OnItemSelectedListener;
 
 
@@ -56,7 +48,7 @@ public class PersonalFragment extends Fragment
 		Spinner spCodecSize = (Spinner) view.findViewById(R.id.spCodecSize);
 	    SpinnerAdapter adapter = new SpinnerAdapter(mContext);
 	    spCodecSize.setAdapter(adapter);
-	    adapter.setDatas(MediaEngine.resolutionsAsString());
+	    adapter.setDatas(VideoEngine.resolutionsAsString());
 	    spCodecSize.setSelection(SysConfig.getSaveResolution(mContext));
 	    spCodecSize.setOnItemSelectedListener(new OnItemSelectedListener() 
 	    {
@@ -115,11 +107,6 @@ public class PersonalFragment extends Fragment
 	    
 		return view;
 	}
-
-	private void init() {
-		
-	}
-
 
 	@Override
 	public void onResume() {

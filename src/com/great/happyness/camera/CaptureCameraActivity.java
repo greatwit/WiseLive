@@ -76,6 +76,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import org.webrtc.webrtcdemo.VideoEngine;
+
 /** The Camera activity which can preview and take pictures. */
 @SuppressWarnings("deprecation")
 @SuppressLint("InlinedApi")
@@ -83,7 +85,7 @@ public class CaptureCameraActivity extends NoSearchActivity implements View.OnCl
         ShutterButton.OnShutterButtonListener, SurfaceHolder.Callback,
         Switcher.OnSwitchListener, PreviewCallback {
 
-    private static final String TAG = "camera";
+    private static final String TAG = "CaptureCameraActivity";
 
     private static final int CROP_MSG = 1;
     private static final int FIRST_TIME_INIT = 2;
@@ -160,6 +162,8 @@ public class CaptureCameraActivity extends NoSearchActivity implements View.OnCl
     private Uri mSaveUri;
 
     private ImageCapture mImageCapture = null;
+    
+    private VideoEngine mVideoEngine = null;
 
     private boolean mPreviewing;
     private boolean mPausing;
@@ -882,6 +886,8 @@ public class CaptureCameraActivity extends NoSearchActivity implements View.OnCl
 
         mNumberOfCameras = CameraHolder.instance().getNumberOfCameras();
 
+
+        
         // we need to reset exposure for the preview
         resetExposureCompensation();
         /*
@@ -945,6 +951,13 @@ public class CaptureCameraActivity extends NoSearchActivity implements View.OnCl
         }
     }
 
+    @Override
+    public void onDestroy()
+    {
+  	    Log.w(TAG, "onDestroy");
+  	    super.onDestroy();
+    }
+    
     private void changeHeadUpDisplayState() {
         // If the camera resumes behind the lock screen, the orientation
         // will be portrait. That causes OOM when we try to allocation GPU
@@ -1574,11 +1587,19 @@ public class CaptureCameraActivity extends NoSearchActivity implements View.OnCl
     }
 
     public void surfaceCreated(SurfaceHolder holder) {
+        mVideoEngine = new VideoEngine(this);
+        mVideoEngine.initEngine();
+    	mVideoEngine.startSend("192.168.0.190", 11111, true, 3, mCameraId);
     }
 
     public void surfaceDestroyed(SurfaceHolder holder) {
         stopPreview();
         mSurfaceHolder = null;
+        
+  	    if (mVideoEngine.isSendRunning()){
+  	    	mVideoEngine.stopSend();
+  	    }
+  	    mVideoEngine.deInitEngine();
     }
 
     private void closeCamera() {
@@ -1773,14 +1794,14 @@ public class CaptureCameraActivity extends NoSearchActivity implements View.OnCl
                 sizes, (double) size.width / size.height);
         if (optimalSize != null) {
             Size original = mParameters.getPreviewSize();
-            if (!original.equals(optimalSize)) {
-                mParameters.setPreviewSize(optimalSize.width, optimalSize.height);
+            //if (!original.equals(optimalSize)) {
+                mParameters.setPreviewSize(640, 480);
 
                 // Zoom related settings will be changed for different preview
                 // sizes, so set and read the parameters to get lastest values
                 mCameraDevice.setParameters(mParameters);
                 mParameters = mCameraDevice.getParameters();
-            }
+            //}
         }
 
         // Since change scene mode may change supported values,
@@ -2218,6 +2239,7 @@ public class CaptureCameraActivity extends NoSearchActivity implements View.OnCl
 	public void onPreviewFrame(byte[] data, android.hardware.Camera camera) {
 		// TODO Auto-generated method stub
 		Log.w(TAG, "Provide:"+data.length);
+		mVideoEngine.provideCameraBuffer(data, data.length);
 	}
 }
 

@@ -4,7 +4,7 @@ package org.webrtc.videoengine;
 import java.io.IOException;
 import java.util.concurrent.Exchanger;
 
-import org.webrtc.webrtcdemo.MediaEngine;
+import com.great.happyness.RtcCameraActivity;
 
 
 import android.content.Context;
@@ -37,7 +37,6 @@ public class VideoCaptureShow implements PreviewCallback, Callback {
   private Camera camera;  // Only non-null while capturing.
   private CameraThread cameraThread;
   private Handler cameraThreadHandler;
-  private MediaEngine mEngine = null;
   //private static int id;
   
   //private final Camera.CameraInfo info;
@@ -53,11 +52,10 @@ public class VideoCaptureShow implements PreviewCallback, Callback {
 	    return svLocal;
   }
   
-  public VideoCaptureShow(Context context, MediaEngine engine) {
+  public VideoCaptureShow(Context context) {
     // Don't add any code here; see the comment above |self| above!
 		svLocal = new SurfaceView(context);
 		localPreview = svLocal.getHolder();
-		mEngine = engine;
   }
 
   // Return the global application context.
@@ -238,8 +236,7 @@ public class VideoCaptureShow implements PreviewCallback, Callback {
     if (camera != callbackCamera) {
       throw new RuntimeException("Unexpected camera in callback!");
     }
-    if(mEngine!=null)
-    	mEngine.provideCameraBuffer(data, data.length);
+    RtcCameraActivity.mVideoEngine.provideCameraBuffer(data, data.length);
     camera.addCallbackBuffer(data);
   }
 

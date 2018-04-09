@@ -10,8 +10,6 @@
 
 package com.great.happyness;
 
-import org.webrtc.videoengine.VideoCaptureDeviceInfoAndroid;
-import org.webrtc.webrtcdemo.MediaEngine;
 import org.webrtc.webrtcdemo.MediaEngineObserver;
 import org.webrtc.webrtcdemo.NativeWebRtcContextRegistry;
 
@@ -21,7 +19,6 @@ import com.great.happyness.utils.SysConfig;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.SurfaceView;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -40,7 +37,6 @@ public class RtcRecvActivity extends Activity  implements MediaEngineObserver
   private LinearLayout llRemoteSurface;
   
   private NativeWebRtcContextRegistry contextRegistry = null;
-  static public MediaEngine mediaEngine = null;
   
    
   @Override
@@ -62,20 +58,6 @@ public class RtcRecvActivity extends Activity  implements MediaEngineObserver
     contextRegistry = new NativeWebRtcContextRegistry();
     contextRegistry.register(this);
 
-    // Load all settings dictated in xml.
-    mediaEngine = new MediaEngine(this);
-    //mediaEngine.setRemoteIp(destip);//127.0.0.1 192.168.250.208
-    mediaEngine.setSendVideo(false);
-    
-    mediaEngine.setTrace(true);
-    mediaEngine.setReceiveVideo(true);
-    
-    mediaEngine.setVideoCodec(0);
-    // TODO(hellner): resolutions should probably be in the xml as well.
-    mediaEngine.setResolutionIndex(MediaEngine.numberOfResolutions() - 3);
-    //mediaEngine.setVideoTxPort(11111);
-    mediaEngine.setVideoRxPort(11111);
-    mediaEngine.setNack(true);
     
     txttitle = (TextView) findViewById(R.id.txttitle);
     txttitle.setText("控制端");
@@ -88,29 +70,24 @@ public class RtcRecvActivity extends Activity  implements MediaEngineObserver
           //toggleStart();
         }
       });
-    
-    getEngine().setResolutionIndex(SysConfig.getSaveResolution(this));
-    Log.w(TAG, "spCodecSize.setSelection:"+ SysConfig.getSaveResolution(this) );
 
-    getEngine().setObserver(this);
     toggleStart();
     //Log.i(TAG, VideoCaptureDeviceInfoAndroid.getDeviceInfo());
   }
   
-  private MediaEngine getEngine() { return mediaEngine; }
 
   private void setViews() {
-    SurfaceView remoteSurfaceView = getEngine().getRemoteSurfaceView();
-    if (remoteSurfaceView != null) {
-      llRemoteSurface.addView(remoteSurfaceView);
-    }
+//    SurfaceView remoteSurfaceView = getEngine().getRemoteSurfaceView();
+//    if (remoteSurfaceView != null) {
+//      llRemoteSurface.addView(remoteSurfaceView);
+//    }
   }
 
   private void clearViews() {
-    SurfaceView remoteSurfaceView = getEngine().getRemoteSurfaceView();
-    if (remoteSurfaceView != null) {
-      llRemoteSurface.removeView(remoteSurfaceView);
-    }
+//    SurfaceView remoteSurfaceView = getEngine().getRemoteSurfaceView();
+//    if (remoteSurfaceView != null) {
+//      llRemoteSurface.removeView(remoteSurfaceView);
+//    }
   }
 
   // tvStats need to be updated on the UI thread.
@@ -133,39 +110,29 @@ public class RtcRecvActivity extends Activity  implements MediaEngineObserver
 //      svLocal = getEngine().getLocalSurfaceView();
 //      llLocalSurface.addView(svLocal);
 //    }
-    btSwitchCamera.setText(getEngine().frontCameraIsSet() ?
-        R.string.backCamera :
-        R.string.frontCamera);
+//    btSwitchCamera.setText(getEngine().frontCameraIsSet() ?
+//        R.string.backCamera :
+//        R.string.frontCamera);
   }
 
   public void toggleStart() {
-    if (getEngine().isRunning()) {
-      stopAll();
-    } else {
-      startCall();
-    }
+
     //btStartStopCall.setBackgroundResource(getEngine().isRunning() ? R.drawable.record_stop : R.drawable.record_start);
   }
 
   public void stopAll() {
     clearViews();
-    getEngine().stopVideoRecv();
   }
 
   private void startCall() {
-    getEngine().startVideoRecv();
     setViews();
   }
   
   @Override
   public void onDestroy() 
   {
-	    if (getEngine().isRunning())
-	       stopAll();
-	    mediaEngine.dispose();
 	    contextRegistry.unRegister();
 	    super.onDestroy();
   }
-  
 }
 

@@ -1,18 +1,47 @@
-/*
- *  Copyright (c) 2013 The WebRTC project authors. All Rights Reserved.
- *
- *  Use of this source code is governed by a BSD-style license
- *  that can be found in the LICENSE file in the root of the source
- *  tree. An additional intellectual property rights grant can be found
- *  in the file PATENTS.  All contributing project authors may
- *  be found in the AUTHORS file in the root of the source tree.
- */
 
 package org.webrtc.webrtcdemo;
 
+import android.content.Context;
+import android.hardware.Camera;
+import android.hardware.Camera.CameraInfo;
+import android.util.Log;
+import android.view.SurfaceView;
+
+
+@SuppressWarnings("deprecation")
 public class VideoEngine {
   private final long nativeVideoEngine;
 
+  private int videoChannel;
+  private int currentCameraHandle;
+  
+  private String  TAG = getClass().getSimpleName();
+  
+  private static final int VCM_VP8_PAYLOAD_TYPE = 100;
+  private static final int SEND_CODEC_FPS 		= 30;
+  // TODO(henrike): increase INIT_BITRATE_KBPS to 2000 and ensure that
+  // 720p30fps can be acheived (on hardware that can handle it). Note that
+  // setting 2000 currently leads to failure, so that has to be resolved first.
+  private static final int INIT_BITRATE_KBPS 	= 500;
+  private static final int MAX_BITRATE_KBPS 	= 3000;
+
+  private boolean mSendRunning = false;
+  private boolean mRecvRunning = false;
+  
+  private static final int[][] RESOLUTIONS = {
+    {176,144}, {320,240}, {352,288}, {640,480}, {1280,720}, {1920,1080}
+  };
+  
+  public static int numberOfResolutions() { return RESOLUTIONS.length; }
+
+  public static String[] resolutionsAsString() {
+    String[] retVal = new String[numberOfResolutions()];
+    for (int i = 0; i < numberOfResolutions(); ++i) {
+      retVal[i] = RESOLUTIONS[i][0] + "x" + RESOLUTIONS[i][1];
+    }
+    return retVal;
+  }
+  
   // Keep in sync (including this comment) with webrtc/common_types.h:TraceLevel
   public enum TraceLevel {
     TRACE_NONE(0x0000),
@@ -48,74 +77,221 @@ public class VideoEngine {
   // webrtc/common_types.h:RtpDirections
   public enum RtpDirections { INCOMING, OUTGOING }
 
-  public VideoEngine() {
-    nativeVideoEngine = create();
+  private NativeWebRtcContextRegistry contextRegistry = null;
+  
+  // Checks for and communicate failures to user (logcat and popup).
+  private void check(boolean value, String message) {
+    if (value) {
+      return;
+    }
+    Log.e(TAG, message);
+  }
+  
+  public VideoEngine(Context context) {
+	    contextRegistry = new NativeWebRtcContextRegistry();
+	    contextRegistry.register(context);
+	    nativeVideoEngine = create();
   }
 
+  public void initEngine()
+  {
+	  check(init() == 0, "Failed vie Init");
+	  videoChannel = createChannel();
+	  check(setKeyFrameRequestMethod(videoChannel, VideoEngine.VieKeyFrameRequestMethod.
+	            KEY_FRAME_REQUEST_PLI_RTCP) == 0, "Failed setKeyFrameRequestMethod");
+	  
+	  setTraceFilter(VideoEngine.TraceLevel.TRACE_NONE);
+  }
+  
+  public void startSend(String remoteIp, int videoTxPort, boolean nack, int resolutionIndex, int cameraid)
+  {
+	  if(mSendRunning == false)
+	  {
+	      check(setSendDestination(videoChannel, videoTxPort, remoteIp) == 0,
+	              "Failed setSendDestination");
+	      
+	      VideoCodecInst codec = getVideoCodec(0, resolutionIndex);
+	      check(setSendCodec(videoChannel, codec) == 0, "Failed setReceiveCodec");
+	      codec.dispose();
+	      
+	      check(setNackStatus(videoChannel, nack) == 0,
+	    	        "Failed setNackStatus");
+	      
+	      CameraDesc cameraInfo = getCaptureDevice(1);
+	      currentCameraHandle = allocateCaptureDevice(cameraInfo);
+	      cameraInfo.dispose();
+	      check(connectCaptureDevice(currentCameraHandle, videoChannel) == 0,
+	          "Failed to connect capture device");
+	      check(startCapture(currentCameraHandle) == 0, "Failed StartCapture");
+	      
+	      check(startSend(videoChannel) == 0, "Failed StartSend");
+	      
+	      mSendRunning = true;
+	  }
+  }
+  
+  public void stopSend()
+  {
+	  if(mSendRunning)
+	  {
+		  check(stopCapture(currentCameraHandle) == 0, "Failed StopCapture");
+		  check(releaseCaptureDevice(currentCameraHandle) == 0, "Failed ReleaseCaptureDevice");
+		  
+		  mSendRunning = false;
+	  }
+  }
+  
+  public void startRecv(SurfaceView svRemote, int videoRxPort, boolean nack, int resolutionIndex)
+  {
+	  if(mRecvRunning==false)
+	  {
+		  check(setLocalReceiver(videoChannel, videoRxPort) == 0,
+		            "Failed setLocalReceiver");
+		  check(setNackStatus(videoChannel, nack) == 0,
+		    	        "Failed setNackStatus");
+		  
+	      VideoCodecInst codec = getVideoCodec(0, resolutionIndex);
+	      check(setReceiveCodec(videoChannel, codec) == 0, "Failed setReceiveCodec");
+	      codec.dispose();
+		  
+	      check(addRenderer(videoChannel, svRemote,
+	              0, 0, 0, 1, 1) == 0, "Failed AddRenderer");
+	      check(startRender(videoChannel) == 0, "Failed StartRender");
+	      check(startReceive(videoChannel) == 0, "Failed StartReceive");
+	      mRecvRunning = true;
+	  }
+  }
+  
+  public void stopRecv()
+  {
+	  if(mRecvRunning)
+	  {
+		  check(stopReceive(videoChannel) == 0, "StopReceive");
+	      check(stopRender(videoChannel) == 0, "StopRender");
+	      check(removeRenderer(videoChannel) == 0, "RemoveRenderer");
+	      
+	      mRecvRunning = false;
+	  }
+  }
+  
+  public void deInitEngine()
+  {
+	    check(deleteChannel(videoChannel) == 0, "DeleteChannel");
+	    dispose();
+	    contextRegistry.unRegister();
+  }
+  
+  public int provideCameraBuffer(byte[] javaCameraFrame, int length)
+  {
+	  if(mSendRunning)
+		  return provideCameraBuffer(currentCameraHandle, javaCameraFrame, length);
+	  return 0;
+  }
+  
+  public int registerCodecObserver(VideoDecodeEncodeObserver callback)
+  {
+	  return registerObserver(videoChannel, callback);
+  }
+
+  
+  public boolean isSendRunning()
+  {
+	  return mSendRunning;
+  }
+  
+  public boolean isRecvRunning()
+  {
+	  return mRecvRunning;
+  }
+  
+  //////////////////////////////////////////////////////////////////////////////
+  
+  private int getCameraId(int index) {
+	    for (int i = Camera.getNumberOfCameras() - 1; i >= 0; --i) {
+	      CameraInfo info = new CameraInfo();
+	      Camera.getCameraInfo(i, info);
+	      if (index == info.facing) {
+	        return i;
+	      }
+	    }
+	    throw new RuntimeException("Index does not match a camera");
+  }
+  
+  private VideoCodecInst getVideoCodec(int codecNumber, int resolution) {
+	    VideoCodecInst retVal = getCodec(codecNumber);
+	    retVal.setStartBitRate(INIT_BITRATE_KBPS);
+	    retVal.setMaxBitRate(MAX_BITRATE_KBPS);
+	    retVal.setWidth(RESOLUTIONS[resolution][0]);
+	    retVal.setHeight(RESOLUTIONS[resolution][1]);
+	    retVal.setMaxFrameRate(SEND_CODEC_FPS);
+	    return retVal;
+  }
+  
   // API comments can be found in VideoEngine's native APIs. Not all native
   // APIs are available.
-  private static native long create();
-  public native int init();
-  public native int setVoiceEngine(VoiceEngine voe);
-  public native void dispose();
-  public native int startSend(int channel);
-  public native int stopRender(int channel);
-  public native int stopSend(int channel);
-  public native int startReceive(int channel);
-  public native int stopReceive(int channel);
-  public native int createChannel();
-  public native int deleteChannel(int channel);
-  public native int connectAudioChannel(int videoChannel, int voiceChannel);
-  public native int setLocalReceiver(int channel, int port);
-  public native int setSendDestination(int channel, int port, String ipAddr);
-  public native int numberOfCodecs();
-  public native VideoCodecInst getCodec(int index);
-  public native int setReceiveCodec(int channel, VideoCodecInst codec);
-  public native int setSendCodec(int channel, VideoCodecInst codec);
-  public native int addRenderer(int channel, Object glSurface, int zOrder,
+  private native long create();
+  private native int init();
+  private native int setVoiceEngine(VoiceEngine voe);
+  private native void dispose();
+  private native int startSend(int channel);
+  private native int stopRender(int channel);
+  private native int stopSend(int channel);
+  private native int startReceive(int channel);
+  private native int stopReceive(int channel);
+  private native int createChannel();
+  private native int deleteChannel(int channel);
+  private native int connectAudioChannel(int videoChannel, int voiceChannel);
+  private native int setLocalReceiver(int channel, int port);
+  private native int setSendDestination(int channel, int port, String ipAddr);
+  private native int numberOfCodecs();
+  private native VideoCodecInst getCodec(int index);
+  private native int setReceiveCodec(int channel, VideoCodecInst codec);
+  private native int setSendCodec(int channel, VideoCodecInst codec);
+  private native int addRenderer(int channel, Object glSurface, int zOrder,
       float left, float top,
       float right, float bottom);
-  public native int removeRenderer(int channel);
-  public native int registerExternalReceiveCodec(int channel, int plType,
+  private native int removeRenderer(int channel);
+  private native int registerExternalReceiveCodec(int channel, int plType,
       MediaCodecVideoDecoder decoder, boolean internal_source);
-  public native int deRegisterExternalReceiveCodec(int channel, int plType);
-  public native int startRender(int channel);
-  public native int numberOfCaptureDevices();
-  public native CameraDesc getCaptureDevice(int index);
-  public native int allocateCaptureDevice(CameraDesc camera);
-  public native int connectCaptureDevice(int cameraId, int channel);
-  public native int startCapture(int cameraId);
-  public native int stopCapture(int cameraId);
-  public native int provideCameraBuffer(int cameraId, byte[] javaCameraFrame, int length);
-  public native int releaseCaptureDevice(int cameraId);
-  public native int getOrientation(CameraDesc camera);
-  public native int setRotateCapturedFrames(int cameraId, int degrees);
-  public native int setNackStatus(int channel, boolean enable);
-  public int setKeyFrameRequestMethod(int channel,
+  private native int deRegisterExternalReceiveCodec(int channel, int plType);
+  private native int startRender(int channel);
+  private native int numberOfCaptureDevices();
+  private native CameraDesc getCaptureDevice(int index);
+  private native int allocateCaptureDevice(CameraDesc camera);
+  private native int connectCaptureDevice(int cameraId, int channel);
+  private native int startCapture(int cameraId);
+  private native int stopCapture(int cameraId);
+  private native int provideCameraBuffer(int cameraId, byte[] javaCameraFrame, int length);
+  private native int releaseCaptureDevice(int cameraId);
+  private native int getOrientation(CameraDesc camera);
+  private native int setRotateCapturedFrames(int cameraId, int degrees);
+  private native int setNackStatus(int channel, boolean enable);
+  private int setKeyFrameRequestMethod(int channel,
       VieKeyFrameRequestMethod requestMethod) {
     return setKeyFrameRequestMethod(channel, requestMethod.ordinal());
   }
   private native int setKeyFrameRequestMethod(int channel,
       int requestMethod);
-  public native RtcpStatistics getReceivedRtcpStatistics(int channel);
-  public native int registerObserver(int channel,
+  private native RtcpStatistics getReceivedRtcpStatistics(int channel);
+  private native int registerObserver(int channel,
       VideoDecodeEncodeObserver callback);
-  public native int deregisterObserver(int channel);
-  public native int setTraceFile(String fileName,
+  private native int deregisterObserver(int channel);
+  private native int setTraceFile(String fileName,
       boolean fileCounter);
-  public int setTraceFilter(TraceLevel filter) {
+  private int setTraceFilter(TraceLevel filter) {
     return nativeSetTraceFilter(filter.level);
   }
   private native int nativeSetTraceFilter(int filter);
-  public int startRtpDump(int channel, String file,
+  private int startRtpDump(int channel, String file,
       RtpDirections direction) {
     return startRtpDump(channel, file, direction.ordinal());
   }
   private native int startRtpDump(int channel, String file,
       int direction);
-  public int stopRtpDump(int channel, RtpDirections direction) {
+  private int stopRtpDump(int channel, RtpDirections direction) {
     return stopRtpDump(channel, direction.ordinal());
   }
   private native int stopRtpDump(int channel, int direction);
   //public native int setLocalSSRC(int channel, int ssrc);
 }
+

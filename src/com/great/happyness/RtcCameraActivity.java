@@ -2,11 +2,9 @@
 package com.great.happyness;
 
 import org.webrtc.videoengine.VideoCaptureShow;
-import org.webrtc.webrtcdemo.MediaEngine;
 import org.webrtc.webrtcdemo.MediaEngineObserver;
 import org.webrtc.webrtcdemo.NativeWebRtcContextRegistry;
-
-import com.great.happyness.utils.SysConfig;
+import org.webrtc.webrtcdemo.VideoEngine;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -36,7 +34,8 @@ public class RtcCameraActivity extends Activity implements MediaEngineObserver
   private VideoCaptureShow mVideoCapture;
   
   private NativeWebRtcContextRegistry contextRegistry = null;
-  public MediaEngine mediaEngine = null;
+  
+  static public VideoEngine mVideoEngine;
   
   @Override
   protected void onCreate(Bundle savedInstanceState) 
@@ -61,32 +60,15 @@ public class RtcCameraActivity extends Activity implements MediaEngineObserver
     contextRegistry = new NativeWebRtcContextRegistry();
     contextRegistry.register(this);
 
-    // Load all settings dictated in xml.
-    mediaEngine = new MediaEngine(this);
-    mediaEngine.setRemoteIp(destip);	//127.0.0.1 192.168.250.208
-    mediaEngine.setTrace(true);
 
-    mediaEngine.setSendVideo(true);
-    mediaEngine.setVideoCodec(0);
-    // TODO(hellner): resolutions should probably be in the xml as well.
-    mediaEngine.setResolutionIndex(MediaEngine.numberOfResolutions() - 3);
-    mediaEngine.setVideoTxPort(11111);
-    mediaEngine.setNack(true);
     
     txttitle = (TextView) findViewById(R.id.txttitle);
     txttitle.setText("拍照端");
     
     //切换相机
     ImageView btSwitchCamera = (ImageView) findViewById(R.id.change);
-    if (getEngine().hasMultipleCameras()) {
-      btSwitchCamera.setOnClickListener(new View.OnClickListener() {
-        public void onClick(View button) {
-          toggleCamera((Button) button);
-        }
-        });
-    } else {
-      btSwitchCamera.setEnabled(false);
-    }
+    btSwitchCamera.setEnabled(false);
+
     
     btStartStopCall = (Button) findViewById(R.id.takepicture);
     btStartStopCall.setOnClickListener(new View.OnClickListener() {
@@ -105,16 +87,11 @@ public class RtcCameraActivity extends Activity implements MediaEngineObserver
         }
       });
     
-    getEngine().setResolutionIndex(SysConfig.getSaveResolution(this));
-    Log.w(TAG, "spCodecSize.setSelection:"+ SysConfig.getSaveResolution(this) );
-
-    getEngine().setObserver(this);
     
-    mVideoCapture = new VideoCaptureShow(this, getEngine());
+    mVideoCapture = new VideoCaptureShow(this);
     toggleStart();
   }
   
-  private MediaEngine getEngine() { return mediaEngine; }
 
   private void setViews() {
     SurfaceView svLocal = mVideoCapture.getLocalSurfaceView();
@@ -145,7 +122,6 @@ public class RtcCameraActivity extends Activity implements MediaEngineObserver
     if (resetLocalView) {
       llLocalSurface.removeView(svLocal);
     }
-    getEngine().toggleCamera();
     if (resetLocalView) {
       svLocal = mVideoCapture.getLocalSurfaceView();
       llLocalSurface.addView(svLocal);
@@ -153,21 +129,15 @@ public class RtcCameraActivity extends Activity implements MediaEngineObserver
   }
 
   public void toggleStart() {
-    if (getEngine().isRunning()) {
-    	stopAll();
-    } else {
-      startCall();
-    }
+
   }
 
   public void stopAll() {
 	mVideoCapture.stopCapture();
     clearViews();
-    getEngine().stopVideoSend();
   }
 
   private void startCall() {
-    getEngine().startVideoSend();
     mVideoCapture.startCapture(640, 480, 2000, 35000);
     setViews();
   }
@@ -175,10 +145,6 @@ public class RtcCameraActivity extends Activity implements MediaEngineObserver
   @Override
   public void onDestroy()
   {
-	    if (getEngine().isRunning())
-	       stopAll();
-	    
-	    mediaEngine.dispose();
 	    contextRegistry.unRegister();
 	    super.onDestroy();
   }
