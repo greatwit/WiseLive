@@ -1,17 +1,9 @@
-/*
- *  Copyright (c) 2013 The WebRTC project authors. All Rights Reserved.
- *
- *  Use of this source code is governed by a BSD-style license
- *  that can be found in the LICENSE file in the root of the source
- *  tree. An additional intellectual property rights grant can be found
- *  in the file PATENTS.  All contributing project authors may
- *  be found in the AUTHORS file in the root of the source tree.
- */
 
 package com.great.happyness;
 
+import org.webrtc.videoengine.ViERenderer;
 import org.webrtc.webrtcdemo.MediaEngineObserver;
-import org.webrtc.webrtcdemo.NativeWebRtcContextRegistry;
+import org.webrtc.webrtcdemo.VideoEngine;
 
 import com.great.happyness.utils.SysConfig;
 
@@ -19,6 +11,7 @@ import com.great.happyness.utils.SysConfig;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -35,10 +28,10 @@ public class RtcRecvActivity extends Activity  implements MediaEngineObserver
   private TextView txttitle;
   // Remote and local stream displays.
   private LinearLayout llRemoteSurface;
+  private SurfaceView remoteSurfaceView;
   
-  private NativeWebRtcContextRegistry contextRegistry = null;
+  public VideoEngine mVideoEngine;
   
-   
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -53,16 +46,14 @@ public class RtcRecvActivity extends Activity  implements MediaEngineObserver
 	
     setContentView(R.layout.activity_webrtc);
     llRemoteSurface = (LinearLayout) findViewById(R.id.llRemoteView);
-
-    // Must be instantiated before MediaEngine.
-    contextRegistry = new NativeWebRtcContextRegistry();
-    contextRegistry.register(this);
-
+    setViews();
     
     txttitle = (TextView) findViewById(R.id.txttitle);
     txttitle.setText("控制端");
     
-
+    mVideoEngine = new VideoEngine(this);
+    mVideoEngine.initEngine();
+    
     btStartStopCall = (Button) findViewById(R.id.takepicture);
     //btStartStopCall.setBackgroundResource(getEngine().isRunning() ? R.drawable.record_stop : R.drawable.record_start);
     btStartStopCall.setOnClickListener(new View.OnClickListener() {
@@ -77,11 +68,11 @@ public class RtcRecvActivity extends Activity  implements MediaEngineObserver
   
 
   private void setViews() {
-//    SurfaceView remoteSurfaceView = getEngine().getRemoteSurfaceView();
-//    if (remoteSurfaceView != null) {
-//      llRemoteSurface.addView(remoteSurfaceView);
-//    }
-  }
+	    remoteSurfaceView = ViERenderer.CreateRenderer(this, true);
+	    if (remoteSurfaceView != null) {
+	      llRemoteSurface.addView(remoteSurfaceView);
+	    }
+	  }
 
   private void clearViews() {
 //    SurfaceView remoteSurfaceView = getEngine().getRemoteSurfaceView();
@@ -100,38 +91,24 @@ public class RtcRecvActivity extends Activity  implements MediaEngineObserver
   }
 
   private void toggleCamera(Button btSwitchCamera) {
-//    SurfaceView svLocal = getEngine().getLocalSurfaceView();
-//    boolean resetLocalView = svLocal != null;
-//    if (resetLocalView) {
-//      llLocalSurface.removeView(svLocal);
-//    }
-//    getEngine().toggleCamera();
-//    if (resetLocalView) {
-//      svLocal = getEngine().getLocalSurfaceView();
-//      llLocalSurface.addView(svLocal);
-//    }
-//    btSwitchCamera.setText(getEngine().frontCameraIsSet() ?
-//        R.string.backCamera :
-//        R.string.frontCamera);
   }
 
   public void toggleStart() {
-
-    //btStartStopCall.setBackgroundResource(getEngine().isRunning() ? R.drawable.record_stop : R.drawable.record_start);
+	    if (mVideoEngine.isRecvRunning()) {
+	    	mVideoEngine.stopRecv();
+	    } else {
+	    	mVideoEngine.startRecv(remoteSurfaceView, 11111, true, 3);
+	    }
   }
 
-  public void stopAll() {
-    clearViews();
-  }
-
-  private void startCall() {
-    setViews();
-  }
   
   @Override
   public void onDestroy() 
   {
-	    contextRegistry.unRegister();
+	    if (mVideoEngine.isRecvRunning()){
+	    	mVideoEngine.stopRecv();
+	    }
+	    mVideoEngine.deInitEngine();
 	    super.onDestroy();
   }
 }
