@@ -11,6 +11,8 @@ import com.great.happyness.RtcRecvActivity;
 import com.great.happyness.aidl.IActivityReq;
 import com.great.happyness.aidl.IServiceListen;
 import com.great.happyness.aidl.ServiceControl;
+import com.great.happyness.camera.CaptureCameraActivity;
+import com.great.happyness.camera.RecvCameraActivity;
 import com.great.happyness.camera.VideoCameraActivity;
 import com.great.happyness.popwin.CameraPopwin;
 import com.great.happyness.service.ServiceCreatedListen;
@@ -367,12 +369,12 @@ public class ServiceFragment extends Fragment
 				}
 				break;
 				
-			case R.id.item_connect_ll://
-				startActivityForResult(new Intent().setClass(mContext, ConnectWifiActivity.class), CONNECT_GREQUEST_CODE);
+			case R.id.item_connect_ll://ConnectWifiActivity
+				startActivityForResult(new Intent().setClass(mContext, CaptureCameraActivity.class), CONNECT_GREQUEST_CODE);
 				break;
 			
 			case R.id.item_camera_ll://打开单机照相机
-				intent = new Intent().setClass(mContext, VideoCameraActivity.class);
+				intent = new Intent().setClass(mContext, RecvCameraActivity.class);
 				startActivity(intent);
 				break;
 				

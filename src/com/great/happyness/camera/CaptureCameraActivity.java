@@ -1588,7 +1588,7 @@ public class CaptureCameraActivity extends NoSearchActivity implements View.OnCl
     }
 
     public void surfaceCreated(SurfaceHolder holder) {
-    	mVideoEngine.startSend("192.168.250.202", 11111, true, 3, mCameraId);
+    	mVideoEngine.startSend("192.168.250.213", 11111, true, 3, mCameraId);
     }
 
     public void surfaceDestroyed(SurfaceHolder holder) {

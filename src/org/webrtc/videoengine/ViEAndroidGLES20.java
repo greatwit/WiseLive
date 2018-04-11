@@ -27,7 +27,7 @@ import android.util.Log;
 
 public class ViEAndroidGLES20 extends GLSurfaceView
         implements GLSurfaceView.Renderer {
-    private static String TAG = "WEBRTC-JR";
+    private static String TAG = "ViEAndroidGLES20";
     private static final boolean DEBUG = false;
     // True if onSurfaceCreated has been called.
     private boolean surfaceCreated = false;
@@ -322,6 +322,7 @@ public class ViEAndroidGLES20 extends GLSurfaceView
             openGLCreated = true; // Created OpenGL successfully
         }
         DrawNative(nativeObject); // Draw the new frame
+        Log.w(TAG, "onDrawFrame width:"+viewWidth + " height:"+viewHeight);
         nativeFunctionLock.unlock();
     }
 

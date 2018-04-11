@@ -28,7 +28,7 @@ import android.view.SurfaceHolder.Callback;
 
 public class ViESurfaceRenderer implements Callback {
 
-    private final static String TAG = "WEBRTC";
+    private final static String TAG = "ViESurfaceRenderer";
 
     // the bitmap used for drawing.
     private Bitmap bitmap = null;
@@ -58,11 +58,11 @@ public class ViESurfaceRenderer implements Callback {
 
     public void surfaceChanged(SurfaceHolder holder, int format,
             int in_width, int in_height) {
-        Log.d(TAG, "ViESurfaceRender::surfaceChanged");
+        Log.e(TAG, "ViESurfaceRender::surfaceChanged");
 
         changeDestRect(in_width, in_height);
 
-        Log.d(TAG, "ViESurfaceRender::surfaceChanged" +
+        Log.e(TAG, "ViESurfaceRender::surfaceChanged" +
                 " in_width:" + in_width + " in_height:" + in_height +
                 " srcRect.left:" + srcRect.left +
                 " srcRect.top:" + srcRect.top +
@@ -80,7 +80,7 @@ public class ViESurfaceRenderer implements Callback {
             Rect dst = surfaceHolder.getSurfaceFrame();
             if(dst != null) {
                 changeDestRect(dst.right - dst.left, dst.bottom - dst.top);
-                Log.d(TAG, "ViESurfaceRender::surfaceCreated" +
+                Log.e(TAG, "ViESurfaceRender::surfaceCreated" +
                         " dst.left:" + dst.left +
                         " dst.top:" + dst.top +
                         " dst.right:" + dst.right +
@@ -177,6 +177,7 @@ public class ViESurfaceRenderer implements Callback {
             // saveBitmapToJPEG(srcRect.right - srcRect.left,
             //                  srcRect.bottom - srcRect.top);
             canvas.drawBitmap(bitmap, srcRect, dstRect, null);
+            Log.e(TAG, "DrawBitmap");
             surfaceHolder.unlockCanvasAndPost(canvas);
         }
     }

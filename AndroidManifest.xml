@@ -59,7 +59,7 @@
             android:screenOrientation="portrait">
         </activity>
        
-                <activity android:name="com.great.happyness.camera.CaptureCameraActivity"
+       <activity android:name="com.great.happyness.camera.CaptureCameraActivity"
                 android:configChanges="orientation|keyboardHidden"
                 android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
                 android:screenOrientation="landscape"
@@ -75,6 +75,22 @@
             </intent-filter>
         </activity>
         
+        <activity android:name="com.great.happyness.camera.RecvCameraActivity"
+                android:configChanges="orientation|keyboardHidden"
+                android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
+                android:screenOrientation="landscape"
+                android:clearTaskOnLaunch="true"
+                android:taskAffinity="android.task.camera">
+            <intent-filter>
+                <action android:name="android.media.action.IMAGE_CAPTURE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.media.action.STILL_IMAGE_CAMERA" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+       
         <activity android:name="com.great.happyness.camera.VideoCameraActivity"
                 android:label="@string/video_camera_label"
                 android:configChanges="orientation|keyboardHidden"

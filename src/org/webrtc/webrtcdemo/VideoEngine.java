@@ -10,12 +10,13 @@ import android.view.SurfaceView;
 
 @SuppressWarnings("deprecation")
 public class VideoEngine {
+	
+  private String  TAG = getClass().getSimpleName();
+	
   private final long nativeVideoEngine;
-
   private int videoChannel;
   private int currentCameraHandle;
-  
-  private String  TAG = getClass().getSimpleName();
+  private boolean mbResterObser = false;
   
   private static final int VCM_VP8_PAYLOAD_TYPE = 100;
   private static final int SEND_CODEC_FPS 		= 30;
@@ -190,9 +191,20 @@ public class VideoEngine {
   
   public int registerCodecObserver(VideoDecodeEncodeObserver callback)
   {
+	  if(mbResterObser)
+		  return 0;
+	  mbResterObser = true;
 	  return registerObserver(videoChannel, callback);
   }
 
+  public int deregisterObserver()
+  {
+	  if(mbResterObser)
+		  mbResterObser = false;
+	  else
+		  return 0;
+	  return deregisterObserver(videoChannel);
+  }
   
   public boolean isSendRunning()
   {
