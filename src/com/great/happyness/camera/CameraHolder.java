@@ -146,7 +146,7 @@ public class CameraHolder {
         return mCameraDevice;
     }
 
-    public synchronized android.hardware.Camera open(int cameraId, PreviewCallback cont)
+    public synchronized android.hardware.Camera open(int cameraId, PreviewCallback cont, boolean previewData)
     {
     	try {
 			mCameraDevice = open(cameraId);
@@ -154,7 +154,8 @@ public class CameraHolder {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    	mCameraDevice.setPreviewCallback(cont);
+    	if(previewData)
+    		mCameraDevice.setPreviewCallback(cont);
     	return mCameraDevice;
     }
     

@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.great.happyness.aidl.IActivityReq;
 import com.great.happyness.aidl.ServiceControl;
-import com.great.happyness.service.ServiceCreatedListen;
 
 import android.app.Activity;
 import android.app.Application;
@@ -18,7 +17,7 @@ import android.view.WindowManager;
 
 
 public class WiseApplication extends Application implements 
-ServiceCreatedListen, Application.ActivityLifecycleCallbacks{
+	Application.ActivityLifecycleCallbacks{
 	public static final String TAG = WiseApplication.class.getSimpleName();
 
 	private static WiseApplication instance 	= null;
@@ -29,7 +28,7 @@ ServiceCreatedListen, Application.ActivityLifecycleCallbacks{
 	public static float DIMEN_RATE 	= -1.0F;
 	public static int DIMEN_DPI 	= -1;
 
-	ServiceControl mServCont = ServiceControl.getInstance();
+	private static ServiceControl mServCont = ServiceControl.getInstance();
 	
 	public synchronized static WiseApplication getInstance() {
 		return instance;
@@ -47,7 +46,9 @@ ServiceCreatedListen, Application.ActivityLifecycleCallbacks{
 	@Override
 	public void onCreate() {
 		setInstance(this);
-		mServCont.bindService(this, this);
+		mServCont.startService(this);
+		mServCont.bindService(this);
+		
 		getScreenSize();
 		super.onCreate();
 		this.registerActivityLifecycleCallbacks(this);
@@ -161,12 +162,6 @@ ServiceCreatedListen, Application.ActivityLifecycleCallbacks{
 
 	@Override
 	public void onActivityDestroyed(Activity activity) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void serviceChanged(int state) {
 		// TODO Auto-generated method stub
 		
 	}

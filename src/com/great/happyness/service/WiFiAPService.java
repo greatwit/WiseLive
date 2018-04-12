@@ -31,7 +31,8 @@ import android.util.Log;
  * @date:   2015-06-09 00:43  
  * version:1.0.0
  */
-public class WiFiAPService extends Service {
+public class WiFiAPService extends Service 
+{
 	
 	private static String TAG = WiFiAPService.class.getSimpleName();
 	
@@ -84,7 +85,7 @@ public class WiFiAPService extends Service {
 		{
 			// TODO Auto-generated method stub
 			byte[] sendbyte = mCamPack.encodePack(data);
-			Log.w(TAG, "leng:"+ sendbyte.length + "sendbyte:"+sendbyte);
+			Log.w(TAG, "leng:"+ sendbyte.length + " sendbyte:"+sendbyte);
 			
 			int res = 0;
 			try {
@@ -104,12 +105,14 @@ public class WiFiAPService extends Service {
 		@Override
 		public boolean startUdpServer() throws RemoteException {
 			// TODO Auto-generated method stub
+			Log.i(TAG, "startUdpServer");
 			return mProtoEngine.StartEngine();
 		}
 
 		@Override
 		public boolean stopUdpServer() throws RemoteException {
 			// TODO Auto-generated method stub
+			Log.i(TAG, "stopUdpServer");
 			return mProtoEngine.StopEngine();
 		}
     };
@@ -214,6 +217,7 @@ public class WiFiAPService extends Service {
 	@Override
 	public IBinder onBind(Intent intent) {
 		// TODO Auto-generated method stub
+		Log.i(TAG, "return server onBind");
 		return mBinder;
 	}
 
@@ -233,7 +237,7 @@ public class WiFiAPService extends Service {
     {
         // A client is binding to the service with bindService(),
         // after onUnbind() has already been called
-    	Log.d("LOG","LocalService ->onRebind"); 
+    	Log.w(TAG,"LocalService ->onRebind"); 
         super.onRebind(intent);
     }
     

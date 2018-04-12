@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.Toast;
 
+import com.great.happyness.aidl.ServiceControl;
 import com.great.happyness.fragment.CommonTabLayout;
 import com.great.happyness.fragment.CustomTabEntity;
 import com.great.happyness.fragment.HomeFragment;
@@ -41,12 +42,15 @@ public class WiseMainActivity extends FragmentActivity
 			R.drawable.ic_personal_select };//R.drawable.ic_service_select, R.drawable.ic_shopping_select,
 
 	
-	//ServiceControl mServCont = ServiceControl.getInstance();
+	private static ServiceControl mServCont = ServiceControl.getInstance();
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) 
     {
         super.onCreate(savedInstanceState);
+        
+        mServCont.startService(this);
+        mServCont.bindService(this);
         
         setContentView(R.layout.activity_main_fragment);
         initVIew();
@@ -59,7 +63,6 @@ public class WiseMainActivity extends FragmentActivity
 		}
 		tabLayout.setTabData(data);
 		tabLayout.setCurrentTab(currentTabPosition);
-
     }
 
 	@Override
@@ -68,7 +71,7 @@ public class WiseMainActivity extends FragmentActivity
 		// AbMonitorUtil.openMonitor(this);
 		super.onResume();
 	}
-    
+	
     private void initVIew()
     {
 		mTabSelectListener = new OnTabSelectListener() {
@@ -84,8 +87,6 @@ public class WiseMainActivity extends FragmentActivity
 		// 点击监听
 		tabLayout.setOnTabSelectListener(mTabSelectListener);
     }
-
-    
 
     
     private long exitTime = 0;
@@ -176,7 +177,7 @@ public class WiseMainActivity extends FragmentActivity
 	@Override
 	public void onDestroy() {
 		Log.w(TAG,"onDestroy");
-
+		mServCont.unbindService(this);
 		super.onDestroy();
 	}
 

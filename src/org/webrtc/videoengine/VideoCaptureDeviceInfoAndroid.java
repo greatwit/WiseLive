@@ -24,7 +24,7 @@ import org.json.JSONObject;
 
 @SuppressWarnings("deprecation")
 public class VideoCaptureDeviceInfoAndroid {
-  private final static String TAG = "WEBRTC-JC";
+  private final static String TAG = "VideoCaptureDeviceInfoAndroid";
 
   private static boolean isFrontFacing(CameraInfo info) {
     return info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT;

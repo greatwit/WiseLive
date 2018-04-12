@@ -1,5 +1,6 @@
 package com.great.happyness.service;
 
+import android.os.Bundle;
 import android.os.Message;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
@@ -37,7 +38,7 @@ public class ListenerManager {
         }
     }
     
-    public void sendMessage(int action, Message msg) {
+    public void sendMessage(int action, byte[]data) {
     	final int N = mListenerList.beginBroadcast();
     	if(N<=0)return;
     	
@@ -45,11 +46,16 @@ public class ListenerManager {
             for (int i = 0; i < N; i++) {
                 IServiceListen broadcastItem = mListenerList.getBroadcastItem(i);
                 if (broadcastItem != null) {
+        			Bundle bundle = new Bundle();      
+                    bundle.putByteArray("data",data);  //往Bundle中存放数据        
+                    Message msg = new Message();
+                    msg.setData(bundle);
                     broadcastItem.onAction(action, msg);
                     Log.w(TAG, "broadcastItem:"+action);
                 }
             }
-        } catch (RemoteException e) {
+        } catch (RemoteException e) 
+        {
             e.printStackTrace();
         } finally {
             try {
@@ -61,3 +67,4 @@ public class ListenerManager {
     }
     
 }
+

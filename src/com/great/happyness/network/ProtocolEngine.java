@@ -26,7 +26,7 @@ public class ProtocolEngine extends Thread {
 	 * 网络基本收发 链路相关
 	 * 
 	 */
-	private UdpOperation mUdpOpt = UdpOperation.gSingleton;
+	private UdpOperation mUdpOpt = UdpOperation.getInstant();
 
 //	private MulticastUdpOperation mMulticastUdpOpt = MulticastUdpOperation.gSingleton;
 
@@ -94,30 +94,19 @@ public class ProtocolEngine extends Thread {
 	}
 
 	public boolean StopEngine() {
-		if(mSendThrad!=null && !mSendThrad.isAlive()){
-			try {
-				interrupt();
-			} catch (Exception e) {
-
-			}
-		}
-		
-		if (!isAlive()) {
-			try {
-				interrupt();
-				AbLogUtil.d(TAG,"try interrupt 关闭udp接收服务");
-			} catch (Exception e) {
-				AbLogUtil.e(TAG,"error:"+e);
-			}
-		
-			return false;
-		}
+//		if(mSendThrad!=null && !mSendThrad.isAlive()){
+//			try {
+//				interrupt();
+//			} catch (Exception e) {
+//
+//			}
+//		}
 		
 		if (getflag()) {
 			setflag(false);
 			try {
-				mUdpOpt.closeSocket();
 				sleep(200);
+				mUdpOpt.closeSocket();
 				AbLogUtil.d(TAG,"try StopEngine 已经关闭udp接收服务");
 			} catch (Exception e) {
 
@@ -125,7 +114,18 @@ public class ProtocolEngine extends Thread {
 			return true;
 		}
 		
-		mSendThrad = null;
+		if (!isAlive()) {
+			try {
+				interrupt();
+				AbLogUtil.i(TAG,"try interrupt 关闭udp接收服务");
+			} catch (Exception e) {
+				AbLogUtil.e(TAG,"error:"+e);
+			}
+		
+			return false;
+		}
+		
+		
 		
 		return false;
 	}
@@ -138,7 +138,7 @@ public class ProtocolEngine extends Thread {
 				 * 线程可能阻塞在此处
 				 * 
 				 */
-				AbLogUtil.d(TAG,"单播 等待接收数据");
+				AbLogUtil.i(TAG,"单播 等待接收数据");
 				UdpPackageInfo recv = mUdpOpt.read();
 				AbLogUtil.e(TAG, "recv len:"+ recv.getData().length + " data:"+recv.getData());
 				/**
@@ -146,11 +146,8 @@ public class ProtocolEngine extends Thread {
 				 *  加入到协议缓冲队列,接受和处理在异步出来
 				 */
 				//mgPackBuffer.pushPackage(recv);
-				Bundle bundle = new Bundle();      
-                bundle.putByteArray("data",recv.getData());  //往Bundle中存放数据        
-                Message msg = new Message();
-                msg.setData(bundle);
-                ListenerManager.Instance().sendMessage(WiFiAPService.NET_CMD, msg);
+	
+                ListenerManager.Instance().sendMessage(WiFiAPService.NET_CMD, recv.getData());
 			} catch (Exception e) {
 				AbLogUtil.e(TAG,"单播 接收错误" + e.getMessage());
 				break;
@@ -160,16 +157,6 @@ public class ProtocolEngine extends Thread {
 		super.run();
 	}
 
-	/**
-	 *  网络异常通知
-	 *  
-	 * @param code
-	 */
-	private void notifyNetError(int code) {
-//		for(IMessageNotify it:notifyObjList){
-//			it.NotifyError(code);
-//		}
-	}
 
 	/**
 	 * 

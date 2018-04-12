@@ -4,7 +4,6 @@ import com.great.happyness.aidl.IActivityReq;
 import com.great.happyness.aidl.IServiceListen;
 import com.great.happyness.aidl.ServiceControl;
 import com.great.happyness.popwin.QRCodePopWin;
-import com.great.happyness.service.ServiceCreatedListen;
 import com.great.happyness.service.WiFiAPService;
 import com.great.happyness.utils.CompletedView;
 import com.great.happyness.utils.SysConfig;
@@ -30,8 +29,8 @@ import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class CreateWifiActivity extends Activity implements 
-	ServiceCreatedListen, OnClickListener{
+public class CreateWifiActivity extends Activity implements OnClickListener
+{
     private int mTotalProgress   = 12;
     private int mCurrentProgress = 0;
     //进度条
@@ -117,7 +116,6 @@ public class CreateWifiActivity extends Activity implements
 		}else
 		{
 			Log.e(TAG, "mActReq == null");
-			ServiceControl.getInstance().registListener(this);
 		}
 		return actReq;
 	}
@@ -127,26 +125,8 @@ public class CreateWifiActivity extends Activity implements
 		public void onAction(int action, Message msg) throws RemoteException {
 			// TODO Auto-generated method stub
 			Log.i(TAG, "IServiceListen onAction:"+action);
-			switch(action)
-			{
-				case WiFiAPService.NET_CMD:
-					byte[] data = msg.getData().getByteArray("data");
-					switch(data[14])
-					{
-						case 'a':
-			                Intent reintent = new Intent();
-			                //把返回数据存入Intent
-			                reintent.putExtra("result", mWifiUtils.isWifiApEnabled());
-			                //设置返回数据
-			                CreateWifiActivity.this.setResult(RESULT_OK, reintent);
-			                finish();
-							break;	
-					}
-					break;
-					
-					default:
-						break;
-			}
+			msg.what = action;
+			mHandler.sendMessage(msg);
 		}
     };
 	
@@ -191,6 +171,21 @@ public class CreateWifiActivity extends Activity implements
 					break;
 					
 				case MESSAGE_CREATE_SUCC:
+					break;
+					
+				case WiFiAPService.NET_CMD:
+					byte[] data = msg.getData().getByteArray("data");
+					switch(data[14])
+					{
+						case 'a':
+			                Intent reintent = new Intent();
+			                //把返回数据存入Intent
+			                reintent.putExtra("result", mWifiUtils.isWifiApEnabled());
+			                //设置返回数据
+			                CreateWifiActivity.this.setResult(RESULT_OK, reintent);
+			                finish();
+							break;	
+					}
 					break;
 			}
 		}
@@ -319,12 +314,6 @@ public class CreateWifiActivity extends Activity implements
                 Log.w(TAG, "bar_goback");
             	break;
         }
-	}
-
-	@Override
-	public void serviceChanged(int state) {
-		// TODO Auto-generated method stub
-		
 	}
     
 }

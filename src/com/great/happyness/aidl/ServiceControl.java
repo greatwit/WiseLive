@@ -1,9 +1,5 @@
 package com.great.happyness.aidl;
 
-
-import java.util.ArrayList;
-
-import com.great.happyness.service.ServiceCreatedListen;
 import com.great.happyness.service.WiFiAPService;
 
 import android.app.Service;
@@ -21,7 +17,7 @@ public class ServiceControl implements ServiceConnection
 	protected String TAG = getClass().getName();
 	
 	IActivityReq mActivityReq;
-	private static ArrayList<ServiceCreatedListen> mListenerActivity = new ArrayList<ServiceCreatedListen>();
+	//private static ArrayList<ServiceCreatedListen> mListenerActivity = new ArrayList<ServiceCreatedListen>();
 	private static ServiceControl gServiceControl=null;  
 	
     //静态工厂方法   
@@ -35,10 +31,15 @@ public class ServiceControl implements ServiceConnection
 	public ServiceControl() {
 	}
     
-    public void bindService(Context cont, ServiceCreatedListen listen) {
+	public void startService(Context cont)
+	{
+		Intent intentServer = new Intent(cont, WiFiAPService.class);  
+		cont.startService(intentServer); 
+	}
+	
+    public void bindService(Context cont) {
         Intent intent = new Intent(cont, WiFiAPService.class);
         cont.bindService(intent, getInstance(), Service.BIND_AUTO_CREATE);
-        mListenerActivity.add(listen);
         Log.w(TAG, "bindService");
     }
 	
@@ -47,19 +48,11 @@ public class ServiceControl implements ServiceConnection
     	cont.unbindService(getInstance());     //取消服务的绑定
     }
     
-    public void registListener(ServiceCreatedListen listen)
-    {
-    	mListenerActivity.add(listen);
-    }
     
 	@Override
 	public void onServiceConnected(ComponentName name, IBinder service) {
 		// TODO Auto-generated method stub
 		mActivityReq = IActivityReq.Stub.asInterface(service);
-		for(ServiceCreatedListen it : mListenerActivity){
-			it.serviceChanged(1);
-			mListenerActivity.remove(it);
-		}
 		Log.w(TAG, "onServiceConnected");
 	}
 	

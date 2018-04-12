@@ -44,7 +44,6 @@ import org.webrtc.webrtcdemo.VideoDecodeEncodeObserver;
 import org.webrtc.webrtcdemo.VideoEngine;
 
 /** The Camera activity which can preview and take pictures. */
-@SuppressWarnings("deprecation")
 @SuppressLint("InlinedApi")
 public class RecvCameraActivity extends NoSearchActivity implements View.OnClickListener,
         ShutterButton.OnShutterButtonListener, SurfaceHolder.Callback,
@@ -126,6 +125,7 @@ public class RecvCameraActivity extends NoSearchActivity implements View.OnClick
      * This Handler is used to post message back onto the main thread of the
      * application
      */
+    @SuppressLint("HandlerLeak") 
     private class MainHandler extends Handler {
         @Override
         public void handleMessage(Message msg) {
@@ -234,7 +234,6 @@ public class RecvCameraActivity extends NoSearchActivity implements View.OnClick
         super.onCreate(icicle);
         
 
-        
         setContentView(R.layout.activity_recv_camera);
         llRemoteSurface = (LinearLayout) findViewById(R.id.llRemoteView);
         remoteSurfaceView = ViERenderer.CreateRenderer(this, true);

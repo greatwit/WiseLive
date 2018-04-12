@@ -6,20 +6,17 @@ import java.util.ArrayList;
 import com.great.happyness.ConnectWifiActivity;
 import com.great.happyness.CreateWifiActivity;
 import com.great.happyness.R;
-import com.great.happyness.RtcCameraActivity;
-import com.great.happyness.RtcRecvActivity;
 import com.great.happyness.aidl.IActivityReq;
 import com.great.happyness.aidl.IServiceListen;
 import com.great.happyness.aidl.ServiceControl;
 import com.great.happyness.camera.CaptureCameraActivity;
 import com.great.happyness.camera.RecvCameraActivity;
-import com.great.happyness.camera.VideoCameraActivity;
 import com.great.happyness.popwin.CameraPopwin;
-import com.great.happyness.service.ServiceCreatedListen;
 import com.great.happyness.service.WiFiAPService;
 import com.great.happyness.utils.SysConfig;
 import com.great.happyness.wifi.WifiUtils;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -29,6 +26,7 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.net.wifi.WifiInfo;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Message;
 import android.os.RemoteException;
 import android.os.Vibrator;
@@ -50,7 +48,7 @@ import android.widget.TextView;
  */
 @SuppressWarnings("deprecation")
 public class ServiceFragment extends Fragment
-		implements OnClickListener, ServiceCreatedListen
+		implements OnClickListener
 {
 	private Context mContext;
 	private final String TAG = ServiceFragment.class.getSimpleName();
@@ -60,6 +58,8 @@ public class ServiceFragment extends Fragment
 	private final static int CREATE_GREQUEST_CODE 	= 1;
 	private final static int CONNECT_GREQUEST_CODE 	= 2;
 	
+	private final static float BEEP_VOLUME = 0.10f;
+	
 	private ImageView bar_recv, bar_send, bar_delete;
 	private TextView  bar_status;
 	
@@ -68,7 +68,55 @@ public class ServiceFragment extends Fragment
 	private CameraPopwin mCamPopwin  = null;
 	
 	private MediaPlayer mediaPlayer;
-	private static final float BEEP_VOLUME = 0.10f;
+	private final Handler mHandler = new MainHandler();
+	private static final int WIFI_MSG = 1;
+	
+    private class MainHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+			//a是触电，b是触电返回；c是打开拍照请求，d是打开拍照后回复；e是发命令关闭对方，f是关闭回复。
+			switch(msg.what)
+			{
+				case WiFiAPService.WIFI_CMD:
+					break;
+					
+				case WiFiAPService.NET_CMD:
+					byte[] data = msg.getData().getByteArray("data");
+					Log.i(TAG, "IServiceListen command:"+data[14]);
+					switch(data[14])
+					{
+						case 'a':
+							playBeepSoundAndVibrate();
+							sendCommand("b");
+							break;
+							
+						case 'b'://touch turnback
+							if(mCamPopwin!=null)
+								mCamPopwin.dismiss();
+							break;
+							
+						case 'c':
+							Intent intent1 = new Intent().setClass(mContext, CaptureCameraActivity.class);
+							intent1.putExtra("destip", getDestip());
+							startActivity(intent1);
+							sendCommand("d");
+							break;
+							
+						case 'd'://主动发送端接收到的命令
+							if(mCamPopwin!=null)
+								mCamPopwin.dismiss();
+							break;
+							
+						case 'e':
+							break;
+					}
+					break;
+					
+					default:
+						break;
+			}
+        }
+    }
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -76,6 +124,7 @@ public class ServiceFragment extends Fragment
 		super.onCreate(savedInstanceState);
 	}
 
+	@SuppressLint("InflateParams") 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) 
@@ -196,15 +245,10 @@ public class ServiceFragment extends Fragment
 		}else
 		{
 			Log.e(TAG, "mActReq == null");
-			ServiceControl.getInstance().registListener(this);
 		}
 		return actReq;
 	}
 	
-	@Override
-	public void serviceChanged(int state) {
-		// TODO Auto-generated method stub
-	}
 	
 	private void init() 
 	{
@@ -234,42 +278,8 @@ public class ServiceFragment extends Fragment
 		public void onAction(int action, Message msg) throws RemoteException {
 			// TODO Auto-generated method stub
 			Log.i(TAG, "IServiceListen onAction:"+action);
-			//a是触电，b是触电返回；c是打开拍照请求，d是打开拍照后回复；e是发命令关闭对方，f是关闭回复。
-			switch(action)
-			{
-				case WiFiAPService.WIFI_CMD:
-					break;
-					
-				case WiFiAPService.NET_CMD:
-					byte[] data = msg.getData().getByteArray("data");
-					Log.i(TAG, "IServiceListen command:"+data[14]);
-					switch(data[14])
-					{
-						case 'a':
-							playBeepSoundAndVibrate();
-							break;
-							
-						case 'b':
-							break;
-							
-						case 'c':
-							Intent intent1 = new Intent().setClass(mContext, RtcCameraActivity.class);
-							intent1.putExtra("destip", getDestip());
-							startActivity(intent1);
-							sendCommand("d");
-							break;
-							
-						case 'd'://主动发送端接收到的命令
-							break;
-							
-						case 'e':
-							break;
-					}
-					break;
-					
-					default:
-						break;
-			}
+			msg.what = action;
+			mHandler.sendMessage(msg);
 		}
     };
 	
@@ -359,7 +369,6 @@ public class ServiceFragment extends Fragment
 		Intent intent;
 		switch (v.getId()) {
 			case R.id.item_create_ll:
-				startActivityForResult(new Intent().setClass(mContext, CreateWifiActivity.class), CREATE_GREQUEST_CODE);
 				try {
 					if(getBinderReq()!=null)
 						getBinderReq().startUdpServer();
@@ -367,14 +376,16 @@ public class ServiceFragment extends Fragment
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+				startActivityForResult(new Intent().setClass(mContext, CreateWifiActivity.class), CREATE_GREQUEST_CODE);
+
 				break;
 				
 			case R.id.item_connect_ll://ConnectWifiActivity
-				startActivityForResult(new Intent().setClass(mContext, CaptureCameraActivity.class), CONNECT_GREQUEST_CODE);
+				startActivityForResult(new Intent().setClass(mContext, ConnectWifiActivity.class), CONNECT_GREQUEST_CODE);
 				break;
 			
-			case R.id.item_camera_ll://打开单机照相机
-				intent = new Intent().setClass(mContext, RecvCameraActivity.class);
+			case R.id.item_camera_ll: //打开单机照相机
+				intent = new Intent().setClass(mContext, CaptureCameraActivity.class);
 				startActivity(intent);
 				break;
 				
@@ -413,10 +424,10 @@ public class ServiceFragment extends Fragment
                 break;
                 
             case R.id.layout_camera:
-				intent = new Intent().setClass(mContext, RtcRecvActivity.class);
+				intent = new Intent().setClass(mContext, RecvCameraActivity.class);
 				startActivity(intent);
             	sendCommand("c");
-                break; 
+                break;
 				
 			case R.id.bar_delete:
 				if(mWifiUtils.isWifiApEnabled())
@@ -468,7 +479,6 @@ public class ServiceFragment extends Fragment
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
 		
 		super.onDestroy();
 	}

@@ -164,6 +164,8 @@ public class CaptureCameraActivity extends NoSearchActivity implements View.OnCl
     private ImageCapture mImageCapture = null;
     
     private VideoEngine mVideoEngine = null;
+    
+    String mDestip	= "";
 
     private boolean mPreviewing;
     private boolean mPausing;
@@ -889,6 +891,9 @@ public class CaptureCameraActivity extends NoSearchActivity implements View.OnCl
         mVideoEngine = new VideoEngine(this);
         mVideoEngine.initEngine();
         
+        Intent intent = getIntent();
+        mDestip = intent.getStringExtra("destip");
+        
         // we need to reset exposure for the preview
         resetExposureCompensation();
         /*
@@ -1588,7 +1593,8 @@ public class CaptureCameraActivity extends NoSearchActivity implements View.OnCl
     }
 
     public void surfaceCreated(SurfaceHolder holder) {
-    	mVideoEngine.startSend("192.168.250.213", 11111, true, 3, mCameraId);
+    	if(mDestip!=null && !"".equals(mDestip))
+    		mVideoEngine.startSend(mDestip, 11111, true, 3, mCameraId);
     }
 
     public void surfaceDestroyed(SurfaceHolder holder) {
@@ -1612,7 +1618,8 @@ public class CaptureCameraActivity extends NoSearchActivity implements View.OnCl
 
     private void ensureCameraDevice() throws CameraHardwareException {
         if (mCameraDevice == null) {
-            mCameraDevice = CameraHolder.instance().open(mCameraId, this);
+        	boolean previewData = (mDestip!=null && !"".equals(mDestip))?true:false;
+            mCameraDevice = CameraHolder.instance().open(mCameraId, this, previewData);
             mInitialParams = mCameraDevice.getParameters();
         }
     }

@@ -16,7 +16,7 @@ import com.great.happyness.utils.AbLogUtil;
  */
 
 public class UdpPackageInfoQueue {
-	private static String TAG = "forsafe UdpPackageInfoQueue";
+	private String TAG = getClass().getSimpleName();
 	public UdpPackageInfoQueue(){
 		
 	}
