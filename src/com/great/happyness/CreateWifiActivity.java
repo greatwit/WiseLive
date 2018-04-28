@@ -6,8 +6,8 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import com.great.happyness.evenbus.event.CmdEvent;
-import com.great.happyness.popwin.QRCodePopWin;
 import com.great.happyness.protrans.message.ConstDef;
+import com.great.happyness.ui.popwin.QRCodePopWin;
 import com.great.happyness.utils.CompletedView;
 import com.great.happyness.utils.SysConfig;
 import com.great.happyness.wifi.WifiUtils;

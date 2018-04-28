@@ -6,7 +6,7 @@ import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.util.Log;
 
-import com.great.happyness.aidl.IServiceListen;
+import com.great.happyness.service.aidl.IServiceListen;
 
 
 public class ListenerManager {

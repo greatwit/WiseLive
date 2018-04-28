@@ -1,8 +1,8 @@
 package com.great.happyness.service;
 
 
-import com.great.happyness.aidl.IServiceListen;
-import com.great.happyness.aidl.IActivityReq;
+import com.great.happyness.service.aidl.IServiceListen;
+import com.great.happyness.service.aidl.IActivityReq;
 import com.great.happyness.protrans.lib.ProtoTrans;
 
 import android.app.Service;

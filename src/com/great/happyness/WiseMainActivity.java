@@ -15,21 +15,21 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.Toast;
 
-import com.great.happyness.aidl.IActivityReq;
-import com.great.happyness.aidl.IBindListen;
-import com.great.happyness.aidl.IServiceListen;
-import com.great.happyness.aidl.ServiceControl;
+import com.great.happyness.service.aidl.IActivityReq;
+import com.great.happyness.service.aidl.IServiceListen;
 import com.great.happyness.evenbus.event.CmdEvent;
-import com.great.happyness.fragment.CommonTabLayout;
-import com.great.happyness.fragment.CustomTabEntity;
-import com.great.happyness.fragment.HomeFragment;
-import com.great.happyness.fragment.OnTabSelectListener;
-import com.great.happyness.fragment.PersonalFragment;
-import com.great.happyness.fragment.ServiceFragment;
-import com.great.happyness.fragment.TabEntity;
 import com.great.happyness.protrans.message.CommandMessage;
 import com.great.happyness.protrans.message.ConstDef;
 import com.great.happyness.protrans.message.MessagesEntity;
+import com.great.happyness.service.aidl.IBindListen;
+import com.great.happyness.service.aidl.ServiceControl;
+import com.great.happyness.ui.fragment.CommonTabLayout;
+import com.great.happyness.ui.fragment.CustomTabEntity;
+import com.great.happyness.ui.fragment.HomeFragment;
+import com.great.happyness.ui.fragment.OnTabSelectListener;
+import com.great.happyness.ui.fragment.PersonalFragment;
+import com.great.happyness.ui.fragment.ServiceFragment;
+import com.great.happyness.ui.fragment.TabEntity;
 
 
 public class WiseMainActivity extends FragmentActivity 
