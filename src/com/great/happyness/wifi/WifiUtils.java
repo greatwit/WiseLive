@@ -229,6 +229,18 @@ public class WifiUtils
         return connectedIP;
     }
     
+    public String getDestAddr(){
+		String addr = "";
+    	if (isWifiApEnabled()){
+    		ArrayList<String> strArr = getConnectedIP();
+    		addr = strArr.get(0);
+    		Log.i(TAG, "connected wifi addr:"+addr);
+    	}
+    	else
+    		addr = "192.168.43.1";
+    	return addr;
+	}
+    
     ////////////////////////////////////////////////wifi ap//////////////////////////////////////////
     //判断热点是否打开
     public boolean isWifiApEnabled() 

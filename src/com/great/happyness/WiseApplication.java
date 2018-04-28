@@ -3,9 +3,6 @@ package com.great.happyness;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.great.happyness.aidl.IActivityReq;
-import com.great.happyness.aidl.ServiceControl;
-
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
@@ -21,15 +18,12 @@ public class WiseApplication extends Application implements
 	public static final String TAG = WiseApplication.class.getSimpleName();
 
 	private static WiseApplication instance 	= null;
-	private static IActivityReq mActivityReq 	= null;
 
 	public static int SCREEN_WIDTH 	= -1;
 	public static int SCREEN_HEIGHT = -1;
 	public static float DIMEN_RATE 	= -1.0F;
 	public static int DIMEN_DPI 	= -1;
 
-	private static ServiceControl mServCont = ServiceControl.getInstance();
-	
 	public synchronized static WiseApplication getInstance() {
 		return instance;
 	}
@@ -38,16 +32,9 @@ public class WiseApplication extends Application implements
 		WiseApplication.instance = instance;
 	}
 
-    public IActivityReq getReqService() {
-
-        return mActivityReq;
-    }
-	
 	@Override
 	public void onCreate() {
 		setInstance(this);
-		mServCont.startService(this);
-		mServCont.bindService(this);
 		
 		getScreenSize();
 		super.onCreate();
@@ -76,8 +63,6 @@ public class WiseApplication extends Application implements
 		}
 	}
     
-    
-	
 	private List<Activity> mList = new LinkedList<Activity>();
 
 	/**

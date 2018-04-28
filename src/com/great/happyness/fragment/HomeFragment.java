@@ -30,7 +30,7 @@ public class HomeFragment extends Fragment
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		view = LayoutInflater.from(mContext).inflate(R.layout.activity_rtc_sender, null);
+		view = LayoutInflater.from(mContext).inflate(R.layout.fragment_home, null);
 		return view;
 	}
 

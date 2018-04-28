@@ -29,9 +29,6 @@
             </intent-filter>
         </activity>
         
-        <activity android:name=".HotSpotMainActivity"
-            	  android:theme="@android:style/Theme.NoTitleBar"/>
-        
         <activity android:name=".CreateWifiActivity" 
             	  android:theme="@android:style/Theme.NoTitleBar"
             	  android:screenOrientation="portrait"
@@ -41,117 +38,14 @@
             	  android:configChanges="keyboardHidden|orientation|screenSize"
             	  android:screenOrientation="portrait"
             	  />
-
-        <activity android:name=".SendEncodeActivity" />
-        <activity android:name=".RtcCameraActivity" 
-            	  android:theme="@android:style/Theme.NoTitleBar"
-            	  android:screenOrientation="portrait"
-            	  />
-        <activity android:name=".RtcRecvActivity" 
-            	  android:theme="@android:style/Theme.NoTitleBar"
-            	  android:screenOrientation="portrait"
-            	  />
         
-        <activity
-            android:name=".RecvDecodeActivity"
-            android:theme="@android:style/Theme.NoTitleBar"
-            android:launchMode="singleTask"
-            android:screenOrientation="portrait">
-        </activity>
-       
-       <activity android:name="com.great.happyness.camera.CaptureCameraActivity"
-                android:configChanges="orientation|keyboardHidden"
-                android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
-                android:screenOrientation="landscape"
-                android:clearTaskOnLaunch="true"
-                android:taskAffinity="android.task.camera">
-            <intent-filter>
-                <action android:name="android.media.action.IMAGE_CAPTURE" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.media.action.STILL_IMAGE_CAMERA" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
+        <service 
+	        android:name="com.great.happyness.service.ProtransService"
+	        android:enabled="true"
+	        android:exported="true"
+	        android:permission="oem.permission.SENDMAIL">
+        </service>
         
-        <activity android:name="com.great.happyness.camera.RecvCameraActivity"
-                android:configChanges="orientation|keyboardHidden"
-                android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
-                android:screenOrientation="landscape"
-                android:clearTaskOnLaunch="true"
-                android:taskAffinity="android.task.camera">
-            <intent-filter>
-                <action android:name="android.media.action.IMAGE_CAPTURE" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.media.action.STILL_IMAGE_CAMERA" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-       
-        <activity android:name="com.great.happyness.camera.VideoCameraActivity"
-                android:label="@string/video_camera_label"
-                android:configChanges="orientation|keyboardHidden"
-                android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
-                android:screenOrientation="landscape"
-                android:clearTaskOnLaunch="true"
-                android:taskAffinity="android.task.camcorder">
-            <intent-filter>
-                <action android:name="android.media.action.VIDEO_CAMERA" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.media.action.VIDEO_CAPTURE" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-        
-        <receiver
-            android:name="com.great.happyness.service.WakeReceiver"
-            android:enabled="true"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.wake.gray" />
-            </intent-filter>
-        </receiver>
-        
-        <service android:name="com.great.happyness.service.WiFiAPService"
-				            android:enabled="true"
-				            android:exported="true"
-				            android:permission="oem.permission.SENDMAIL"
-				            ></service>
-        
-        <service
-            android:name="com.great.happyness.service.WhiteService"
-            android:enabled="true"
-            android:exported="false"
-            android:process=":white" />
-        <service
-            android:name="com.great.happyness.service.GrayService"
-            android:enabled="true"
-            android:exported="false"
-            android:process=":gray" />
-        <service
-            android:name="com.great.happyness.service.GrayService$GrayInnerService"
-            android:enabled="true"
-            android:exported="false"
-            android:process=":gray" />
-        <service
-            android:name="com.great.happyness.service.BackgroundService"
-            android:enabled="true"
-            android:exported="false"
-            android:process=":bg" />
-        <service
-            android:name="com.great.happyness.service.WakeReceiver$WakeNotifyService"
-            android:enabled="true"
-            android:exported="false" />
-
-        <service
-            android:name="com.great.happyness.service.WakeReceiver$WakeGrayInnerService"
-            android:enabled="true"
-            android:exported="false" />
     </application>
     
     <uses-permission android:protectionLevel="normal" android:name="oem.permission.SENDMAIL"/>

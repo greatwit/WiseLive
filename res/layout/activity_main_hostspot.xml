@@ -54,13 +54,13 @@
         android:layout_marginTop="0dp"
         android:layout_width="100dip"
         android:layout_height="wrap_content"
-        android:text="@string/upper_listen"/>
+        android:text="a"/>
     <Button
 	    android:id="@+id/btn_upper_send"
 	    android:layout_marginTop="0dp"
 	    android:layout_width="100dip"
 	    android:layout_height="wrap_content"
-	    android:text="@string/upper_send"/>
+	    android:text="b"/>
 </LinearLayout>
     <LinearLayout 
     android:layout_width="match_parent"
@@ -70,13 +70,13 @@
 	        android:id="@+id/btn_native_listen"
 	        android:layout_width="100dip"
 	        android:layout_height="wrap_content"
-	        android:text="@string/native_listen"/>
+	        android:text="c"/>
 	
 	    <Button
 	        android:id="@+id/btn_native_send"
 	        android:layout_width="100dip"
 	        android:layout_height="wrap_content"
-	        android:text="@string/native_send"/>
+	        android:text="d"/>
 	</LinearLayout>
 	
     <ListView

@@ -3,9 +3,16 @@ package com.great.happyness;
 import java.io.IOException;
 import java.util.Vector;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
+import com.great.happyness.aidl.ServiceControl;
+import com.great.happyness.evenbus.event.CmdEvent;
 import com.great.happyness.popwin.ProcessBarPopWin;
+import com.great.happyness.protrans.message.ConstDef;
 import com.great.happyness.qrcode.CameraManager;
 import com.great.happyness.qrcode.CaptureActivityHandler;
 import com.great.happyness.qrcode.InactivityTimer;
@@ -19,22 +26,17 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
-import android.media.MediaPlayer.OnCompletionListener;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Vibrator;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
-import android.view.Gravity;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.Window;
@@ -52,20 +54,16 @@ public class ConnectWifiActivity extends Activity implements OnClickListener, Ca
 	private Vector<BarcodeFormat> decodeFormats = null;
 	private String characterSet					= null;
 	private InactivityTimer inactivityTimer;
-	private MediaPlayer mediaPlayer;
-	private boolean playBeep = true;
-	private boolean vibrate  = true;
-	private static final float BEEP_VOLUME = 0.10f;
-	
+
 	private ImageButton bt_qr_capture 		= null;
 	private ImageView bar_goback;
 	private LinearLayout radar_ll 			= null;
 	private LinearLayout  qr_capture_ll 	= null;
-	ProcessBarPopWin processBarPopWin 	= null;
+	ProcessBarPopWin processBarPopWin 		= null;
 	
 	
 	private WifiUtils mWifiUtils;
-	private String TAG = "ConnectWifiActivity";
+	private String TAG = getClass().getSimpleName();
 
 	/** Called when the activity is first created. */
 	@Override
@@ -73,7 +71,7 @@ public class ConnectWifiActivity extends Activity implements OnClickListener, Ca
 		super.onCreate(savedInstanceState);
 		
 		requestWindowFeature(Window.FEATURE_NO_TITLE); 
-		setContentView(R.layout.activity_main_radar);
+		setContentView(R.layout.activity_wifi_connect);
 		
         initRadar();
         initQRCapture();
@@ -94,10 +92,11 @@ public class ConnectWifiActivity extends Activity implements OnClickListener, Ca
         	else
         		Log.w(TAG,"wifi connected:"+false);
         }
+        
+        EventBus.getDefault().register(this);
 	}
 
-    void initRadar()
-    {
+    void initRadar() {
         bt_qr_capture 	= (ImageButton)findViewById( R.id.bt_qr_capture);
         bt_qr_capture.setOnClickListener(this);
         bar_goback		= (ImageView)findViewById(R.id.bar_goback);
@@ -131,8 +130,7 @@ public class ConnectWifiActivity extends Activity implements OnClickListener, Ca
     }
     
     @SuppressWarnings("deprecation")
-	void initQRCapture()
-    {
+	void initQRCapture() {
 		// 初始化 CameraManager
 		CameraManager.init(getApplication());
 		viewfinderView = (ViewfinderView) findViewById(R.id.viewfinder_view);
@@ -145,8 +143,7 @@ public class ConnectWifiActivity extends Activity implements OnClickListener, Ca
 		surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
     }
     
-    private void initBroadcastReceiver() 
-    {
+    private void initBroadcastReceiver() {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
         intentFilter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
@@ -157,9 +154,36 @@ public class ConnectWifiActivity extends Activity implements OnClickListener, Ca
         registerReceiver(wifirecv, intentFilter);
     }
     
+	public void handleDecode(final Result obj, Bitmap barcode) {
+		
+		inactivityTimer.onActivity();
+
+		String resultString = obj.getText();
+		Log.w(TAG, "Got decode succeeded resultString:"+resultString);
+		if (resultString.equals("")) {
+			Toast.makeText(ConnectWifiActivity.this, "Scan failed!", Toast.LENGTH_SHORT).show();
+		} 
+		else 
+		{
+			//if(!mWifiUtils.isWifiEnable())
+			if (mWifiUtils.isWifiApEnabled())
+				mWifiUtils.destroyWifiHotspot();
+			
+			mWifiUtils.setWifiEnabled(true);
+			mWifiUtils.wifiConnect(resultString, SysConfig.WIFI_AP_KEY, WifiUtils.WIFICIPHER_WPA);
+	    	if(processBarPopWin==null)
+	    	{
+	        	int pw = (int) (WiseApplication.SCREEN_WIDTH*0.3);
+	        	int ph = (int) (WiseApplication.SCREEN_WIDTH*0.8);
+	    		processBarPopWin = new ProcessBarPopWin(this, pw, ph);
+	    		processBarPopWin.showAtLocation(findViewById(R.id.radar_ll), Gravity.CENTER, 0, 0);
+	    	}
+		}
+		//finish();
+	}
+    
     @SuppressWarnings("static-access")
-    private BroadcastReceiver wifirecv = new BroadcastReceiver() 
-    {
+    private BroadcastReceiver wifirecv = new BroadcastReceiver() {
 		@Override
         public void onReceive(Context context, Intent intent) 
         {
@@ -198,8 +222,9 @@ public class ConnectWifiActivity extends Activity implements OnClickListener, Ca
         	    	if(processBarPopWin!=null)
         	    	{
         	    		processBarPopWin.setState("已连接到网络");
-        	    		turnResult("done");
-        	    		finish();
+        	    		ServiceControl servCont = ServiceControl.getInstance();
+        	    		servCont.sendCmd(mWifiUtils.getDestAddr(), 
+    		        			SysConfig.UDP_BIND_PORT, ConstDef.CMD_CONNED_SYN);
         	    	}
                 }
                 else 
@@ -214,13 +239,7 @@ public class ConnectWifiActivity extends Activity implements OnClickListener, Ca
                     {
             	    	if(processBarPopWin!=null)
             	    		processBarPopWin.setState("连接成功");
-                        Intent reintent = new Intent();
-                        //把返回数据存入Intent
-                        reintent.putExtra("result", "create successful.");
-                        //设置返回数据
-                        ConnectWifiActivity.this.setResult(RESULT_OK, reintent);
-                        //关闭Activity
-                        finish();
+                        
                     }
                     else if (state == state.AUTHENTICATING)//正在验证身份信息 
                     {
@@ -248,16 +267,21 @@ public class ConnectWifiActivity extends Activity implements OnClickListener, Ca
         }
     };
     
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEventMainThread(CmdEvent event) {
+        if (event != null) {
+        	Log.i(TAG, "onEventMainThread:"+event.getCmd()+" "+Thread.currentThread().getName());
+            if(event.getCmd() == ConstDef.CMD_CONNED_ACK)
+            	finish();
+        }
+        else 
+            System.out.println("event:"+event);
+    }
+    
 	@Override
 	protected void onResume() 
 	{
 		super.onResume();
-
-		AudioManager audioService = (AudioManager) getSystemService(AUDIO_SERVICE);
-		if (audioService.getRingerMode() != AudioManager.RINGER_MODE_NORMAL) {
-			playBeep = false;
-		}
-		initBeepSound();
 	}
 
 	@Override
@@ -279,6 +303,9 @@ public class ConnectWifiActivity extends Activity implements OnClickListener, Ca
 			processBarPopWin = null;
 		}
 		unregisterReceiver(wifirecv);
+		
+		EventBus.getDefault().unregister(this);
+		
 		super.onDestroy();
 	}
 
@@ -302,10 +329,12 @@ public class ConnectWifiActivity extends Activity implements OnClickListener, Ca
 	}
 	
 	@Override
-	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {}
+	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+	}
 	
 	@Override
-	public void surfaceDestroyed(SurfaceHolder holder) {}
+	public void surfaceDestroyed(SurfaceHolder holder) {
+	}
 
 	public ViewfinderView getViewfinderView() {
 		return viewfinderView;
@@ -318,88 +347,6 @@ public class ConnectWifiActivity extends Activity implements OnClickListener, Ca
 	public void drawViewfinder() {
 		viewfinderView.drawViewfinder();
 	}
-
-	public void handleDecode(final Result obj, Bitmap barcode) {
-		
-		inactivityTimer.onActivity();
-		playBeepSoundAndVibrate();
-
-		String resultString = obj.getText();
-		Log.w(TAG, "Got decode succeeded resultString:"+resultString);
-		if (resultString.equals("")) {
-			Toast.makeText(ConnectWifiActivity.this, "Scan failed!", Toast.LENGTH_SHORT).show();
-		} 
-		else 
-		{
-			//if(!mWifiUtils.isWifiEnable())
-			if (mWifiUtils.isWifiApEnabled())
-				mWifiUtils.destroyWifiHotspot();
-			
-			mWifiUtils.setWifiEnabled(true);
-			mWifiUtils.wifiConnect(resultString, SysConfig.WIFI_AP_KEY, WifiUtils.WIFICIPHER_WPA);
-	    	if(processBarPopWin==null)
-	    	{
-	        	int pw = (int) (WiseApplication.SCREEN_WIDTH*0.3);
-	        	int ph = (int) (WiseApplication.SCREEN_WIDTH*0.8);
-	    		processBarPopWin = new ProcessBarPopWin(this, pw, ph);
-	    		processBarPopWin.showAtLocation(findViewById(R.id.radar_ll), Gravity.CENTER, 0, 0);
-	    	}
-		}
-		//finish();
-	}
-
-	void turnResult(String resultString)
-	{
-		Intent resultIntent = new Intent();
-		Bundle bundle = new Bundle();
-		bundle.putString("result", resultString);
-		resultIntent.putExtras(bundle);
-
-		setResult(RESULT_OK, resultIntent);
-	}
-	
-	private void initBeepSound() {
-		playBeep = false;
-		if (playBeep && mediaPlayer == null) {
-			// The volume on STREAM_SYSTEM is not adjustable, and users found it
-			// too loud,
-			// so we now play on the music stream.
-			setVolumeControlStream(AudioManager.STREAM_MUSIC);
-			mediaPlayer = new MediaPlayer();
-			mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-			mediaPlayer.setOnCompletionListener(beepListener);
-
-			AssetFileDescriptor file = getResources().openRawResourceFd(R.raw.beep);
-			try {
-				mediaPlayer.setDataSource(file.getFileDescriptor(), file.getStartOffset(), file.getLength());
-				file.close();
-				mediaPlayer.setVolume(BEEP_VOLUME, BEEP_VOLUME);
-				mediaPlayer.prepare();
-			} catch (IOException e) {
-				mediaPlayer = null;
-			}
-		}
-	}
-
-	private static final long VIBRATE_DURATION = 200L;
-	private void playBeepSoundAndVibrate() {
-		if (playBeep && mediaPlayer != null) {
-			mediaPlayer.start();
-		}
-		if (vibrate) {
-			Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
-			vibrator.vibrate(VIBRATE_DURATION);
-		}
-	}
-
-	/**
-	 * When the beep has finished playing, rewind to queue up another one.
-	 */
-	private final OnCompletionListener beepListener = new OnCompletionListener() {
-		public void onCompletion(MediaPlayer mediaPlayer) {
-			mediaPlayer.seekTo(0);
-		}
-	};
 
 	@Override
 	public void onClick(View v) {

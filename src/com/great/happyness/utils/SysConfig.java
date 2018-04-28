@@ -10,7 +10,7 @@ public class SysConfig
 	/**
 	 * 网络监听端口
 	 */
-	public static final Integer UDP_TALK_PORT 	= 18200;
+	public static final Integer UDP_BIND_PORT 	= 18200;
 	
 	public static final int VideoSendPort	= 5008;
 	public static final int VideoRecvPort	= 5012;

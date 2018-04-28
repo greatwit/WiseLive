@@ -4,8 +4,6 @@ package org.webrtc.videoengine;
 import java.io.IOException;
 import java.util.concurrent.Exchanger;
 
-import com.great.happyness.RtcCameraActivity;
-
 
 import android.content.Context;
 import android.graphics.ImageFormat;
@@ -236,7 +234,7 @@ public class VideoCaptureShow implements PreviewCallback, Callback {
     if (camera != callbackCamera) {
       throw new RuntimeException("Unexpected camera in callback!");
     }
-    RtcCameraActivity.mVideoEngine.provideCameraBuffer(data, data.length);
+    //RtcCameraActivity.mVideoEngine.provideCameraBuffer(data, data.length);
     camera.addCallbackBuffer(data);
   }
 

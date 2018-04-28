@@ -38,6 +38,34 @@ public class ListenerManager {
         }
     }
     
+    public void sendString(int action, String data) {
+    	final int N = mListenerList.beginBroadcast();
+    	if(N<=0)return;
+    	
+        try {
+            for (int i = 0; i < N; i++) {
+                IServiceListen broadcastItem = mListenerList.getBroadcastItem(i);
+                if (broadcastItem != null) {
+        			Bundle bundle = new Bundle();      
+                    bundle.putString("data",data);  //往Bundle中存放数据        
+                    Message msg = new Message();
+                    msg.setData(bundle);
+                    broadcastItem.onAction(action, msg);
+                    Log.w(TAG, "broadcastItem:"+action);
+                }
+            }
+        } catch (RemoteException e) 
+        {
+            e.printStackTrace();
+        } finally {
+            try {
+                mListenerList.finishBroadcast();
+            } catch (IllegalArgumentException illegalArgumentException) {
+                Log.e(TAG, illegalArgumentException.toString());
+            }
+        }
+    }
+    
     public void sendMessage(int action, byte[]data) {
     	final int N = mListenerList.beginBroadcast();
     	if(N<=0)return;

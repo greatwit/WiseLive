@@ -1,6 +1,6 @@
 /*
  * This file is auto-generated.  DO NOT MODIFY.
- * Original file: E:\\weipengWorkspace\\AppWorkspace\\WiseLive\\src\\com\\great\\happyness\\aidl\\IActivityReq.aidl
+ * Original file: D:\\android_env\\workspace\\WiseLive\\src\\com\\great\\happyness\\aidl\\IActivityReq.aidl
  */
 package com.great.happyness.aidl;
 // Declare any non-default types here with import statements
@@ -85,6 +85,14 @@ case TRANSACTION_stopUdpServer:
 {
 data.enforceInterface(DESCRIPTOR);
 boolean _result = this.stopUdpServer();
+reply.writeNoException();
+reply.writeInt(((_result)?(1):(0)));
+return true;
+}
+case TRANSACTION_isUdpServerRunning:
+{
+data.enforceInterface(DESCRIPTOR);
+boolean _result = this.isUdpServerRunning();
 reply.writeNoException();
 reply.writeInt(((_result)?(1):(0)));
 return true;
@@ -201,6 +209,23 @@ _data.recycle();
 }
 return _result;
 }
+@Override public boolean isUdpServerRunning() throws android.os.RemoteException
+{
+android.os.Parcel _data = android.os.Parcel.obtain();
+android.os.Parcel _reply = android.os.Parcel.obtain();
+boolean _result;
+try {
+_data.writeInterfaceToken(DESCRIPTOR);
+mRemote.transact(Stub.TRANSACTION_isUdpServerRunning, _data, _reply, 0);
+_reply.readException();
+_result = (0!=_reply.readInt());
+}
+finally {
+_reply.recycle();
+_data.recycle();
+}
+return _result;
+}
 @Override public int sendData(java.lang.String addr, int port, java.lang.String data) throws android.os.RemoteException
 {
 android.os.Parcel _data = android.os.Parcel.obtain();
@@ -227,12 +252,14 @@ static final int TRANSACTION_unregisterListener = (android.os.IBinder.FIRST_CALL
 static final int TRANSACTION_action = (android.os.IBinder.FIRST_CALL_TRANSACTION + 2);
 static final int TRANSACTION_startUdpServer = (android.os.IBinder.FIRST_CALL_TRANSACTION + 3);
 static final int TRANSACTION_stopUdpServer = (android.os.IBinder.FIRST_CALL_TRANSACTION + 4);
-static final int TRANSACTION_sendData = (android.os.IBinder.FIRST_CALL_TRANSACTION + 5);
+static final int TRANSACTION_isUdpServerRunning = (android.os.IBinder.FIRST_CALL_TRANSACTION + 5);
+static final int TRANSACTION_sendData = (android.os.IBinder.FIRST_CALL_TRANSACTION + 6);
 }
 public void registerListener(com.great.happyness.aidl.IServiceListen listener) throws android.os.RemoteException;
 public void unregisterListener(com.great.happyness.aidl.IServiceListen listener) throws android.os.RemoteException;
 public void action(int action, java.lang.String datum) throws android.os.RemoteException;
 public boolean startUdpServer() throws android.os.RemoteException;
 public boolean stopUdpServer() throws android.os.RemoteException;
+public boolean isUdpServerRunning() throws android.os.RemoteException;
 public int sendData(java.lang.String addr, int port, java.lang.String data) throws android.os.RemoteException;
 }

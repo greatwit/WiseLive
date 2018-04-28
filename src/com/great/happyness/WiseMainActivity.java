@@ -2,17 +2,24 @@ package com.great.happyness;
 
 
 import java.util.ArrayList;
- 
+
+import org.greenrobot.eventbus.EventBus;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
+import android.os.RemoteException;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.Toast;
 
+import com.great.happyness.aidl.IActivityReq;
+import com.great.happyness.aidl.IBindListen;
+import com.great.happyness.aidl.IServiceListen;
 import com.great.happyness.aidl.ServiceControl;
+import com.great.happyness.evenbus.event.CmdEvent;
 import com.great.happyness.fragment.CommonTabLayout;
 import com.great.happyness.fragment.CustomTabEntity;
 import com.great.happyness.fragment.HomeFragment;
@@ -20,11 +27,15 @@ import com.great.happyness.fragment.OnTabSelectListener;
 import com.great.happyness.fragment.PersonalFragment;
 import com.great.happyness.fragment.ServiceFragment;
 import com.great.happyness.fragment.TabEntity;
+import com.great.happyness.protrans.message.CommandMessage;
+import com.great.happyness.protrans.message.ConstDef;
+import com.great.happyness.protrans.message.MessagesEntity;
 
 
-public class WiseMainActivity extends FragmentActivity
+public class WiseMainActivity extends FragmentActivity 
+								implements IBindListen
 {
-	private static String TAG = "WiseMainActivity";
+	private String TAG = getClass().getSimpleName();
 
     private CommonTabLayout tabLayout;
     private OnTabSelectListener mTabSelectListener;
@@ -33,7 +44,7 @@ public class WiseMainActivity extends FragmentActivity
 	private ServiceFragment serviceFragment;
 	private PersonalFragment personalFragment;
 
-	private String[] mTitles = { "文件", "相机","设置" };//"服务", "购物"
+	private String[] mTitles = { "文件", "相机", "设置" };//"服务", "购物"
 	private int[] mIconUnselectIds = { R.drawable.ic_home_normal,
 			R.drawable.ic_service_normal, 
 			R.drawable.ic_personal_normal };//R.drawable.ic_service_normal, R.drawable.ic_shopping_normal,
@@ -42,15 +53,14 @@ public class WiseMainActivity extends FragmentActivity
 			R.drawable.ic_personal_select };//R.drawable.ic_service_select, R.drawable.ic_shopping_select,
 
 	
-	private static ServiceControl mServCont = ServiceControl.getInstance();
-	
+	private ServiceControl mServCont = ServiceControl.getInstance();
+    private boolean mServiceRegisted = false;
+    
+    private MessagesEntity mEntityMsg = new MessagesEntity();
+    
     @Override
-    protected void onCreate(Bundle savedInstanceState) 
-    {
+    protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        
-        mServCont.startService(this);
-        mServCont.bindService(this);
         
         setContentView(R.layout.activity_main_fragment);
         initVIew();
@@ -63,17 +73,64 @@ public class WiseMainActivity extends FragmentActivity
 		}
 		tabLayout.setTabData(data);
 		tabLayout.setCurrentTab(currentTabPosition);
+		
+        mServCont.startService(this, this);
+        mServCont.bindService(this);
     }
 
 	@Override
+	public void onServiceConnected() {
+		// TODO Auto-generated method stub
+		getBinderReq();
+		EventBus.getDefault().post(new CmdEvent(ConstDef.UI_SER_CONNED));
+		Log.e(TAG, "onServiceConnected()");
+	}
+    
+	private IActivityReq getBinderReq(){
+		IActivityReq actReq = ServiceControl.getInstance().getActivityReq();
+		if(actReq!=null && mServiceRegisted == false){
+			try {
+				actReq.registerListener(mServListener);
+				mServiceRegisted = true;
+				Log.i(TAG, "actReq.registerListener");
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		else
+			Log.e(TAG, "mActReq == null");
+		
+		return actReq;
+	}
+	
+    IServiceListen mServListener = new IServiceListen.Stub() {
+		@Override
+		public void onAction(int action, Message msg) throws RemoteException {
+			// TODO Auto-generated method stub
+			//msg.what = action;
+			String str = msg.getData().getString("data");
+			mEntityMsg.inflateData(str);
+			Log.i(TAG, "action:"+action + " data:"+str);
+			
+			switch(mEntityMsg.getType())
+			{
+				case ConstDef.TYPE_CMD:
+			        CommandMessage comm = mEntityMsg.getCommandMessage();
+			        comm.decodeData(mEntityMsg.getData());
+					EventBus.getDefault().post(new CmdEvent(comm.getCmd()));
+					Log.w(TAG, "CmdEvent:"+comm.getCmd());
+					break;
+			}
+		}
+    };
+	
+	@Override
 	protected void onResume() {
-		// 如果debug模式被打开，显示监控
-		// AbMonitorUtil.openMonitor(this);
 		super.onResume();
 	}
 	
-    private void initVIew()
-    {
+    private void initVIew(){
 		mTabSelectListener = new OnTabSelectListener() {
 			@Override
 			public void onTabSelect(int position) {
@@ -88,7 +145,6 @@ public class WiseMainActivity extends FragmentActivity
 		tabLayout.setOnTabSelectListener(mTabSelectListener);
     }
 
-    
     private long exitTime = 0;
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -176,8 +232,27 @@ public class WiseMainActivity extends FragmentActivity
 	
 	@Override
 	public void onDestroy() {
-		Log.w(TAG,"onDestroy");
+    	IActivityReq actReq = ServiceControl.getInstance().getActivityReq();
+    	if(actReq!=null){
+				try {
+					if(actReq.isUdpServerRunning())
+						actReq.stopUdpServer();
+				} catch (RemoteException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+    	}
+    	
+		if(getBinderReq()!=null && mServiceRegisted)
+		try {
+			getBinderReq().unregisterListener(mServListener);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		mServCont.unbindService(this);
+		Log.w(TAG,"onDestroy");
+		
 		super.onDestroy();
 	}
 

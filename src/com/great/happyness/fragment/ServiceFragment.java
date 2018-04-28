@@ -2,22 +2,22 @@ package com.great.happyness.fragment;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
+import com.great.happyness.R;
 import com.great.happyness.ConnectWifiActivity;
 import com.great.happyness.CreateWifiActivity;
-import com.great.happyness.R;
-import com.great.happyness.aidl.IActivityReq;
-import com.great.happyness.aidl.IServiceListen;
 import com.great.happyness.aidl.ServiceControl;
-import com.great.happyness.camera.CaptureCameraActivity;
-import com.great.happyness.camera.RecvCameraActivity;
+import com.great.happyness.evenbus.event.CmdEvent;
 import com.great.happyness.popwin.CameraPopwin;
-import com.great.happyness.service.WiFiAPService;
+import com.great.happyness.protrans.message.CommandMessage;
+import com.great.happyness.protrans.message.ConstDef;
 import com.great.happyness.utils.SysConfig;
 import com.great.happyness.wifi.WifiUtils;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
@@ -26,9 +26,6 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.net.wifi.WifiInfo;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.os.RemoteException;
 import android.os.Vibrator;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -55,68 +52,18 @@ public class ServiceFragment extends Fragment
 	private View view;
 	private LinearLayout item_create_ll, item_connect_ll, item_camera_ll, wifi_state_ll;
 	
-	private final static int CREATE_GREQUEST_CODE 	= 1;
-	private final static int CONNECT_GREQUEST_CODE 	= 2;
-	
-	private final static float BEEP_VOLUME = 0.10f;
 	
 	private ImageView bar_recv, bar_send, bar_delete;
 	private TextView  bar_status;
 	
 	private WifiUtils mWifiUtils;
-	private boolean mServiceRegisted = false;
 	private CameraPopwin mCamPopwin  = null;
 	
-	private MediaPlayer mediaPlayer;
-	private final Handler mHandler = new MainHandler();
-	private static final int WIFI_MSG = 1;
+	private ServiceControl mServCont = ServiceControl.getInstance();
+	private boolean mbUdpServerStarted 	= false;
 	
-    private class MainHandler extends Handler {
-        @Override
-        public void handleMessage(Message msg) {
-			//a是触电，b是触电返回；c是打开拍照请求，d是打开拍照后回复；e是发命令关闭对方，f是关闭回复。
-			switch(msg.what)
-			{
-				case WiFiAPService.WIFI_CMD:
-					break;
-					
-				case WiFiAPService.NET_CMD:
-					byte[] data = msg.getData().getByteArray("data");
-					Log.i(TAG, "IServiceListen command:"+data[14]);
-					switch(data[14])
-					{
-						case 'a':
-							playBeepSoundAndVibrate();
-							sendCommand("b");
-							break;
-							
-						case 'b'://touch turnback
-							if(mCamPopwin!=null)
-								mCamPopwin.dismiss();
-							break;
-							
-						case 'c':
-							Intent intent1 = new Intent().setClass(mContext, CaptureCameraActivity.class);
-							intent1.putExtra("destip", getDestip());
-							startActivity(intent1);
-							sendCommand("d");
-							break;
-							
-						case 'd'://主动发送端接收到的命令
-							if(mCamPopwin!=null)
-								mCamPopwin.dismiss();
-							break;
-							
-						case 'e':
-							break;
-					}
-					break;
-					
-					default:
-						break;
-			}
-        }
-    }
+	private final static float BEEP_VOLUME = 0.10f;
+	private MediaPlayer mediaPlayer;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -130,128 +77,56 @@ public class ServiceFragment extends Fragment
 			Bundle savedInstanceState) 
 	{
 		view = LayoutInflater.from(mContext).inflate(R.layout.fragment_service, null);
-		init();
+		initView();
+		initBeepSound();
 		
 		mWifiUtils = new WifiUtils(mContext);
 		checkWifiStatus();
-		initBeepSound();
 
+		EventBus.getDefault().register(this);
 		return view;
 	}
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEventMainThread(CmdEvent event) {
+        if (event != null) {
+	        int cmd = event.getCmd();
+	        switch(cmd) {
+		        case ConstDef.CMD_CONNED_SYN://连接客服端发来连接成功通知
+		        	playBeepSoundAndVibrate();
+		        	mServCont.sendCmd(mWifiUtils.getDestAddr(), 
+		        			SysConfig.UDP_BIND_PORT, ConstDef.CMD_CONNED_ACK);
+		        	checkWifiStatus();
+		        	break;
+		        	
+		        case ConstDef.CMD_CONNED_ACK://服务端回连接
+		        	playBeepSoundAndVibrate();
+		        	checkWifiStatus();
+		        	break;
+		        	
+		        case ConstDef.CMD_SHAKE_SYN://触动，双方都可以主动发送
+		        	playBeepSoundAndVibrate();
+		        	mServCont.sendCmd(mWifiUtils.getDestAddr(), 
+		        			SysConfig.UDP_BIND_PORT, ConstDef.CMD_SHAKE_ACK);
+		        	break;
+		        	
+		        case ConstDef.CMD_SHAKE_ACK://收到回触动命令
+		        	playBeepSoundAndVibrate();
+		        	break;
 
-	private void checkWifiStatus()
-	{
-		if (!mWifiUtils.isWifiApEnabled()) {
-			wifi_state_ll.setVisibility(View.GONE);
-		}else
-		{
-			wifi_state_ll.setVisibility(View.VISIBLE);
-
-			bar_recv.setVisibility(View.VISIBLE);
-			bar_recv.setImageDrawable(getResources().getDrawable(R.drawable.camera));
-			
-			ArrayList<String> array = mWifiUtils.getConnectedIP();
-			int consize = array.size();
-			Log.w(TAG,"connected array:"+consize);
-			if(consize>0)
-				bar_send.setVisibility(View.VISIBLE);
-			for(int i=0; i<consize; i++)
-				Log.w(TAG,"connected info:"+array.get(i));
-			Log.w(TAG,"local spot ip:"+mWifiUtils.getGateWayIpAddress());
-		}
-		if(mWifiUtils.isWifiEnable())
-		{
-			if(mWifiUtils.isWifiConnected())
-			{
-				wifi_state_ll.setVisibility(View.VISIBLE);
-				
-				WifiInfo info = mWifiUtils.getConnectionInfo();
-				String apen = "";
-				if(info!=null&&info.getSSID().length()>6)
-				{
-					bar_status.setText(info.getSSID().substring(6, info.getSSID().length()-1));
-					apen = info.getSSID().substring(1, 5);
-				}
-				if(apen.equals("WISE"))
-					bar_send.setVisibility(View.VISIBLE);
-				else
-					wifi_state_ll.setVisibility(View.GONE);
-				Log.w(TAG,"connected wifi ip:"+mWifiUtils.getGateWayIpAddress());
-			}
-		}
-	}
+		        case ConstDef.UI_SER_CONNED:
+		    		if(checkWifiStatus() && mbUdpServerStarted==false) {
+		    			mbUdpServerStarted = mServCont.startUdpServer();
+		    		}
+		        	break;
+	        }
+            Log.i(TAG, "onEventMainThread:"+event.getCmd()+" "+Thread.currentThread().getName());
+        }else {
+            System.out.println("event:"+event);
+        }
+    }
 	
-	/**
-	 * When the beep has finished playing, rewind to queue up another one.
-	 */
-	private final OnCompletionListener beepListener = new OnCompletionListener() {
-		public void onCompletion(MediaPlayer mediaPlayer) {
-			mediaPlayer.seekTo(0);
-		}
-	};
-	
-	private void initBeepSound() {
-		if ( mediaPlayer == null) {
-			// The volume on STREAM_SYSTEM is not adjustable, and users found it
-			// too loud,
-			// so we now play on the music stream.
-			//setVolumeControlStream(AudioManager.STREAM_MUSIC);
-			mediaPlayer = new MediaPlayer();
-			mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-			mediaPlayer.setOnCompletionListener(beepListener);
-
-			AssetFileDescriptor file = getResources().openRawResourceFd(R.raw.beep);
-			try {
-				mediaPlayer.setDataSource(file.getFileDescriptor(), file.getStartOffset(), file.getLength());
-				file.close();
-				mediaPlayer.setVolume(BEEP_VOLUME, BEEP_VOLUME);
-				mediaPlayer.prepare();
-			} catch (IOException e) {
-				mediaPlayer = null;
-			}
-		}
-	}
-	
-	private void playBeepSoundAndVibrate() 
-	{
-		AudioManager aum = (AudioManager)mContext.getSystemService(Context.AUDIO_SERVICE);
-		if (aum.getRingerMode() != AudioManager.RINGER_MODE_SILENT && mediaPlayer != null) 
-	    {
-			mediaPlayer.start();
-	    }
-		
-		Vibrator vibrator = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
-		long [] pattern = { 0, 180, 180, 180};   // {100,400,100,400} 停止 开启 停止 开启   
-        vibrator.vibrate(pattern, -1);
-	}
-	
-	private IActivityReq getBinderReq()
-	{
-		IActivityReq actReq = ServiceControl.getInstance().getActivityReq();
-		if(actReq!=null)
-		{
-			try {
-					if(mServiceRegisted == false)
-					{
-						actReq.registerListener(mServListener);
-						mServiceRegisted = true;
-						Log.i(TAG, "mActReq.registerListener");
-					}
-			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}else
-		{
-			Log.e(TAG, "mActReq == null");
-		}
-		return actReq;
-	}
-	
-	
-	private void init() 
-	{
+	private void initView() {
 		item_create_ll = (LinearLayout) view.findViewById(R.id.item_create_ll);
 		item_create_ll.setOnClickListener(this);
 		
@@ -273,131 +148,123 @@ public class ServiceFragment extends Fragment
 		bar_status	= (TextView) view.findViewById(R.id.bar_status);
 	}
 
-    IServiceListen mServListener = new IServiceListen.Stub() {
-		@Override
-		public void onAction(int action, Message msg) throws RemoteException {
-			// TODO Auto-generated method stub
-			Log.i(TAG, "IServiceListen onAction:"+action);
-			msg.what = action;
-			mHandler.sendMessage(msg);
-		}
-    };
-	
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) 
-	{
-		Log.w(TAG, "onActivityResult:" + requestCode + " " + resultCode);
-		super.onActivityResult(requestCode, resultCode, data);
+	private void initBeepSound() {
+		if ( mediaPlayer == null) {
+			// The volume on STREAM_SYSTEM is not adjustable, and users found it
+			// too loud,so we now play on the music stream.
+			mediaPlayer = new MediaPlayer();
+			mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+			mediaPlayer.setOnCompletionListener(beepListener);
 
-		switch (requestCode) 
+			AssetFileDescriptor file = getResources().openRawResourceFd(R.raw.beep);
+			try {
+				mediaPlayer.setDataSource(file.getFileDescriptor(), file.getStartOffset(), file.getLength());
+				file.close();
+				mediaPlayer.setVolume(BEEP_VOLUME, BEEP_VOLUME);
+				mediaPlayer.prepare();
+			} catch (IOException e) {
+				mediaPlayer = null;
+			}
+		}
+	}
+	
+	private void playBeepSoundAndVibrate(){
+		AudioManager aum = (AudioManager)mContext.getSystemService(Context.AUDIO_SERVICE);
+		if (aum.getRingerMode() != AudioManager.RINGER_MODE_SILENT 
+				&& mediaPlayer != null) {
+			mediaPlayer.start();
+	    }
+		
+		Vibrator vibrator = (Vibrator)mContext.getSystemService(Context.VIBRATOR_SERVICE);
+		long [] pattern = { 0, 180, 180, 180};   // {100,400,100,400} 停止 开启 停止 开启   
+        vibrator.vibrate(pattern, -1);
+	}
+	
+	/**
+	 * When the beep has finished playing, rewind to queue up another one.
+	 */
+	private final OnCompletionListener beepListener = new OnCompletionListener() {
+		public void onCompletion(MediaPlayer mediaPlayer) {
+			mediaPlayer.seekTo(0);
+		}
+	};
+	
+	private boolean checkWifiStatus() {
+		boolean bResult = false;
+		if (!mWifiUtils.isWifiApEnabled()) {
+			wifi_state_ll.setVisibility(View.GONE);
+		}else
 		{
-			case CREATE_GREQUEST_CODE://创建返回
-				wifi_state_ll.setVisibility(View.VISIBLE);
-				if (resultCode == Activity.RESULT_OK) 
-				{
-					Bundle bundle = data.getExtras();
+			wifi_state_ll.setVisibility(View.VISIBLE);
 
-					boolean result = bundle.getBoolean("result");
-					Log.w(TAG, "onActivityResult content:" + result);
-					if(result)
-						checkWifiStatus();
-				}
-				else
-				{
-					bar_status.setText("创建失败");
-				}
-				break;
-				
-			case CONNECT_GREQUEST_CODE://连接返回
+			bar_recv.setVisibility(View.VISIBLE);
+			bar_recv.setImageDrawable(getResources().getDrawable(R.drawable.camera));
+			
+			ArrayList<String> array = mWifiUtils.getConnectedIP();
+			int consize = array.size();
+			Log.w(TAG,"connected array:"+consize);
+			if(consize>0) {
+				bar_send.setVisibility(View.VISIBLE);
+				bResult = true;
+			}
+			for(int i=0; i<consize; i++)
+				Log.w(TAG,"connected info:"+array.get(i));
+			Log.w(TAG,"local spot ip:"+mWifiUtils.getGateWayIpAddress());
+		}
+		if(mWifiUtils.isWifiEnable()){
+			if(mWifiUtils.isWifiConnected())
+			{
 				wifi_state_ll.setVisibility(View.VISIBLE);
-				if (resultCode == Activity.RESULT_OK) {
-					Bundle bundle = data.getExtras();
-					String content = bundle.getString("result");
-					Log.w(TAG, "onActivityResult content:" + content);
-					WifiInfo info = mWifiUtils.getConnectionInfo();
+				
+				WifiInfo info = mWifiUtils.getConnectionInfo();
+				String apen = "";
+				if(info!=null&&info.getSSID().length()>6)
+				{
 					bar_status.setText(info.getSSID().substring(6, info.getSSID().length()-1));
-					
-					wifi_state_ll.setVisibility(View.VISIBLE);
-					bar_recv.setVisibility(View.GONE);
+					apen = info.getSSID().substring(1, 5);
+				}
+				if(apen.equals("WISE")) {
 					bar_send.setVisibility(View.VISIBLE);
-					
-					try {
-						if(getBinderReq()!=null)
-						{
-							getBinderReq().startUdpServer();
-							getBinderReq().sendData("192.168.43.1", SysConfig.UDP_TALK_PORT, "a");
-						}
-					} catch (RemoteException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					bResult = true;
 				}
 				else
-					bar_status.setText("连接失败");
-				break;
+					wifi_state_ll.setVisibility(View.GONE);
+				Log.w(TAG,"connected wifi ip:"+mWifiUtils.getGateWayIpAddress());
+			}
 		}
-	}
-	
-	private String getDestip()
-	{
-		String addr = "";
-    	if (mWifiUtils.isWifiApEnabled()){
-    		ArrayList<String> strArr = mWifiUtils.getConnectedIP();
-    		addr = strArr.get(0);
-    		Log.i(TAG, "connected wifi addr:"+addr);
-    	}else
-    	{
-    		addr = "192.168.43.1";
-    	}
-    	return addr;
-	}
-	
-	private void sendCommand(String comm)
-	{
-		String addr = getDestip();
-		try {
-			if(comm!=null&&!"".equals(comm))
-			getBinderReq().sendData(addr, SysConfig.UDP_TALK_PORT, comm);
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		return bResult;
 	}
 	
 	@Override
 	public void onClick(View v) {
-		Intent intent;
+		//Intent intent;
 		switch (v.getId()) {
 			case R.id.item_create_ll:
-				try {
-					if(getBinderReq()!=null)
-						getBinderReq().startUdpServer();
-				} catch (RemoteException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				startActivityForResult(new Intent().setClass(mContext, CreateWifiActivity.class), CREATE_GREQUEST_CODE);
-
+				startActivity(new Intent().setClass(mContext, CreateWifiActivity.class));
+				if(mbUdpServerStarted == false)
+					mbUdpServerStarted = mServCont.startUdpServer();
 				break;
 				
 			case R.id.item_connect_ll://ConnectWifiActivity
-				startActivityForResult(new Intent().setClass(mContext, ConnectWifiActivity.class), CONNECT_GREQUEST_CODE);
+				if(mbUdpServerStarted == false)
+					mbUdpServerStarted = mServCont.startUdpServer();
+				startActivity(new Intent().setClass(mContext, ConnectWifiActivity.class));
 				break;
 			
 			case R.id.item_camera_ll: //打开单机照相机
-				intent = new Intent().setClass(mContext, CaptureCameraActivity.class);
-				startActivity(intent);
+//				intent = new Intent().setClass(mContext, CaptureCameraActivity.class);
+//				startActivity(intent);
 				break;
 				
 			case R.id.bar_recv:
-				startActivityForResult(new Intent().setClass(mContext, CreateWifiActivity.class), CREATE_GREQUEST_CODE);
+				startActivity(new Intent().setClass(mContext, CreateWifiActivity.class));
 				break;
 				
 			case R.id.bar_send:
 				int[] location = new int[2];  
 				bar_send.getLocationOnScreen(location);  
 				
-				if (mCamPopwin == null) { 
+				if (mCamPopwin == null) {
 				    mCamPopwin = new CameraPopwin(getActivity(), this, 180, 80);  
 				    //监听窗口的焦点事件，点击窗口外面则取消显示  
 				    mCamPopwin.getContentView().setOnFocusChangeListener(new View.OnFocusChangeListener() {  
@@ -419,27 +286,22 @@ public class ServiceFragment extends Fragment
 				break;
 				
             case R.id.layout_touch:  
-            	Log.i(TAG, "layout_touch");
-            	sendCommand("a");
+				mServCont.sendCmd(mWifiUtils.getDestAddr(), 
+						SysConfig.UDP_BIND_PORT, ConstDef.CMD_SHAKE_SYN);
+				Log.i(TAG, "layout_touch");
                 break;
                 
             case R.id.layout_camera:
-				intent = new Intent().setClass(mContext, RecvCameraActivity.class);
-				startActivity(intent);
-            	sendCommand("c");
+//				intent = new Intent().setClass(mContext, RecvCameraActivity.class);
+//				startActivity(intent);
+//            	sendCommand("c");
                 break;
 				
 			case R.id.bar_delete:
 				if(mWifiUtils.isWifiApEnabled())
 					mWifiUtils.destroyWifiHotspot();
 				wifi_state_ll.setVisibility(View.GONE);
-				try {
-					if(getBinderReq()!=null)
-						getBinderReq().stopUdpServer();
-				} catch (RemoteException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+
 				break;
 				
 			default:
@@ -468,21 +330,19 @@ public class ServiceFragment extends Fragment
 //			if(predex.equals(SysConfig.WIFI_AP_PREFIX))
 //			mWifiUtils.closeWifiHotspot();
 		}
+		if(mbUdpServerStarted){
+			mServCont.stopUdpServer();
+			mbUdpServerStarted = false;
+			Log.w(TAG,"stopUdpServer");
+		}
+		
+		EventBus.getDefault().unregister(this);
 		
 //		if(!mWifiUtils.isWifiEnable())
 //			mWifiUtils.setWifiEnabled(true);
 		
-		if(getBinderReq()!=null && mServiceRegisted)
-		try {
-			getBinderReq().unregisterListener(mServListener);
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
 		super.onDestroy();
 	}
-
 
 }
 
