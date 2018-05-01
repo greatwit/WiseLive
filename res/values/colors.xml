@@ -53,4 +53,8 @@
     <color name="recording_time_elapsed_text">#FFFFFFFF</color>
     <color name="recording_time_remaining_text">#FFFF0033</color>
     
+    <!-- camera -->
+    <color name="color_2a2a2a">#2a2a2a</color>
+    <color name="color_262626">#262626</color>
+    
 </resources>

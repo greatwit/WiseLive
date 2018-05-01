@@ -10,13 +10,12 @@ import android.view.SurfaceView;
 
 @SuppressWarnings("deprecation")
 public class VideoEngine {
-	
-  private String  TAG = getClass().getSimpleName();
-	
   private final long nativeVideoEngine;
+
   private int videoChannel;
   private int currentCameraHandle;
-  private boolean mbResterObser = false;
+  
+  private String  TAG = getClass().getSimpleName();
   
   private static final int VCM_VP8_PAYLOAD_TYPE = 100;
   private static final int SEND_CODEC_FPS 		= 30;
@@ -29,7 +28,7 @@ public class VideoEngine {
   private boolean mSendRunning = false;
   private boolean mRecvRunning = false;
   
-  private static final int[][] RESOLUTIONS = {
+  public static final int[][] RESOLUTIONS = {
     {176,144}, {320,240}, {352,288}, {640,480}, {1280,720}, {1920,1080}
   };
   
@@ -108,26 +107,38 @@ public class VideoEngine {
   {
 	  if(mSendRunning == false)
 	  {
+		  Log.e(TAG,"setSendDestination");
 	      check(setSendDestination(videoChannel, videoTxPort, remoteIp) == 0,
 	              "Failed setSendDestination");
 	      
+	      Log.e(TAG,"getVideoCodec");
 	      VideoCodecInst codec = getVideoCodec(0, resolutionIndex);
+	      Log.e(TAG,"setSendCodec");
 	      check(setSendCodec(videoChannel, codec) == 0, "Failed setReceiveCodec");
 	      codec.dispose();
-	      
+	      Log.e(TAG,"setNackStatus");
 	      check(setNackStatus(videoChannel, nack) == 0,
 	    	        "Failed setNackStatus");
+	      int id = getCameraId(cameraid);
 	      
-	      CameraDesc cameraInfo = getCaptureDevice(1);
-	      currentCameraHandle = allocateCaptureDevice(cameraInfo);
-	      cameraInfo.dispose();
+	      Log.e(TAG,"allocateCaptureDevice");
+	      currentCameraHandle = CreateCaptureDevice(id);
+	      Log.e(TAG,"connectCaptureDevice id:"+id);
 	      check(connectCaptureDevice(currentCameraHandle, videoChannel) == 0,
 	          "Failed to connect capture device");
-	      check(startCapture(currentCameraHandle) == 0, "Failed StartCapture");
 	      
+	      //check(startCapture(currentCameraHandle) == 0, "Failed StartCapture");
+	      
+	      int w = RESOLUTIONS[resolutionIndex][0];
+	      int h = RESOLUTIONS[resolutionIndex][1];
+	      Log.w(TAG,"startCapture w:" + w + " h:"+h);
+	      
+	      gstartCapture(w,h,35,12,6);
+	      Log.e(TAG,"startSend");
 	      check(startSend(videoChannel) == 0, "Failed StartSend");
 	      
 	      mSendRunning = true;
+	      Log.e(TAG,"cameraid:"+ cameraid + " getCameraId id:"+id + " currentCameraHandle:"+currentCameraHandle);
 	  }
   }
   
@@ -184,27 +195,14 @@ public class VideoEngine {
   
   public int provideCameraBuffer(byte[] javaCameraFrame, int length)
   {
-	  if(mSendRunning)
-		  return provideCameraBuffer(currentCameraHandle, javaCameraFrame, length);
-	  return 0;
+	  return provideCameraBuffer(currentCameraHandle, javaCameraFrame, length);
   }
   
   public int registerCodecObserver(VideoDecodeEncodeObserver callback)
   {
-	  if(mbResterObser)
-		  return 0;
-	  mbResterObser = true;
 	  return registerObserver(videoChannel, callback);
   }
 
-  public int deregisterObserver()
-  {
-	  if(mbResterObser)
-		  mbResterObser = false;
-	  else
-		  return 0;
-	  return deregisterObserver(videoChannel);
-  }
   
   public boolean isSendRunning()
   {
@@ -268,14 +266,15 @@ public class VideoEngine {
   private native int deRegisterExternalReceiveCodec(int channel, int plType);
   private native int startRender(int channel);
   private native int numberOfCaptureDevices();
-  private native CameraDesc getCaptureDevice(int index);
-  private native int allocateCaptureDevice(CameraDesc camera);
+  private native int CreateCaptureDevice(int index);
+  private native int allocateCaptureDevice(int index/*CameraDesc camera*/);
   private native int connectCaptureDevice(int cameraId, int channel);
+  
+  private native int gstartCapture(int width, int height, int maxFPS, int rawType, int codecType);
   private native int startCapture(int cameraId);
   private native int stopCapture(int cameraId);
   private native int provideCameraBuffer(int cameraId, byte[] javaCameraFrame, int length);
   private native int releaseCaptureDevice(int cameraId);
-  private native int getOrientation(CameraDesc camera);
   private native int setRotateCapturedFrames(int cameraId, int degrees);
   private native int setNackStatus(int channel, boolean enable);
   private int setKeyFrameRequestMethod(int channel,

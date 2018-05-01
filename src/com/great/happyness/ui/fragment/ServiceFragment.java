@@ -7,10 +7,11 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import com.great.happyness.R;
+import com.great.happyness.CameraActivity;
+import com.great.happyness.CameraRecvActivity;
 import com.great.happyness.ConnectWifiActivity;
 import com.great.happyness.CreateWifiActivity;
 import com.great.happyness.evenbus.event.CmdEvent;
-import com.great.happyness.protrans.message.CommandMessage;
 import com.great.happyness.protrans.message.ConstDef;
 import com.great.happyness.service.aidl.ServiceControl;
 import com.great.happyness.ui.popwin.CameraPopwin;
@@ -98,7 +99,6 @@ public class ServiceFragment extends Fragment
 		        			SysConfig.UDP_BIND_PORT, ConstDef.CMD_CONNED_ACK);
 		        	checkWifiStatus();
 		        	break;
-		        	
 		        case ConstDef.CMD_CONNED_ACK://服务端回连接
 		        	playBeepSoundAndVibrate();
 		        	checkWifiStatus();
@@ -109,11 +109,18 @@ public class ServiceFragment extends Fragment
 		        	mServCont.sendCmd(mWifiUtils.getDestAddr(), 
 		        			SysConfig.UDP_BIND_PORT, ConstDef.CMD_SHAKE_ACK);
 		        	break;
-		        	
 		        case ConstDef.CMD_SHAKE_ACK://收到回触动命令
 		        	playBeepSoundAndVibrate();
 		        	break;
-
+		        	
+		        case ConstDef.CMD_CAMOPEN_SYN:
+		        	startActivity(new Intent().setClass(mContext, CameraActivity.class));
+		        	mServCont.sendCmd(mWifiUtils.getDestAddr(), 
+		        			SysConfig.UDP_BIND_PORT, ConstDef.CMD_CAMOPEN_ACK);
+		        	break;
+		        case ConstDef.CMD_CAMOPEN_ACK:
+		        	break;
+		        	
 		        case ConstDef.UI_SER_CONNED:
 		    		if(checkWifiStatus() && mbUdpServerStarted==false) {
 		    			mbUdpServerStarted = mServCont.startUdpServer();
@@ -193,7 +200,8 @@ public class ServiceFragment extends Fragment
 		boolean bResult = false;
 		if (!mWifiUtils.isWifiApEnabled()) {
 			wifi_state_ll.setVisibility(View.GONE);
-		}else
+		}
+		else
 		{
 			wifi_state_ll.setVisibility(View.VISIBLE);
 
@@ -237,7 +245,7 @@ public class ServiceFragment extends Fragment
 	
 	@Override
 	public void onClick(View v) {
-		//Intent intent;
+		Intent intent;
 		switch (v.getId()) {
 			case R.id.item_create_ll:
 				startActivity(new Intent().setClass(mContext, CreateWifiActivity.class));
@@ -252,8 +260,8 @@ public class ServiceFragment extends Fragment
 				break;
 			
 			case R.id.item_camera_ll: //打开单机照相机
-//				intent = new Intent().setClass(mContext, CaptureCameraActivity.class);
-//				startActivity(intent);
+				intent = new Intent().setClass(mContext, CameraActivity.class);
+				startActivity(intent);
 				break;
 				
 			case R.id.bar_recv:
@@ -292,9 +300,10 @@ public class ServiceFragment extends Fragment
                 break;
                 
             case R.id.layout_camera:
-//				intent = new Intent().setClass(mContext, RecvCameraActivity.class);
-//				startActivity(intent);
-//            	sendCommand("c");
+            	startActivity(new Intent().setClass(mContext, CameraRecvActivity.class));
+				mServCont.sendCmd(mWifiUtils.getDestAddr(), 
+						SysConfig.UDP_BIND_PORT, ConstDef.CMD_CAMOPEN_SYN);
+				Log.i(TAG, "layout_camera");
                 break;
 				
 			case R.id.bar_delete:

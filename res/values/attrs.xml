@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- for camera -->
+   <declare-styleable name="FocusImageView">
+        <attr name="focus_focusing_id" format="integer" />
+        <attr name="focus_success_id" format="integer" />
+        <attr name="focus_fail_id" format="integer" />
+    </declare-styleable>
+    <declare-styleable name="startTakePhotoView">
+        <attr name="src" format="reference" />
+    </declare-styleable>
     
     <!-- indicator -->
     <!-- 设置显示器颜色 -->

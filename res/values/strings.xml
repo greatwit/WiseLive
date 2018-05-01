@@ -8,14 +8,11 @@
     <string name="add_operator">操作</string>
     <string name="create_hostspot">创建 HOT</string>
     <string name="close_hostspot">关闭 HOT</string>
-    
     <string name="search">搜索WIFI</string>
-
     <string name="qr">二维码</string>
     <string name="goback">返回</string>
     <string name="touch">触碰</string>
     <string name="camera">相机</string>
-    
     <string name="backCamera">toB</string>
     <string name="frontCamera">toF</string>
     <string name="startCall">StartCall</string>
@@ -25,4 +22,12 @@
     <string name="enableAudio">Audio</string>
     <string name="imagedescription">image</string>
     
+    <string name="topic_camera_flashlight_off">关闭</string>
+    <string name="topic_camera_flashlight_on">开启</string>
+    <string name="topic_camera_flashlight_auto">自动</string>
+    <string name="topic_camera_front">前镜头</string>
+    <string name="topic_camera_back">后镜头</string>
+    <string name="topic_camera_takephoto_failure">拍照竟然失败了！</string>
+    <string name="tips_camera_forbidden">相机被禁用 请修改应用权限</string>
+    <string name="tips_sdcard_notexist">SD卡不存在</string>
 </resources>

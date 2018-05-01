@@ -3,12 +3,15 @@ package com.great.happyness;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.great.happyness.camera.util.FileUtil;
+
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
-
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
 
@@ -17,27 +20,27 @@ public class WiseApplication extends Application implements
 	Application.ActivityLifecycleCallbacks{
 	public static final String TAG = WiseApplication.class.getSimpleName();
 
-	private static WiseApplication instance 	= null;
+	public static WiseApplication CONTEXT 	= null;
 
 	public static int SCREEN_WIDTH 	= -1;
 	public static int SCREEN_HEIGHT = -1;
 	public static float DIMEN_RATE 	= -1.0F;
 	public static int DIMEN_DPI 	= -1;
 
-	public synchronized static WiseApplication getInstance() {
-		return instance;
-	}
+	private Bitmap mCameraBitmap;
 
 	public static void setInstance(WiseApplication instance) {
-		WiseApplication.instance = instance;
+		WiseApplication.CONTEXT = instance;
 	}
 
 	@Override
 	public void onCreate() {
-		setInstance(this);
-		
-		getScreenSize();
 		super.onCreate();
+		
+		setInstance(this);
+		getScreenSize();
+		FileUtil.initFolder();
+		
 		this.registerActivityLifecycleCallbacks(this);
 	}
 
@@ -55,12 +58,13 @@ public class WiseApplication extends Application implements
 		DIMEN_DPI 		= dm.densityDpi;
 		SCREEN_WIDTH 	= dm.widthPixels;
 		SCREEN_HEIGHT 	= dm.heightPixels;
-		if (SCREEN_WIDTH > SCREEN_HEIGHT) 
-		{
+		if (SCREEN_WIDTH > SCREEN_HEIGHT) {
 			int t = SCREEN_HEIGHT;
 			SCREEN_HEIGHT = SCREEN_WIDTH;
 			SCREEN_WIDTH = t;
 		}
+		Log.e(TAG, "dimen_rate:"+DIMEN_RATE+" dimen_dpi:"+DIMEN_DPI
+				+" screen_w:"+SCREEN_WIDTH + "screen_h:"+SCREEN_HEIGHT);
 	}
     
 	private List<Activity> mList = new LinkedList<Activity>();
@@ -103,7 +107,26 @@ public class WiseApplication extends Application implements
 		}
 	}
 
+    public Bitmap getCameraBitmap() {
+        return mCameraBitmap;
+    }
 
+    public void setCameraBitmap(Bitmap mCameraBitmap) {
+        if (mCameraBitmap != null) {
+            recycleCameraBitmap();
+        }
+        this.mCameraBitmap = mCameraBitmap;
+    }
+
+    public void recycleCameraBitmap() {
+        if (mCameraBitmap != null) {
+            if (!mCameraBitmap.isRecycled()) {
+                mCameraBitmap.recycle();
+            }
+            mCameraBitmap = null;
+        }
+    }
+	
 	@Override
 	public void onTerminate() {
 		super.onTerminate();
