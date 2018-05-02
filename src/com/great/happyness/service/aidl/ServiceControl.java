@@ -1,7 +1,7 @@
 package com.great.happyness.service.aidl;
 
-import com.great.happyness.protrans.message.CommandMessage;
-import com.great.happyness.protrans.message.MessagesEntity;
+import com.great.happyness.protrans.message.MsgCommand;
+import com.great.happyness.protrans.message.EntityMessages;
 import com.great.happyness.service.ProtransService;
 
 import android.app.Service;
@@ -132,7 +132,7 @@ public class ServiceControl implements ServiceConnection
 		int bResult = -1;
 		try {
 			if(mActivityReq!=null){
-		        CommandMessage comm = MessagesEntity.getInst().getCommandMessage();
+		        MsgCommand comm = EntityMessages.getInst().getMsgCommand();
 		        String msg = comm.encodeData(cmd);
 				bResult = mActivityReq.sendData(addr, port, msg);
 			}

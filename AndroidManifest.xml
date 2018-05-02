@@ -39,16 +39,50 @@
             	  android:screenOrientation="portrait"
             	  />
         
-        <activity android:name=".CameraActivity" 
-            	  android:configChanges="keyboardHidden|orientation|screenSize"
-            	  android:screenOrientation="portrait"
-            	  />
+        <activity android:name=".CameraSendActivity" 
+			   	  android:configChanges="keyboardHidden|orientation|screenSize"
+			   	  android:screenOrientation="portrait"
+			   	  />
         
         <activity android:name=".CameraRecvActivity" 
 		    	  android:configChanges="keyboardHidden|orientation|screenSize"
 		    	  android:screenOrientation="portrait"
 		    	  />
         
+        <activity android:name=".CaptureCameraActivity"
+            	  android:configChanges="keyboardHidden|orientation|screenSize"
+            	  android:screenOrientation="portrait"
+	                android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
+	                android:clearTaskOnLaunch="true"
+	                android:taskAffinity="android.task.camera"
+	                >
+		            <intent-filter>
+		                <action android:name="android.media.action.VIDEO_CAMERA" />
+		                <category android:name="android.intent.category.DEFAULT" />
+		            </intent-filter>
+		            <intent-filter>
+		                <action android:name="android.media.action.VIDEO_CAPTURE" />
+		                <category android:name="android.intent.category.DEFAULT" />
+		            </intent-filter>
+            	  </activity>
+            	  
+         <activity android:name=".VideoCameraActivity"
+                android:configChanges="orientation|keyboardHidden"
+                android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
+                android:screenOrientation="landscape"
+                android:clearTaskOnLaunch="true"
+                android:taskAffinity="android.task.camera">
+            <intent-filter>
+                <action android:name="android.media.action.IMAGE_CAPTURE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.media.action.STILL_IMAGE_CAMERA" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        
+
         
         <service 
 	        android:name="com.great.happyness.service.ProtransService"

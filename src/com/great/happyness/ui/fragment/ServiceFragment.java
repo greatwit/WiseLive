@@ -7,8 +7,8 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import com.great.happyness.R;
-import com.great.happyness.CameraActivity;
 import com.great.happyness.CameraRecvActivity;
+import com.great.happyness.CaptureCameraActivity;
 import com.great.happyness.ConnectWifiActivity;
 import com.great.happyness.CreateWifiActivity;
 import com.great.happyness.evenbus.event.CmdEvent;
@@ -114,7 +114,7 @@ public class ServiceFragment extends Fragment
 		        	break;
 		        	
 		        case ConstDef.CMD_CAMOPEN_SYN:
-		        	startActivity(new Intent().setClass(mContext, CameraActivity.class));
+		        	startActivity(new Intent().setClass(mContext, CaptureCameraActivity.class));
 		        	mServCont.sendCmd(mWifiUtils.getDestAddr(), 
 		        			SysConfig.UDP_BIND_PORT, ConstDef.CMD_CAMOPEN_ACK);
 		        	break;
@@ -260,7 +260,7 @@ public class ServiceFragment extends Fragment
 				break;
 			
 			case R.id.item_camera_ll: //打开单机照相机
-				intent = new Intent().setClass(mContext, CameraActivity.class);
+				intent = new Intent().setClass(mContext, CameraRecvActivity.class);
 				startActivity(intent);
 				break;
 				

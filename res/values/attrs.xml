@@ -398,7 +398,7 @@
     </declare-styleable>
     
     
-        <!-- camera video -->
+    <!-- camera corder -->
     <declare-styleable name="CameraPreference">
         <attr name="title" format="string" />
     </declare-styleable>
@@ -416,4 +416,5 @@
         <attr name="icons" />
         <attr name="largeIcons" format="reference" />
     </declare-styleable>
+    
 </resources>

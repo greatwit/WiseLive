@@ -18,9 +18,10 @@ import android.widget.Toast;
 import com.great.happyness.service.aidl.IActivityReq;
 import com.great.happyness.service.aidl.IServiceListen;
 import com.great.happyness.evenbus.event.CmdEvent;
-import com.great.happyness.protrans.message.CommandMessage;
+import com.great.happyness.evenbus.event.DataEvent;
+import com.great.happyness.protrans.message.MsgCommand;
 import com.great.happyness.protrans.message.ConstDef;
-import com.great.happyness.protrans.message.MessagesEntity;
+import com.great.happyness.protrans.message.EntityMessages;
 import com.great.happyness.service.aidl.IBindListen;
 import com.great.happyness.service.aidl.ServiceControl;
 import com.great.happyness.ui.fragment.CommonTabLayout;
@@ -56,7 +57,7 @@ public class WiseMainActivity extends FragmentActivity
 	private ServiceControl mServCont = ServiceControl.getInstance();
     private boolean mServiceRegisted = false;
     
-    private MessagesEntity mEntityMsg = new MessagesEntity();
+    private EntityMessages mEntityMsg = new EntityMessages();
     
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -113,13 +114,16 @@ public class WiseMainActivity extends FragmentActivity
 			mEntityMsg.inflateData(str);
 			Log.i(TAG, "action:"+action + " data:"+str);
 			
-			switch(mEntityMsg.getType())
-			{
+			switch(mEntityMsg.getType()) {
 				case ConstDef.TYPE_CMD:
-			        CommandMessage comm = mEntityMsg.getCommandMessage();
-			        comm.decodeData(mEntityMsg.getData());
-					EventBus.getDefault().post(new CmdEvent(comm.getCmd()));
-					Log.w(TAG, "CmdEvent:"+comm.getCmd());
+					EventBus.getDefault().post(new CmdEvent(mEntityMsg.getCmd()));
+					Log.w(TAG, "CmdEvent:" + mEntityMsg.getCmd());
+					break;
+					
+				case ConstDef.TYPE_DATA:
+					EventBus.getDefault().post(new DataEvent(
+							mEntityMsg.getCmd(), mEntityMsg.getData()));
+					Log.w(TAG, "DataEvent:"+mEntityMsg.getCmd());
 					break;
 			}
 		}

@@ -17,16 +17,25 @@ import org.webrtc.videoengine.ViERenderer;
 import org.webrtc.webrtcdemo.MediaEngineObserver;
 import org.webrtc.webrtcdemo.VideoEngine;
 
+import com.great.happyness.camera.FocusImageView;
 import com.great.happyness.evenbus.event.CmdEvent;
 import com.great.happyness.protrans.message.ConstDef;
+import com.great.happyness.protrans.message.EntityMessages;
+import com.great.happyness.protrans.message.MsgFocus;
+import com.great.happyness.protrans.message.MsgZoom;
 import com.great.happyness.service.aidl.ServiceControl;
 import com.great.happyness.utils.SysConfig;
 import com.great.happyness.wifi.WifiUtils;
 
 import android.app.Activity;
+import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -48,10 +57,23 @@ public class CameraRecvActivity extends Activity
   
   private TextView mtvFlashLight, mtvCameraDireation;
   private ImageView mibRecentPic, mibTakephoto, mibExit;
+  private FocusImageView mFocusImageView;
+  private static final int MODE_INIT = 0;//记录是拖拉照片模式还是放大缩小照片模式
+  private static final int MODE_ZOOM = 1;//放大缩小照片模式
+  private int mode = MODE_INIT;// 初始状态
+  private float startDis;
+
+  private boolean mSmoothZoomSupported = false;
+  private int mZoomValue = 0;  // The current zoom value.
+  private int mZoomMax = 60;
   
-  static public VideoEngine mVideoEngine;
+  private final Handler mHandler = new MainHandler();
+  
+  private VideoEngine mVideoEngine;
+  private String mDestAddr	= "";
   private boolean mbHasFinished = false;
   
+  ServiceControl mServCont 	= ServiceControl.getInstance();
   @Override
   protected void onCreate(Bundle savedInstanceState) 
   {
@@ -67,6 +89,8 @@ public class CameraRecvActivity extends Activity
 	    
 	    mVideoEngine = new VideoEngine(this);
 	    mVideoEngine.initEngine();
+	    WifiUtils wifiUtils = new WifiUtils(this);
+	    mDestAddr = wifiUtils.getDestAddr();
 	    
 	    toggleStart();
 	    EventBus.getDefault().register(this);
@@ -90,6 +114,7 @@ public class CameraRecvActivity extends Activity
       mibTakephoto.setOnClickListener(this);
       mibExit.setOnClickListener(this);
       
+      mFocusImageView = (FocusImageView) findViewById(R.id.focusImageView);
       
 	  mtvFlashLight.setText("闪光");
 	
@@ -103,15 +128,102 @@ public class CameraRecvActivity extends Activity
 	  mtvCameraDireation.setText("前置");
   }
   
+  private class MainHandler extends Handler {
+      @Override
+      public void handleMessage(Message msg) {
+      }
+  }
+  
+  public void onCameraFocus(final Point point, boolean needDelay) {
+      long delayDuration = needDelay ? 300 : 0;
+
+      mHandler.postDelayed(new Runnable() {
+          @Override
+          public void run() {
+                      mFocusImageView.startFocus(point);
+          }
+      }, delayDuration);
+  }
+  
+  @Override
+  public boolean onTouchEvent(MotionEvent event) {
+/** 通过与运算保留最后八位 MotionEvent.ACTION_MASK = 255 */
+      switch (event.getAction() & MotionEvent.ACTION_MASK) {
+      // 手指压下屏幕
+      case MotionEvent.ACTION_DOWN:
+          mode = MODE_INIT;
+          break;
+          
+      case MotionEvent.ACTION_POINTER_DOWN:
+          //如果mZoomSeekBar为null 表示该设备不支持缩放 直接跳过设置mode Move指令也无法执行
+          mode = MODE_ZOOM;
+          /** 计算两个手指间的距离 */
+          startDis = spacing(event);
+          break;
+          
+      case MotionEvent.ACTION_MOVE:
+          if (mode == MODE_ZOOM) {
+              //只有同时触屏两个点的时候才执行
+              if (event.getPointerCount() < 2) return true;
+              float endDis = spacing(event);// 结束距离
+              //每变化10f zoom变1
+              int scale = (int) ((endDis - startDis) / 10f);
+              if (scale >= 1 || scale <= -1) {
+                  int zoom = mZoomValue + scale;
+                  //zoom不能超出范围
+                  if (zoom > mZoomMax) zoom = mZoomValue;
+                  if (zoom < 0) zoom = 0;
+                  mZoomValue = zoom;
+                  
+                  Log.e(TAG, "zoom value:"+mZoomValue);
+	  		      MsgZoom msgzoom = EntityMessages.getInst().getMsgZoom();
+	  		      String msg = msgzoom.encodeData(ConstDef.CMD_CAMZOOM_SYN, mZoomValue);
+	  	          mServCont.sendData(mDestAddr, SysConfig.UDP_BIND_PORT, msg);
+                  //将最后一次的距离设为当前距离
+                  startDis = endDis;
+              }
+          }
+          break;
+	        // 手指离开屏幕
+	  case MotionEvent.ACTION_UP:
+      	  if (mode != MODE_ZOOM) {
+	            //设置聚焦
+	            Point point = new Point((int) event.getX(), (int) event.getY());
+	            Log.w(TAG, "onTouchEvent x:"+point.x + " y:"+point.y);
+	            onCameraFocus(point, false);
+	            
+		        MsgFocus focus = EntityMessages.getInst().getMsgFocus();
+		        String msg = focus.encodeData(ConstDef.CMD_CAMFOCUS_SYN, point.x, point.y);
+	            mServCont.sendData(mDestAddr, SysConfig.UDP_BIND_PORT, msg);
+      	  }
+          break;
+      }
+      return true;
+  }
+  
+  //两点的距离
+  private float spacing(MotionEvent event) {
+      if (event == null) {
+          return 0;
+      }
+      float x = event.getX(0) - event.getX(1);
+      float y = event.getY(0) - event.getY(1);
+      return (float)Math.sqrt(x * x + y * y);
+  }
+  
   @Override
   public void onClick(View v) {
   	// TODO Auto-generated method stub
+	  
       switch (v.getId()) {
       case R.id.ib_takephoto:
-		  WifiUtils wifiUtils = new WifiUtils(this);
-		  ServiceControl servCont = ServiceControl.getInstance();
-		  servCont.sendCmd(wifiUtils.getDestAddr(), 
+    	  mServCont.sendCmd(mDestAddr, 
     			SysConfig.UDP_BIND_PORT, ConstDef.CMD_TAKEPIC_SYN);
+    	  break;
+    	  
+      case R.id.tv_camera_direction:
+    	  mServCont.sendCmd(mDestAddr, 
+	    		SysConfig.UDP_BIND_PORT, ConstDef.CMD_CAMDIREC_SYN);
     	  break;
     	  
       case R.id.ib_exit:
@@ -124,15 +236,33 @@ public class CameraRecvActivity extends Activity
   public void onEventMainThread(CmdEvent event) {
       if (event != null) {
           Log.i(TAG, "onEventMainThread:"+event.getCmd()+" "+Thread.currentThread().getName());
-          if(event.getCmd() == ConstDef.CMD_CAMEXIT_SYN) {
-        	  	mbHasFinished = true;
-          		finish();
+          switch(event.getCmd()) {
+	          case ConstDef.CMD_CAMEXIT_SYN:
+	      	  	mbHasFinished = true;
+	        		finish();
+	        	  break;
+        	  
+	          case ConstDef.CMD_CAMFOCUS_ACK:
+	        	  mFocusImageView.onFocusSuccess();
+	        	  break;
           }
       } else {
           System.out.println("event:"+event);
       }
   }
-
+  
+  @Override    
+  public boolean onKeyDown(int keyCode, KeyEvent event) {    
+      if ((keyCode == KeyEvent.KEYCODE_BACK)) {    
+           System.out.println("back_key  onKeyDown()");
+           finish();
+           return false;    
+      }else {    
+          return super.onKeyDown(keyCode, event);    
+      }    
+  }
+  
+  
   private void removeViews() {
 	    remoteSurfaceView = ViERenderer.CreateRenderer(this, true);
 	    if (remoteSurfaceView != null) {
@@ -156,16 +286,14 @@ public class CameraRecvActivity extends Activity
     }
     //btStartStopCall.setBackgroundResource(mVideoEngine.isRecvRunning() ? R.drawable.record_stop : R.drawable.record_start);
   }
-
   
   @Override
   public void onDestroy() {
-	  if(mbHasFinished==false) {
-		  WifiUtils wifiUtils = new WifiUtils(this);
-		  ServiceControl servCont = ServiceControl.getInstance();
-		  servCont.sendCmd(wifiUtils.getDestAddr(), 
-    			SysConfig.UDP_BIND_PORT, ConstDef.CMD_CAMEXIT_SYN);
-	  }
+	    if(mbHasFinished==false) {
+		  mServCont.sendCmd(mDestAddr, 
+				  SysConfig.UDP_BIND_PORT, ConstDef.CMD_CAMEXIT_SYN);
+	    }
+	  
 	    if (mVideoEngine.isRecvRunning()){
 	    	mVideoEngine.stopRecv();
 	    }

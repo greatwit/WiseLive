@@ -5,7 +5,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import com.great.happyness.evenbus.event.MessageEvent;
+import com.great.happyness.evenbus.event.DataEvent;
 
 
 /**
@@ -28,22 +28,22 @@ public class EventThread extends Thread{
     }
 
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
-    public void  onEventBackgroundThread(MessageEvent event){
+    public void  onEventBackgroundThread(DataEvent event){
         System.out.println("onEventBackgroundThread::"+" "+Thread.currentThread().getName());
     }
 
     @Subscribe(threadMode = ThreadMode.ASYNC)
-    public void onEventAsync(MessageEvent event){
+    public void onEventAsync(DataEvent event){
         System.out.println("onEventAsync::"+" "+Thread.currentThread().getName());
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEventMain(MessageEvent event){
+    public void onEventMain(DataEvent event){
         System.out.println("onEventMain::"+" "+Thread.currentThread().getName());
     }
 
     @Subscribe(threadMode = ThreadMode.POSTING)
-    public void onEventPosting(MessageEvent event){
+    public void onEventPosting(DataEvent event){
         System.out.println("onEventPosting::"+" "+Thread.currentThread().getName());
     }
 

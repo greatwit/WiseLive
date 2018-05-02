@@ -1,6 +1,7 @@
 package com.great.happyness.camera;
 
 import android.app.Activity;
+import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -9,15 +10,13 @@ import android.util.Log;
 
 import java.util.Calendar;
 
-import com.great.happyness.WiseApplication;
-
 /**
  * 加速度控制器  用来控制对焦
  *
  * @author 
  * @date 2015-09-25
  */
-public class SensorControler implements IActivityLifiCycle, SensorEventListener {
+public class SensorControler implements SensorEventListener {
     public static final String TAG = "SensorControler";
     private SensorManager mSensorManager;
     private Sensor mSensor;
@@ -39,27 +38,18 @@ public class SensorControler implements IActivityLifiCycle, SensorEventListener 
 
     private CameraFocusListener mCameraFocusListener;
 
-    private static SensorControler mInstance;
-
     private int foucsing = 1;  //1 表示没有被锁定 0表示被锁定
 
-    private SensorControler() {
-        mSensorManager = (SensorManager) WiseApplication.CONTEXT.getSystemService(Activity.SENSOR_SERVICE);
+    public SensorControler(Context cont) {
+        mSensorManager = (SensorManager) cont.getSystemService(Activity.SENSOR_SERVICE);
         mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);// TYPE_GRAVITY
-    }
-
-    public static SensorControler getInstance() {
-        if (mInstance == null) {
-            mInstance = new SensorControler();
-        }
-        return mInstance;
     }
 
     public void setCameraFocusListener(CameraFocusListener mCameraFocusListener) {
         this.mCameraFocusListener = mCameraFocusListener;
     }
 
-    @Override
+    
     public void onStart() {
         restParams();
         canFocus = true;
@@ -67,7 +57,7 @@ public class SensorControler implements IActivityLifiCycle, SensorEventListener 
                 SensorManager.SENSOR_DELAY_NORMAL);
     }
 
-    @Override
+    
     public void onStop() {
         mSensorManager.unregisterListener(this, mSensor);
         canFocus = false;

@@ -3,7 +3,6 @@ package com.great.happyness;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.great.happyness.camera.util.FileUtil;
 
 import android.app.Activity;
 import android.app.Application;
@@ -39,7 +38,6 @@ public class WiseApplication extends Application implements
 		
 		setInstance(this);
 		getScreenSize();
-		FileUtil.initFolder();
 		
 		this.registerActivityLifecycleCallbacks(this);
 	}
