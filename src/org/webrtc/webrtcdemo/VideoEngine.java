@@ -142,6 +142,10 @@ public class VideoEngine {
 	  }
   }
   
+  public int setCaptureRotate(int degree) {
+	  return setRotateCapturedFrames(currentCameraHandle, degree);
+  }
+  
   public void stopSend()
   {
 	  if(mSendRunning)

@@ -260,4 +260,13 @@
         <item>party</item>
         <item>candlelight</item>
     </string-array>
+    
+    <!-- files transfer -->
+        <string-array name="titles">
+        <item>应用</item>
+        <item>图片</item>
+        <item>音乐</item>
+        <item>视频</item>
+    </string-array>
+    
 </resources>

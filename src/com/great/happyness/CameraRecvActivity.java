@@ -16,6 +16,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.webrtc.videoengine.ViERenderer;
 import org.webrtc.webrtcdemo.MediaEngineObserver;
 import org.webrtc.webrtcdemo.VideoEngine;
+import org.webrtc.webrtcdemo.VoiceEngine;
 
 import com.great.happyness.camera.FocusImageView;
 import com.great.happyness.evenbus.event.CmdEvent;
@@ -70,8 +71,11 @@ public class CameraRecvActivity extends Activity
   private final Handler mHandler = new MainHandler();
   
   private VideoEngine mVideoEngine;
-  private String mDestAddr	= "";
-  private boolean mbHasFinished = false;
+  private VoiceEngine mVoiceEngine;
+  
+  private boolean mbHasVoice	  	= false;
+  private String mDestAddr			= "";
+  private boolean mbHasFinished 	= false;
   
   ServiceControl mServCont 	= ServiceControl.getInstance();
   @Override
@@ -87,8 +91,18 @@ public class CameraRecvActivity extends Activity
 	    setContentView(R.layout.activity_camera_recv);
 	    initView();
 	    
-	    mVideoEngine = new VideoEngine(this);
-	    mVideoEngine.initEngine();
+        int temp = SysConfig.getSavePlay(this);
+      	if((temp&0x4) != 0)
+      		 mbHasVoice = true;
+        
+        mVideoEngine = new VideoEngine(this);
+        mVideoEngine.initEngine();
+        
+        if(mbHasVoice){
+	        mVoiceEngine = new VoiceEngine(this);
+	        mVoiceEngine.initEngine();
+        }
+	    
 	    WifiUtils wifiUtils = new WifiUtils(this);
 	    mDestAddr = wifiUtils.getDestAddr();
 	    
@@ -284,6 +298,15 @@ public class CameraRecvActivity extends Activity
     } else {
     	mVideoEngine.startRecv(remoteSurfaceView, 11111, true, SysConfig.getSaveResolution(this));
     }
+    
+	if(mbHasVoice){
+	    if(mVoiceEngine.isVoiceRunning()){
+	    	mVoiceEngine.stopVoice();
+	    	mVoiceEngine.deInitEngine();
+	    }else{
+	    	mVoiceEngine.startVoice(mDestAddr, 11113, 11113);
+	    }
+	}
     //btStartStopCall.setBackgroundResource(mVideoEngine.isRecvRunning() ? R.drawable.record_stop : R.drawable.record_start);
   }
   
@@ -300,6 +323,16 @@ public class CameraRecvActivity extends Activity
 	    removeViews();
 	    remoteSurfaceView = null;
 	    mVideoEngine.deInitEngine();
+	    
+		if(mbHasVoice){
+		    if(mVoiceEngine.isVoiceRunning()){
+		    	mVoiceEngine.stopVoice();
+		    	mVoiceEngine.deInitEngine();
+		    }else{
+		    	String mDestip =  new WifiUtils(this).getDestAddr();
+		    	mVoiceEngine.startVoice(mDestip, 11113, 11113);
+		    }
+		}
 	    
 	    EventBus.getDefault().unregister(this);
 	    

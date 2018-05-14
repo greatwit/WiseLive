@@ -36,8 +36,8 @@ public class CameraSendActivity extends Activity implements PreviewCallback
   
   private VideoCaptureShow mVideoCapture;
   
-  static public VideoEngine mVideoEngine;
-  static public VoiceEngine mVoiceEngine;
+  public VideoEngine mVideoEngine;
+  public VoiceEngine mVoiceEngine;
   
   @Override
   protected void onCreate(Bundle savedInstanceState) {

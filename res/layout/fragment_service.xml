@@ -7,6 +7,12 @@
     android:orientation="vertical"
     >
 
+        <com.great.happyness.ui.bannerView.BannerViewPager
+        android:id="@+id/banner"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+    	/>
+    
     <LinearLayout
     android:id="@+id/wifi_state_ll"
     android:layout_width="fill_parent"
@@ -70,8 +76,8 @@
         android:layout_weight="0.5"
         android:gravity="center"
         android:orientation="horizontal"
-        android:paddingBottom="50dp"
-        android:paddingTop="40dp" >
+        android:paddingBottom="0dp"
+        android:paddingTop="0dp" >
     
         <LinearLayout
             android:id="@+id/item_create_ll"

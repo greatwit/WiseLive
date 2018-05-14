@@ -1,8 +1,13 @@
 package com.great.happyness;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
+import com.great.happyness.tranfiles.core.FileInfo;
 
 import android.app.Activity;
 import android.app.Application;
@@ -27,7 +32,14 @@ public class WiseApplication extends Application implements
 	public static int DIMEN_DPI 	= -1;
 
 	private Bitmap mCameraBitmap;
+	private List<Activity> mList = new LinkedList<Activity>();
+	
+    //文件操作
+    Map<String, FileInfo> mFileInfoMap = new HashMap<String, FileInfo>(); //采用HashMap结构，文件地址--->>>FileInfo 映射结构，重复加入FileInfo
+    Map<String, FileInfo> mReceiverFileInfoMap = new HashMap<String, FileInfo>();
+    public static Executor MAIN_EXECUTOR = Executors.newFixedThreadPool(5);//线程池
 
+    
 	public static void setInstance(WiseApplication instance) {
 		WiseApplication.CONTEXT = instance;
 	}
@@ -42,6 +54,9 @@ public class WiseApplication extends Application implements
 		this.registerActivityLifecycleCallbacks(this);
 	}
 
+    public static WiseApplication getAppContext(){
+        return CONTEXT;
+    }
 	
 	/**
 	 * 初始化屏幕宽高
@@ -65,8 +80,42 @@ public class WiseApplication extends Application implements
 				+" screen_w:"+SCREEN_WIDTH + "screen_h:"+SCREEN_HEIGHT);
 	}
     
-	private List<Activity> mList = new LinkedList<Activity>();
+    public boolean isExist(FileInfo fileInfo){
+        if(mFileInfoMap == null) return false;
+        return mFileInfoMap.containsKey(fileInfo.getFilePath());
+    }
+	
+    /**
+     * 获取全局变量中的FileInfoMap
+     * @return
+     */
+    public Map<String, FileInfo> getFileInfoMap(){
+        return mFileInfoMap;
+    }
+    
+    /**
+     * 获取全局变量中的FileInfoMap
+     * @return
+     */
+    public Map<String, FileInfo> getReceiverFileInfoMap(){
+        return mReceiverFileInfoMap;
+    }
+    
+    //发送方
+    public void addFileInfo(FileInfo fileInfo){
+        if(!mFileInfoMap.containsKey(fileInfo.getFilePath())){
+            mFileInfoMap.put(fileInfo.getFilePath(), fileInfo);
+        }
+    }
 
+    public void delFileInfo(FileInfo fileInfo){
+        if(mFileInfoMap.containsKey(fileInfo.getFilePath())){
+            mFileInfoMap.remove(fileInfo.getFilePath());
+        }
+    }
+    
+    
+    
 	/**
 	 * add Activity
 	 * 
@@ -125,6 +174,15 @@ public class WiseApplication extends Application implements
         }
     }
 	
+    
+    
+    
+    
+    
+    
+    
+    
+    
 	@Override
 	public void onTerminate() {
 		super.onTerminate();

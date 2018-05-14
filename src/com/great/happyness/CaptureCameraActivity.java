@@ -101,6 +101,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.webrtc.webrtcdemo.VideoEngine;
+import org.webrtc.webrtcdemo.VoiceEngine;
 
 /** The Camera activity which can preview and take pictures. */
 @SuppressWarnings("deprecation")
@@ -109,7 +110,7 @@ public class CaptureCameraActivity extends NoSearchActivity
 		implements View.OnClickListener, ShutterButton.OnShutterButtonListener, 
 		SurfaceHolder.Callback, PreviewCallback
 {
-    private static final String TAG = "camera";
+    private static final String TAG = "CaptureCameraActivity";
 
     private static final int CROP_MSG 			= 1;
     private static final int FIRST_TIME_INIT 	= 2;
@@ -202,7 +203,10 @@ public class CaptureCameraActivity extends NoSearchActivity
     private boolean mIsImageCaptureIntent;
     private boolean mRecordLocation;
 
-    static public VideoEngine mVideoEngine;
+    private VideoEngine mVideoEngine;
+    private VoiceEngine mVoiceEngine;
+    
+    private boolean mbHasVoice	  = false;
     private boolean mbHasFinished = false;
 
     private ContentResolver mContentResolver;
@@ -830,8 +834,18 @@ public class CaptureCameraActivity extends NoSearchActivity
 
         mNumberOfCameras = CameraHolder.instance().getNumberOfCameras();
 
+        int temp = SysConfig.getSavePlay(this);
+      	if((temp&0x4) != 0)
+      		 mbHasVoice = true;
+        
         mVideoEngine = new VideoEngine(this);
         mVideoEngine.initEngine();
+        
+        if(mbHasVoice) {
+	        mVoiceEngine = new VoiceEngine(this);
+	        mVoiceEngine.initEngine();
+	        Log.w(TAG, "VoiceEngine init.");
+        }
         
         // we need to reset exposure for the preview
         resetExposureCompensation();
@@ -843,9 +857,17 @@ public class CaptureCameraActivity extends NoSearchActivity
             public void run() {
                 try {
                     mStartPreviewFail = false;
-              		String mDestip =  new WifiUtils(WiseApplication.CONTEXT).getDestAddr();
+                    Context cont = WiseApplication.CONTEXT;
+              		String mDestip =  new WifiUtils(cont).getDestAddr();
               		Log.w(TAG, "get destip:" + mDestip );
-                    mVideoEngine.startSend(mDestip, 11111, true, 3, 1);
+              		
+              		int index = SysConfig.getSaveResolution(cont);
+                    mVideoEngine.startSend(mDestip, 11111, true, index, 1);
+                    if(mbHasVoice){
+                  		 mVoiceEngine.startVoice(mDestip, 11113, 11113);
+                  		 Log.w(TAG, "VoiceEngine startVoice.");
+                    }
+                    
                     startPreview();
                 } catch (CameraHardwareException e) {
                     // In eng build, we throw the exception so that test tool
@@ -1233,10 +1255,19 @@ public class CaptureCameraActivity extends NoSearchActivity
         			SysConfig.UDP_BIND_PORT, ConstDef.CMD_CAMEXIT_SYN);
     	  }
     	
+    	
   	    if (mVideoEngine.isSendRunning()){
   	    	mVideoEngine.stopSend();
   	    }
   	    mVideoEngine.deInitEngine();
+    	
+  	    
+  	    if(mbHasVoice){
+		    if(mVoiceEngine.isVoiceRunning()){
+		    	mVoiceEngine.stopVoice();
+		    }
+		    mVoiceEngine.deInitEngine();
+    	}
   	    
   	    EventBus.getDefault().unregister(this);
   	    
@@ -1694,7 +1725,13 @@ public class CaptureCameraActivity extends NoSearchActivity
 
     private void startPreview() throws CameraHardwareException {
         if (mPausing || isFinishing()) return;
-
+        int degree = 0;
+        switch(mCameraId) {
+        	case Camera.CameraInfo.CAMERA_FACING_FRONT:degree=270;break;
+        	case Camera.CameraInfo.CAMERA_FACING_BACK:degree=90;break;
+        }
+        mVideoEngine.setCaptureRotate(degree);
+        
         ensureCameraDevice();
 
         // If we're previewing already, stop the preview first (this will blank
@@ -1825,7 +1862,10 @@ public class CaptureCameraActivity extends NoSearchActivity
         if (optimalSize != null) {
             Size original = mParameters.getPreviewSize();
             if (!original.equals(optimalSize)) {
-                mParameters.setPreviewSize(640, 480);
+            	int resolutionIndex = SysConfig.getSaveResolution(this);
+      	      	int w = VideoEngine.RESOLUTIONS[resolutionIndex][0];
+      	      	int h = VideoEngine.RESOLUTIONS[resolutionIndex][1];
+                mParameters.setPreviewSize(w, h);
                 Log.e(TAG, "setPreviewSize width:"+optimalSize.width
                 		+ " height:"+optimalSize.height);
 

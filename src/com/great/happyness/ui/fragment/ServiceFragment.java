@@ -2,6 +2,8 @@ package com.great.happyness.ui.fragment;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -14,6 +16,9 @@ import com.great.happyness.CreateWifiActivity;
 import com.great.happyness.evenbus.event.CmdEvent;
 import com.great.happyness.protrans.message.ConstDef;
 import com.great.happyness.service.aidl.ServiceControl;
+import com.great.happyness.ui.bannerView.BannerViewPager;
+import com.great.happyness.ui.bannerView.OnPageClickListener;
+import com.great.happyness.ui.bannerView.ViewPagerAdapter;
 import com.great.happyness.ui.popwin.CameraPopwin;
 import com.great.happyness.utils.SysConfig;
 import com.great.happyness.wifi.WifiUtils;
@@ -46,7 +51,7 @@ import android.widget.TextView;
  */
 @SuppressWarnings("deprecation")
 public class ServiceFragment extends Fragment
-		implements OnClickListener
+		implements OnClickListener, OnPageClickListener
 {
 	private Context mContext;
 	private final String TAG = ServiceFragment.class.getSimpleName();
@@ -56,6 +61,8 @@ public class ServiceFragment extends Fragment
 	
 	private ImageView bar_recv, bar_send, bar_delete;
 	private TextView  bar_status;
+	private BannerViewPager bannerViewPager;
+	private ViewPagerAdapter mAdapter;
 	
 	private WifiUtils mWifiUtils;
 	private CameraPopwin mCamPopwin  = null;
@@ -152,6 +159,21 @@ public class ServiceFragment extends Fragment
 		bar_send.setOnClickListener(this);
 		bar_delete.setOnClickListener(this);
 		
+		bannerViewPager = (BannerViewPager) view.findViewById(R.id.banner);
+        //一开始只添加5个Item
+        final List<View> mViews = new ArrayList<View>();
+        int[] images = { R.mipmap.ic_img01, R.mipmap.ic_img02, R.mipmap.ic_img03, 
+        				R.mipmap.ic_img04, R.mipmap.ic_img05 };
+        
+        for(int i=0; i<images.length; i++) {
+            final ImageView iv = (ImageView) LayoutInflater.from(mContext).inflate(R.layout.banner_item, bannerViewPager,false);
+            iv.setImageResource(images[i]);
+            mViews.add(iv);
+        }
+
+        mAdapter = new ViewPagerAdapter(mViews, this);
+        bannerViewPager.setAdapter(mAdapter);
+        
 		bar_status	= (TextView) view.findViewById(R.id.bar_status);
 	}
 
@@ -260,7 +282,7 @@ public class ServiceFragment extends Fragment
 				break;
 			
 			case R.id.item_camera_ll: //打开单机照相机
-				intent = new Intent().setClass(mContext, CameraRecvActivity.class);
+				intent = new Intent().setClass(mContext, CaptureCameraActivity.class);
 				startActivity(intent);
 				break;
 				
@@ -351,6 +373,12 @@ public class ServiceFragment extends Fragment
 //			mWifiUtils.setWifiEnabled(true);
 		
 		super.onDestroy();
+	}
+
+	@Override
+	public void onPageClick(View view, int position) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
